@@ -1,0 +1,23 @@
+---
+- name: NFS client packages
+  ansible.builtin.apt:
+    name: nfs-common
+    state: present
+
+- name: Mount point {{ nfs_mount }}
+  ansible.builtin.file:
+    path: "{{ nfs_mount }}"
+    state: directory
+    mode: "0755"
+
+- name: fstab NFS mount (NFSv4.2, no automount)
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: "{{ nfs_mount }}"
+    line: "{{ nfs_server }}:{{ nfs_export }} {{ nfs_mount }} nfs vers=4.2,proto=tcp,_netdev,nofail,x-systemd.mount-timeout=30 0 0"
+
+- name: Mount NFS
+  ansible.builtin.command: mount {{ nfs_mount }}
+  register: nfs_mount_cmd
+  changed_when: nfs_mount_cmd.rc == 0
+  failed_when: nfs_mount_cmd.rc != 0 and 'already mounted' not in (nfs_mount_cmd.stderr | default(''))

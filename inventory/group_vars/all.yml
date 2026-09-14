@@ -1,0 +1,55 @@
+---
+jarvis_lan_cidr: 192.168.8.0/24
+jarvis_gateway: 192.168.8.1
+jarvis_domain: lan
+timezone: America/Los_Angeles
+
+# Patriot P300 512GB — identified by model string, NEVER by nvme0 vs nvme1
+cluster_disk_model_regex: "P300"
+cluster_disk_label: CLUSTER
+cluster_mount: /cluster
+cluster_format_disks: true
+
+nfs_export: /cluster/nfs
+nfs_mount: /mnt/nfs
+# short name; /etc/hosts (common role) provides data-01
+nfs_server: data-01
+
+slim_remove_snaps: true
+slim_purge_desktop: true
+
+# Ubuntu 26.04 + RTX A1000 — what actually landed on gpu-01
+nvidia_utils_package: nvidia-utils-595-server
+
+packages_common:
+  - ca-certificates
+  - curl
+  - git
+  - htop
+  - jq
+  - lm-sensors
+  - nvme-cli
+  - smartmontools
+  - unzip
+  - vim
+  - wget
+  - python3-pip
+  - nfs-common
+  - chrony
+  - unattended-upgrades
+  - net-tools
+  - fdisk
+  - parted
+  - xfsprogs
+  - gdisk
+
+cluster_hosts:
+  - { ip: 192.168.8.1,  names: "router.lan flint3.lan" }
+  - { ip: 192.168.8.10, names: "bastion.lan bastion" }
+  - { ip: 192.168.8.11, names: "ctrl-01.lan ctrl-01 git.lan jarvis.lan grafana.lan llm.lan chat.lan home.lan" }
+  - { ip: 192.168.8.12, names: "gpu-01.lan gpu-01" }
+  - { ip: 192.168.8.13, names: "gpu-02.lan gpu-02" }
+  - { ip: 192.168.8.14, names: "data-01.lan data-01" }
+  - { ip: 192.168.8.15, names: "data-02.lan data-02" }
+  - { ip: 192.168.8.16, names: "apps-01.lan apps-01 agent.lan" }
+

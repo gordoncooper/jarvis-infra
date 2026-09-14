@@ -1,0 +1,44 @@
+---
+- name: NFS export tree
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ nfs_export }}"
+    - "{{ nfs_export }}/models"
+    - "{{ nfs_export }}/snapshots"
+    - "{{ nfs_export }}/share"
+
+- name: Install NFS server
+  ansible.builtin.apt:
+    name: nfs-kernel-server
+    state: present
+
+- name: /etc/exports
+  ansible.builtin.copy:
+    dest: /etc/exports
+    mode: "0644"
+    content: |
+      # JARVIS — data-01 NFS. NFSv4, no fsid=0 (clients mount the full path).
+      {{ nfs_export }} {{ jarvis_lan_cidr }}(rw,sync,no_subtree_check,no_root_squash)
+  notify: reload nfs
+
+- name: Enable and start nfs-server
+  ansible.builtin.service:
+    name: nfs-kernel-server
+    state: started
+    enabled: true
+
+- name: Exportfs apply
+  ansible.builtin.command: exportfs -ra
+  changed_when: false
+
+# Do NOT NFS-mount the export on the server (deadlock on shutdown).
+# Symlink so /mnt/nfs/snapshots works in scripts on data-01 too.
+- name: Convenience symlink /mnt/nfs -> export
+  ansible.builtin.file:
+    src: "{{ nfs_export }}"
+    dest: "{{ nfs_mount }}"
+    state: link
+    force: true

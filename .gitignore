@@ -1,0 +1,23 @@
+# secrets — never commit plaintext
+secrets/*.yaml
+!secrets/*.example.yaml
+!secrets/README.md
+*.sops.yaml.bak
+keys.txt
+*.age
+*.pem
+*-key.pem
+jarvis-tls/
+
+# runtime
+*.tar.gz
+/tmp/
+.ansible/
+*.retry
+__pycache__/
+.DS_Store
+
+# local clones
+/cluster/
+.kube/
+.env

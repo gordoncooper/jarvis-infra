@@ -1,0 +1,17 @@
+---
+- name: Phase 1 — reachability
+  hosts: cluster
+  gather_facts: false
+  become: false
+  tasks:
+    - name: Ping
+      ansible.builtin.ping:
+
+    - name: Who am I
+      ansible.builtin.shell: hostname; hostname -I
+      register: who
+      changed_when: false
+
+    - name: Show
+      ansible.builtin.debug:
+        msg: "{{ who.stdout_lines }}"

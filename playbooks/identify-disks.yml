@@ -1,0 +1,47 @@
+---
+# Dry run: print which disk WOULD be formatted. Run this BEFORE site.yml.
+- name: Identify Patriot P300 data disks
+  hosts: nvme
+  gather_facts: true
+  tasks:
+    - name: Candidates
+      ansible.builtin.set_fact:
+        cluster_disk_candidates: >-
+          {{
+            ansible_facts['devices'] | dict2items
+              | selectattr('key', 'match', '^nvme[0-9]+n[0-9]+$')
+              | selectattr('value.model', 'defined')
+              | selectattr('value.model', 'search', cluster_disk_model_regex)
+              | list
+          }}
+
+    - name: OS root
+      ansible.builtin.command: findmnt -n -o SOURCE /
+      register: root_src
+      changed_when: false
+
+    - name: Report
+      ansible.builtin.debug:
+        msg: |
+          host: {{ inventory_hostname }}
+          os_root: {{ root_src.stdout }}
+          p300_candidates:
+          {% for d in cluster_disk_candidates %}
+            - /dev/{{ d.key }}  model={{ d.value.model }}  size={{ d.value.size }}
+          {% endfor %}
+          {% if cluster_disk_candidates | length != 1 %}
+          WARNING: expected exactly 1 Patriot P300
+          {% endif %}
+
+- name: GPU nodes should have NO Patriot
+  hosts: gpu
+  gather_facts: true
+  tasks:
+    - name: Report GPU disks
+      ansible.builtin.debug:
+        msg: |
+          host: {{ inventory_hostname }}
+          disks:
+          {% for k,v in ansible_facts['devices'].items() if k is match('^nvme') %}
+            - /dev/{{ k }}  model={{ v.model | default('?') }}  size={{ v.size | default('?') }}
+          {% endfor %}

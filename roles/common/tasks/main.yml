@@ -1,0 +1,75 @@
+---
+- name: Set timezone
+  ansible.builtin.timezone:
+    name: "{{ timezone }}"
+
+- name: Ensure chrony is running
+  ansible.builtin.service:
+    name: chrony
+    state: started
+    enabled: true
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name: "{{ packages_common }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Configure unattended-upgrades (security only)
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    mode: "0644"
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+      APT::Periodic::AutocleanInterval "7";
+
+- name: Cluster /etc/hosts entries
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} JARVIS CLUSTER"
+    block: |
+      {% for h in cluster_hosts %}
+      {{ h.ip }}  {{ h.names }}
+      {% endfor %}
+
+- name: Disable swap (k3s later; 32GB RAM is enough)
+  ansible.builtin.shell: |
+    swapoff -a || true
+    if grep -qE '^[^#].*\sswap\s' /etc/fstab; then
+      sed -i.bak '/\sswap\s/s/^/#/' /etc/fstab
+      echo changed
+    fi
+  args:
+    executable: /bin/bash
+  register: swap_off
+  changed_when: "'changed' in swap_off.stdout"
+
+- name: Kernel sysctl for cluster nodes
+  ansible.builtin.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+    reload: true
+  loop:
+    - { key: vm.swappiness, value: "10" }
+    - { key: fs.inotify.max_user_watches, value: "524288" }
+    - { key: fs.inotify.max_user_instances, value: "1024" }
+
+- name: Journald drop-in directory
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    mode: "0755"
+
+- name: Cap journald so 160GB roots do not fill
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/jarvis.conf
+    mode: "0644"
+    content: |
+      [Journal]
+      SystemMaxUse=500M
+      MaxRetentionSec=14day
+  notify: restart journald

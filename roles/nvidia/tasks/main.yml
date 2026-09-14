@@ -1,0 +1,76 @@
+---
+# Ubuntu 26.04 facts we learned on gpu-01:
+#   - `ubuntu-drivers autoinstall` does not exist → `ubuntu-drivers install --gpgpu`
+#   - --gpgpu installs kernel modules + headless-no-dkms, NOT nvidia-smi
+#   - nvidia-smi is in nvidia-utils-595-server
+#   - stack: 595.71.05 server-open, CUDA 13.2
+
+- name: Kernel headers matching running kernel
+  ansible.builtin.apt:
+    name:
+      - "linux-headers-{{ ansible_facts['kernel'] }}"
+      - build-essential
+      - dkms
+      - ubuntu-drivers-common
+    state: present
+
+- name: Blacklist nouveau
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/blacklist-nouveau.conf
+    mode: "0644"
+    content: |
+      blacklist nouveau
+      options nouveau modeset=0
+
+- name: Install NVIDIA compute driver (headless / gpgpu)
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/ubuntu-drivers
+      - install
+      - --gpgpu
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  timeout: 900
+  register: nv_install
+  changed_when: nv_install.rc == 0
+
+- name: Install nvidia-smi (not pulled in by --gpgpu)
+  ansible.builtin.apt:
+    name: "{{ nvidia_utils_package }}"
+    state: present
+
+- name: Check nvidia-smi
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/nvidia-smi
+      - -L
+  register: smi
+  changed_when: false
+  failed_when: false
+
+- name: Reboot to load NVIDIA driver
+  ansible.builtin.reboot:
+    reboot_timeout: 300
+    msg: "JARVIS Phase 1 — rebooting {{ inventory_hostname }} to load NVIDIA driver"
+  when:
+    - nvidia_reboot | bool
+    - smi.rc != 0
+
+- name: Confirm nvidia-smi after reboot
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/nvidia-smi
+      - -L
+  register: smi2
+  changed_when: false
+
+- name: Enable persistence daemon
+  ansible.builtin.service:
+    name: nvidia-persistenced
+    state: started
+    enabled: true
+  failed_when: false
+
+- name: Show GPU
+  ansible.builtin.debug:
+    msg: "{{ smi2.stdout }}"

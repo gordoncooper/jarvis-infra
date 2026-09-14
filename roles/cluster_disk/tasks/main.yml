@@ -1,0 +1,118 @@
+---
+# Format the Patriot P300 512GB as /cluster.
+# Disk is selected by MODEL, not nvme0 vs nvme1 (those are swapped across nodes).
+
+- name: List Patriot P300 candidates
+  ansible.builtin.set_fact:
+    cluster_disk_candidates: >-
+      {{
+        ansible_facts['devices'] | dict2items
+          | selectattr('key', 'match', '^nvme[0-9]+n[0-9]+$')
+          | selectattr('value.model', 'defined')
+          | selectattr('value.model', 'search', cluster_disk_model_regex)
+          | map(attribute='key')
+          | list
+      }}
+
+- name: Fail if Patriot P300 was not found
+  ansible.builtin.assert:
+    that:
+      - cluster_disk_candidates | length == 1
+    fail_msg: >-
+      Expected exactly one P300 on {{ inventory_hostname }},
+      found {{ cluster_disk_candidates }}
+
+- name: Set cluster_disk
+  ansible.builtin.set_fact:
+    cluster_disk: "{{ cluster_disk_candidates[0] }}"
+
+- name: Show chosen disk
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }} will use /dev/{{ cluster_disk }} ({{ ansible_facts['devices'][cluster_disk].model }} {{ ansible_facts['devices'][cluster_disk].size }})"
+
+- name: Find OS disk backing /
+  ansible.builtin.command: findmnt -n -o SOURCE /
+  register: root_src
+  changed_when: false
+
+- name: Resolve OS parent disk name
+  ansible.builtin.command: lsblk -no PKNAME {{ root_src.stdout }}
+  register: root_pk
+  changed_when: false
+  failed_when: false
+
+- name: Assert cluster disk is not the OS disk
+  ansible.builtin.assert:
+    that:
+      - cluster_disk != (root_pk.stdout | trim)
+      - cluster_disk not in root_src.stdout
+    fail_msg: "Refusing to format OS disk (root={{ root_src.stdout }} pk={{ root_pk.stdout }}) on {{ inventory_hostname }}"
+
+- name: Check if CLUSTER label already exists
+  ansible.builtin.stat:
+    path: /dev/disk/by-label/{{ cluster_disk_label }}
+  register: cluster_label
+
+- name: Pause before first format
+  ansible.builtin.pause:
+    prompt: |
+      About to GPT + ext4 /dev/{{ cluster_disk }} on {{ inventory_hostname }}
+      model={{ ansible_facts['devices'][cluster_disk].model }} size={{ ansible_facts['devices'][cluster_disk].size }}
+      Mount will be {{ cluster_mount }}  label={{ cluster_disk_label }}
+      Ctrl+C NOW if this is wrong. Enter to continue.
+  when:
+    - cluster_format_disks | bool
+    - not cluster_label.stat.exists
+
+- name: Partition the Patriot (GPT, one ext4 partition)
+  ansible.builtin.command: >
+    parted -s /dev/{{ cluster_disk }} mklabel gpt mkpart {{ cluster_disk_label }} ext4 1MiB 100%
+  when:
+    - cluster_format_disks | bool
+    - not cluster_label.stat.exists
+  args:
+    creates: "/dev/{{ cluster_disk }}p1"
+
+- name: Wait for partition node
+  ansible.builtin.wait_for:
+    path: "/dev/{{ cluster_disk }}p1"
+    timeout: 15
+  when:
+    - cluster_format_disks | bool
+    - not cluster_label.stat.exists
+
+- name: Make ext4 filesystem
+  ansible.builtin.filesystem:
+    fstype: ext4
+    dev: "/dev/{{ cluster_disk }}p1"
+    opts: "-L {{ cluster_disk_label }} -m 1"
+    force: false
+  when: cluster_format_disks | bool
+
+- name: Mount point {{ cluster_mount }}
+  ansible.builtin.file:
+    path: "{{ cluster_mount }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure fstab has CLUSTER
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: "LABEL={{ cluster_disk_label }}"
+    line: "LABEL={{ cluster_disk_label }} {{ cluster_mount }} ext4 defaults,noatime,discard 0 2"
+
+- name: Check if already mounted
+  ansible.builtin.command: mountpoint -q {{ cluster_mount }}
+  register: mounted
+  failed_when: false
+  changed_when: false
+
+- name: Mount {{ cluster_mount }}
+  ansible.builtin.command: mount {{ cluster_mount }}
+  when: mounted.rc != 0
+
+- name: Node-local data dir
+  ansible.builtin.file:
+    path: "{{ cluster_mount }}/local"
+    state: directory
+    mode: "0755"

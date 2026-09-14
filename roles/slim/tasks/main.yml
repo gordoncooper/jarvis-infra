@@ -1,0 +1,50 @@
+---
+- name: List installed snaps
+  ansible.builtin.command: snap list
+  register: snap_list
+  changed_when: false
+  failed_when: false
+  when: slim_remove_snaps | bool
+
+- name: Remove desktop snaps (reclaim root disk)
+  ansible.builtin.command: "snap remove {{ item }}"
+  loop:
+    - firefox
+    - gnome-46-2404
+    - snap-store
+    - desktop-security-center
+    - firmware-updater
+    - prompting-client
+    - mesa-2404
+    - gtk-common-themes
+    - snapd-desktop-integration
+    - bare
+  when:
+    - slim_remove_snaps | bool
+    - snap_list.stdout is defined
+    - item in snap_list.stdout
+  register: snap_rm
+  failed_when: false
+
+- name: Purge leftover desktop metapackages
+  ansible.builtin.apt:
+    name:
+      - ubuntu-desktop
+      - ubuntu-desktop-minimal
+      - gdm3
+      - gnome-shell
+      - gnome-session
+    state: absent
+    purge: true
+    autoremove: true
+  when: slim_purge_desktop | bool
+  failed_when: false
+
+- name: Autoremove leftover apt packages
+  ansible.builtin.apt:
+    autoremove: true
+    autoclean: true
+
+- name: Confirm multi-user is the boot target
+  ansible.builtin.command: systemctl set-default multi-user.target
+  changed_when: false

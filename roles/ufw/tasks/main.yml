@@ -1,0 +1,77 @@
+---
+# Rules FIRST, then enable — never lock ourselves out of SSH.
+
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: UFW default incoming deny
+  ansible.builtin.command: ufw default deny incoming
+  register: ufw_in
+  changed_when: "'Default incoming policy changed' in ufw_in.stdout"
+
+- name: UFW default outgoing allow
+  ansible.builtin.command: ufw default allow outgoing
+  register: ufw_out
+  changed_when: "'Default outgoing policy changed' in ufw_out.stdout"
+
+- name: Allow SSH from the LAN
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 22 proto tcp"
+  register: ufw_ssh
+  changed_when: "'Skipping' not in ufw_ssh.stdout"
+
+- name: Allow OpenSSH profile as a safety net
+  ansible.builtin.command: ufw allow OpenSSH
+  register: ufw_ossh
+  changed_when: "'Skipping' not in ufw_ossh.stdout"
+
+- name: Allow NFS tcp from the LAN
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 2049 proto tcp"
+  register: ufw_nfs_t
+  changed_when: "'Skipping' not in ufw_nfs_t.stdout"
+
+- name: Allow NFS udp from the LAN
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 2049 proto udp"
+  register: ufw_nfs_u
+  changed_when: "'Skipping' not in ufw_nfs_u.stdout"
+
+- name: Allow rpcbind tcp from the LAN
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 111 proto tcp"
+  register: ufw_rpc_t
+  changed_when: "'Skipping' not in ufw_rpc_t.stdout"
+
+- name: Allow rpcbind udp from the LAN
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 111 proto udp"
+  register: ufw_rpc_u
+  changed_when: "'Skipping' not in ufw_rpc_u.stdout"
+
+- name: Allow k3s API from the LAN
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 6443 proto tcp"
+  register: ufw_k3s_api
+  changed_when: "'Skipping' not in ufw_k3s_api.stdout"
+
+- name: Allow flannel VXLAN from the LAN
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 8472 proto udp"
+  register: ufw_k3s_flannel
+  changed_when: "'Skipping' not in ufw_k3s_flannel.stdout"
+
+- name: Allow kubelet from the LAN
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 10250 proto tcp"
+  register: ufw_k3s_kubelet
+  changed_when: "'Skipping' not in ufw_k3s_kubelet.stdout"
+
+- name: Allow HTTP from the LAN (Traefik / git.lan)
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 80 proto tcp"
+  register: ufw_http
+  changed_when: "'Skipping' not in ufw_http.stdout"
+
+- name: Allow HTTPS from the LAN (Traefik later)
+  ansible.builtin.command: "ufw allow from {{ jarvis_lan_cidr }} to any port 443 proto tcp"
+  register: ufw_https
+  changed_when: "'Skipping' not in ufw_https.stdout"
+
+- name: Enable UFW
+  ansible.builtin.command: ufw --force enable
+  register: ufw_en
+  changed_when: "'enabled' in ufw_en.stdout"

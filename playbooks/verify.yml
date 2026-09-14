@@ -1,0 +1,24 @@
+---
+- name: Phase 1 verification
+  hosts: cluster
+  gather_facts: true
+  tasks:
+    - name: Collect
+      ansible.builtin.shell: |
+        echo "hostname=$(hostname)"
+        echo "target=$(systemctl get-default)"
+        echo "ip=$(ip -4 -br addr show eno1 | awk '{print $3}')"
+        echo "ufw=$(ufw status | head -1)"
+        echo "root=$(df -hT / | awk 'NR==2{print $1,$3,$6}')"
+        echo "cluster=$(findmnt -n -o SOURCE,FSTYPE,SIZE,USE% /cluster 2>/dev/null || echo not-mounted)"
+        echo "nfs=$(findmnt -n -o SOURCE,FSTYPE /mnt/nfs 2>/dev/null || echo not-mounted)"
+        echo "nvidia=$(nvidia-smi -L 2>/dev/null || echo n/a)"
+        echo "chrony=$(chronyc tracking 2>/dev/null | awk -F: '/Leap/{print $2}' | xargs || echo '?')"
+      args:
+        executable: /bin/bash
+      register: v
+      changed_when: false
+
+    - name: Report
+      ansible.builtin.debug:
+        msg: "{{ v.stdout_lines }}"

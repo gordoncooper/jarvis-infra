@@ -1,0 +1,3 @@
+---
+# Applied to the `gpu` group
+nvidia_reboot: true

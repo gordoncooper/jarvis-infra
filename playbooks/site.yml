@@ -1,0 +1,30 @@
+---
+# JARVIS Phase 1 — OS baseline. No k3s yet.
+
+- name: Common baseline
+  hosts: cluster
+  roles:
+    - common
+    - slim
+    - ufw
+
+- name: Format and mount Patriot NVMe as /cluster
+  hosts: nvme
+  serial: 1
+  roles:
+    - cluster_disk
+
+- name: NFS server on data-01
+  hosts: nfs_servers
+  roles:
+    - nfs_server
+
+- name: NFS clients
+  hosts: nfs_clients
+  roles:
+    - nfs_client
+
+- name: NVIDIA driver on GPU nodes
+  hosts: gpu
+  roles:
+    - nvidia

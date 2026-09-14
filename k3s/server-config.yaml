@@ -1,0 +1,18 @@
+# ctrl-01 /etc/rancher/k3s/config.yaml — write BEFORE first install.
+# Do not add cluster-init to a live SQLite cluster (it hung on 2026-08-30).
+#
+# `k3s etcd-snapshot save` is a client CLI: it warns "Unknown flag" for
+# cluster-init / tls-san / etcd-snapshot-schedule-cron and still snapshots.
+# Do not pass --dir; etcd-snapshot-dir below is enough.
+cluster-init: true
+write-kubeconfig-mode: "644"
+tls-san:
+  - ctrl-01.lan
+  - 192.168.8.11
+node-ip: 192.168.8.11
+advertise-address: 192.168.8.11
+node-label:
+  - jarvis.role=control
+etcd-snapshot-schedule-cron: "0 */6 * * *"
+etcd-snapshot-dir: /mnt/nfs/snapshots
+etcd-snapshot-retention: 8
