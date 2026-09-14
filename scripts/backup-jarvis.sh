@@ -22,9 +22,14 @@ ssh -o BatchMode=yes data-02 "sudo tar -C /cluster/local -czf - grafana" \
 echo "== bastion secrets (mode 600) =="
 tar -C "$HOME" -czf - \
   --ignore-failed-read \
-  .litellm-master.key .grafana-admin .gitea-flux.token .kube/config \
+  .litellm-master.key .grafana-admin .gitea-flux.token .gitea-admin.pass \
+  .xai-api.key .openclaw-gateway.token .kube/config \
+  .config/sops/age/keys.txt .ssh/id_ed25519_github .config/goose \
   | ssh -o BatchMode=yes "$REMOTE" "sudo tee $ROOT/$STAMP/bastion-secrets.tgz >/dev/null"
 ssh -o BatchMode=yes "$REMOTE" "sudo chmod 600 $ROOT/$STAMP/bastion-secrets.tgz"
+
+echo "== github mirror (best-effort) =="
+"$HOME/jarvis-infra/scripts/mirror-to-github.sh" || echo "WARN: github mirror failed"
 
 echo "== prune > ${KEEP_DAYS}d =="
 ssh -o BatchMode=yes "$REMOTE" "sudo find $ROOT -mindepth 1 -maxdepth 1 -type d -mtime +$KEEP_DAYS -exec rm -rf {} +"
