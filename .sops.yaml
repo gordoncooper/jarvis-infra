@@ -1,5 +1,3 @@
-# Replace creation_rules.age with YOUR age public key after age-keygen.
 creation_rules:
   - path_regex: secrets/.*
-    age: >-
-      AGE-PUBLIC-KEY-REPLACE-ME
+    age: age1yf3esw6grx75tpuccs6nqrzguelxhk8uqaxh4rp00yq8gvfyjaxqjffpz7

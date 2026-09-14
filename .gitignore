@@ -1,6 +1,7 @@
 # secrets — never commit plaintext
 secrets/*.yaml
 !secrets/*.example.yaml
+!secrets/*.sops.yaml
 !secrets/README.md
 *.sops.yaml.bak
 keys.txt
