@@ -15,7 +15,7 @@ PY
 )"
 else
   export JARVIS_LITELLM_MASTER_KEY="$(cat ~/.litellm-master.key 2>/dev/null || true)"
-  export JARVIS_XAI_API_KEY="${XAI_API_KEY:-}"
+  export JARVIS_XAI_API_KEY="$(cat ~/.xai-api.key 2>/dev/null || true)"
   export JARVIS_GRAFANA_ADMIN_PASSWORD="$(cat ~/.grafana-admin 2>/dev/null || true)"
   export JARVIS_OPENCLAW_GATEWAY_TOKEN="$(cat ~/.openclaw-gateway.token 2>/dev/null || true)"
   export JARVIS_OPENCLAW_LITELLM_KEY="${JARVIS_LITELLM_MASTER_KEY}"
@@ -28,6 +28,15 @@ if [ -n "${JARVIS_LITELLM_MASTER_KEY:-}" ]; then
     --from-literal=XAI_API_KEY="${JARVIS_XAI_API_KEY:-}" \
     --dry-run=client -o yaml | kubectl apply -f -
   echo "litellm secret ok"
+  need apps
+  if kubectl -n apps get secret open-webui >/dev/null 2>&1; then
+    echo "open-webui secret exists (left alone)"
+  else
+    kubectl -n apps create secret generic open-webui \
+      --from-literal=OPENAI_API_KEY="$JARVIS_LITELLM_MASTER_KEY" \
+      --from-literal=WEBUI_SECRET_KEY="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
+    echo "open-webui secret created"
+  fi
 fi
 
 need monitoring
