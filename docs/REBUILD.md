@@ -4,7 +4,7 @@ Pins live in [`VERSION`](../VERSION). This file is the **procedure**.
 If a number here disagrees with `VERSION`, **`VERSION` wins**.
 
 `PHASE*.md`, old changelog entries, and `GITHUB-CUTOVER.md` are **history**.
-Do not "update" them to match the living pin. Do not retag old git tags.
+Do not rewrite them to match the living pin. Do not retag old git tags.
 
 ```
 . ~/jarvis-infra/VERSION
@@ -85,7 +85,7 @@ ansible-playbook playbooks/nvidia-runtime.yml --limit gpu-01,gpu-02
 ## 3. Gitea (chicken-egg)
 
 ```bash
-ssh ctrl-01 'sudo mkdir -p /cluster/local/gitea && sudo chown -R 1000:1000 /cluster/local/gitea'
+ssh -n ctrl-01 'sudo mkdir -p /cluster/local/gitea && sudo chown -R 1000:1000 /cluster/local/gitea'
 kubectl apply -f bootstrap/gitea.yaml
 kubectl -n gitea rollout status deploy/gitea
 ```
@@ -102,7 +102,8 @@ git --git-dir=/tmp/jarvis-cluster.git push --mirror http://jarvis:${TOKEN}@git.l
 ## 5. Secrets then Flux (git.lan only)
 
 SOPS is **not** required yet. Until `secrets/secrets.sops.yaml` exists, secrets
-are chmod 600 files on bastion and NFS `bastion-secrets.tgz`.
+are chmod 600 files on bastion (`~/.litellm-master.key`, `~/.xai-api.key`, ...)
+and NFS `bastion-secrets.tgz`. See [secrets/README.md](../secrets/README.md).
 
 ```bash
 ./bootstrap/apply-secrets.sh
@@ -130,6 +131,9 @@ git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ./scripts/seed-open-webui-model.sh
 ```
 
+Knowledge collection **lab-docs**: create empty in Open WebUI, re-upload notes
+(files are NFS-backup only).
+
 ## 8. Bastion extras
 
 ```bash
@@ -148,12 +152,15 @@ See [RESTORE.md](RESTORE.md). Re-pair OpenClaw at http://agent.lan:18789.
 ## Do not
 
 - Point Flux at GitHub
+- `cluster-init` on an existing sqlite datastore
 - Put `agent.lan` on 192.168.8.11
-- Commit mkcert keys or plaintext secrets
-- Point homepage at gethomepage
+- Commit mkcert keys or plaintext `secrets.yaml`
+- `nvidia.com/gpu` on the exporter
+- Run Goose against `jarvis-local` (invents hardware)
+- Point homepage at `ghcr.io/gethomepage`
 - Let Flux schedule homepage before `install-jarvis-home.sh`
 - Use `npx srvx` as the image CMD
 - Run these scripts as user `bastion`
-- Copy image/git tags into this file — edit `VERSION` and both homepage.yaml files
-- Retag v0.4.4-v0.4.9
+- Copy image/git tags into this file — edit `VERSION` and both `homepage.yaml` files
+- Retag any tag already on origin (never `git tag -f`)
 - Treat `GIT_TAG` and `IMAGE_TAG` as the same number
