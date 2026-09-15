@@ -14,6 +14,7 @@ Do not retag old git tags. Alignment: `scripts/check-contract.sh`.
 
 | Item | Value |
 | --- | --- |
+| Copilot (new AI) | [`docs/COPILOT.md`](docs/COPILOT.md) then `scripts/copilot-discover.sh` |
 | Pins | [`VERSION`](VERSION) |
 | Run as | user **agent** (`HOME=/home/agent`). Never `bastion`. |
 | Rebuild | [docs/REBUILD.md](docs/REBUILD.md) |
