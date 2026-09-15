@@ -21,7 +21,8 @@ Procedure: [REBUILD.md](REBUILD.md). Footguns: [LESSONS.md](LESSONS.md).
 - Do not copy pin numbers into REBUILD / README / PHASE. Edit `VERSION` and both `homepage.yaml` files.
 - Do not bump the homepage **image** unless `https://home.lan/status` is wrong.
 - Homepage: one image, `imagePullPolicy: Never`, `nodeSelector: jarvis.role=apps`, SA `homepage`. Import with `install-jarvis-home.sh` **before** Flux.
-- `npx srvx` is forbidden as the image CMD.
+- `npx srvx` is forbidden as the image CMD. Dockerfile `COPY output/` + srvx `--prod`. `install-jarvis-home.sh` tars **only** `Dockerfile` + `output/`.
+- Homepage SA lists events, Flux CRs, **pods**, **nodes** (dossiers). Click tiles on home.lan.
 - `agent.lan` DNS is **192.168.8.16** (hostPort 18789, HTTP). `git.lan` stays HTTP.
 - Ask for bastion `cat` / `ls` / `kubectl` before changing cluster YAML. Do not assume a laptop clone is canonical.
 - Pastes: wrap in a quoted heredoc. Always `ssh -n`. No gzip+base64 YAML in chat.

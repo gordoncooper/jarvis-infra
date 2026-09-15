@@ -62,8 +62,10 @@ Stop when the task is clear. Do not binge `PHASE*`.
 - Never retag (`git tag -f`). Next snapshot is a new `GIT_TAG`. Never copy pins
   into REBUILD/README.
 - Do not bump the homepage **image** unless `https://home.lan/status` is wrong.
-- Homepage: one image, `imagePullPolicy: Never`, `nodeSelector: jarvis.role=apps`,
-  SA `homepage`. `install-jarvis-home.sh` **before** Flux. `npx srvx` forbidden.
+- Homepage: one image, `imagePullPolicy: Never`, apps-01, SA `homepage`
+  (events + Flux + **pods** + **nodes**). Dockerfile `COPY output/` + srvx `--prod`.
+  `install-jarvis-home.sh` tars only Dockerfile+output, **before** Flux.
+  HUD: click tiles → dossier. `src/` is rebuild source; `output/` is the image.
 - `agent.lan` DNS is **192.168.8.16**. `git.lan` stays HTTP. `agent.lan:18789` HTTP.
 - Do not assign bash `UID` (readonly). Knowledge list API returns `{items:[]}`.
 - Do not dump Secret `.data`, Helm release blobs, or `gotk-components.yaml`.

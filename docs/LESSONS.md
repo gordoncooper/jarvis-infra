@@ -23,6 +23,7 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 | Flux homepage before local image | `ErrImageNeverPull` on apps-01 | `install-jarvis-home.sh` **then** Flux. |
 | `imagePullPolicy: Always` on jarvis-home | Docker Hub 404 | Never. Image lives in k3s containerd on **apps-01 only**. |
 | `npx srvx` as image CMD | non-TTY hang; Ready never | `node ./node_modules/srvx/bin/srvx.mjs --prod` |
+| Dockerfile `COPY package.json` / `node src/server.mjs` | `install-jarvis-home.sh` only tars `Dockerfile`+`output/` → docker `COPY failed` | `COPY output/` + in-image `srvx --prod`. HUD `src/` is for later rebuild (`BUILD.md`), not the cluster build context. |
 | Same tag + `imagePullPolicy: Never` | kubelet keeps old layers | Bump **image** tag in `VERSION` **and** both `homepage.yaml` files |
 | Treat git tag and image tag as one number | Docs and cluster argue | `VERSION` has both. They may differ. `check-contract.sh` |
 | Copy pins into REBUILD / README / PHASE | Greenfield checks out the wrong tag | Edit `VERSION` + yaml only. History stays frozen. |

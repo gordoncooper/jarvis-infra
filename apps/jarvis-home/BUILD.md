@@ -1,25 +1,18 @@
-# Rebuild output/ from git (later)
+# Rebuild `output/` from HUD source
 
-This HUD is a TanStack Start app. `output/` is the Nitro/Vercel-shaped bundle
-the Dockerfile copies (`functions/__server.func` + `static` + srvx).
+The cluster image is **not** built from `src/` on apps-01.
+`install-jarvis-home.sh` copies `Dockerfile` + `output/` only.
 
-## After this drop is committed
-
-Source of truth:
-
-- `apps/jarvis-home/src/lib/hud/`  UI + Prometheus/k8s scrape
-- `apps/jarvis-home/src/routes/`   `/` `/status` `/health` `/api/telemetry`
-- `apps/jarvis-home/src/styles.css` teal HUD tokens
-- `apps/jarvis-home/output/`       last shipped bundle (greenfield does not npm-build on the cluster)
-
+`src/lib/hud/` is the TanStack HUD (home, status, telemetry scrape, dossiers).
 To refresh `output/` you need a Node 22 TanStack Start + Tailwind v4 workspace
-(the Grok App Builder tree this was built in, or a similar `vite` +
-`@tanstack/react-start` + `nitro` setup):
+(the Grok App Builder tree, or equivalent `vite` + `@tanstack/react-start` + nitro):
 
-  1. Copy `src/lib/hud`, the HUD routes, `styles.css`, fonts into that workspace
-  2. `npm run build`  →  `.vercel/output/`
-  3. Replace `apps/jarvis-home/output/` with that directory
-  4. `./scripts/install-jarvis-home.sh`
-  5. Bump IMAGE_TAG (never retag). Flux Recreate.
+1. HUD files: `src/lib/hud`, `src/routes/{index,status,health}.tsx`,
+   `src/routes/api/telemetry.ts`, `src/styles.css`, fonts under `public/fonts`.
+2. `npm run build` → `.vercel/output/` (functions + static).
+3. Replace `apps/jarvis-home/output/` with that directory.
+4. Dockerfile stays `COPY output/` + srvx `--prod`.
+5. Bump `IMAGE` in `VERSION` and both `homepage.yaml` files.
+6. `./scripts/install-jarvis-home.sh` then Flux Recreate.
 
-Do not copy pin numbers into REBUILD.md. Homepage: Never, apps-01, SA homepage.
+Do not `npm run build` on the k3s nodes. Do not copy pin numbers into REBUILD.md.

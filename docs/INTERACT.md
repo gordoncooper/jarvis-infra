@@ -5,9 +5,9 @@ Proof: `~/jarvis-infra/scripts/verify-jarvis.sh`.
 
 | Surface | URL / cmd | Best for | Model / cost |
 | --- | --- | --- | --- |
-| Command board | https://home.lan | Services + rack + compact events. Header **LIVE** = Prometheus; **SIM** = fallback. | — |
-| Status floor | https://home.lan/status | GPU temp/VRAM, 10-min event stream, node CPU/RAM, workloads | — |
-| Telemetry | https://home.lan/api/telemetry | JSON snapshot (source, GPUs, events) | — |
+| Command board | https://home.lan | Services + rack + events. **Click tiles** for dossiers (pods on that node). **LIVE** = Prometheus; **SIM** = fallback. | — |
+| Status floor | https://home.lan/status | GPU temp/VRAM, event stream, nodes/workloads. Same click-dossiers. | — |
+| Telemetry | https://home.lan/api/telemetry | JSON: source, GPUs, events, `podsByNode` | — |
 | Chat | https://chat.lan | Q&A, RAG, voice | `jarvis-local` free; `jarvis-grok*` SuperGrok |
 | Agent | http://agent.lan:18789 | Cluster ops, files, live metrics | `jarvis-grok-code` (API) |
 | Goose | `goose session` on bastion | Terminal agent on the git repo | Live default **jarvis-local** via **https://llm.lan**; grok-code when you need tools |
