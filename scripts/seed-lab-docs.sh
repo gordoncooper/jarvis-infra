@@ -10,7 +10,7 @@ test -s "$BRIEF"
 SECRET=$(kubectl -n apps get secret open-webui -o jsonpath='{.data.WEBUI_SECRET_KEY}')
 SECRET=$(printf '%s' "$SECRET" | base64 -d)
 # first admin uuid
-UID=$(ssh -n -o BatchMode=yes apps-01 "sudo python3 -c \"
+WEBUI_UID=$(ssh -n -o BatchMode=yes apps-01 "sudo python3 -c \"
 import sqlite3
 c=sqlite3.connect('/cluster/local/open-webui/webui.db')
 c.row_factory=sqlite3.Row
@@ -19,7 +19,7 @@ admin=next((r for r in row if (r['role'] or '')=='admin'), row[0] if row else No
 if not admin: raise SystemExit('no webui user')
 print(admin['id'])
 \"")
-export WEBUI_JWT_USER="$UID"
+export WEBUI_JWT_USER="$WEBUI_UID"
 export WEBUI_JWT_SECRET="$SECRET"
 TOKEN=$(python3 - << 'PY'
 import base64, hmac, hashlib, json, os
@@ -53,9 +53,10 @@ def req(method, url, data=None, headers=None, raw=False):
         body = resp.read()
         return json.loads(body) if not raw and body else body
 
-know = req("GET", api + "/knowledge/")
+raw = req("GET", api + "/knowledge/")
+know = raw if isinstance(raw, list) else (raw.get("items") or raw.get("knowledge") or [])
 if not isinstance(know, list):
-    raise SystemExit(f"knowledge list failed: {know!r}")
+    raise SystemExit(f"knowledge list failed: {raw!r}")
 coll = next((k for k in know if (k.get("name") or "") == "lab-docs"), None)
 if not coll:
     coll = req("POST", api + "/knowledge/create",
@@ -63,6 +64,10 @@ if not coll:
                headers={"Content-Type": "application/json"})
     print("created collection", coll.get("id"))
 else:
+    cid = coll.get("id")
+    detail = req("GET", api + "/knowledge/" + cid)
+    if isinstance(detail, dict) and (detail.get("files") or detail.get("id")):
+        coll = detail
     print("collection", coll.get("id"), "files", len(coll.get("files") or []))
 
 # remove old files so embeddings match git
