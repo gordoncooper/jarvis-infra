@@ -1,8 +1,9 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { b as require_jsx_runtime, v as Link, z as require_react } from "../_libs/@tanstack/react-router+[...].mjs";
 import { i as Lock, n as Server, o as Cpu, r as Radio, s as ArrowUpRight } from "../_libs/lucide-react.mjs";
-import { c as getTelemetry, i as Shell, l as subscribeTelemetry, n as ROLE_LABEL, o as cn, r as SERVICES, s as formatUptime, t as NODES } from "./shell-DQaP3aRL.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-Cf1Ti2LJ.js
+import { a as ROLE_LABEL, i as NODES, n as formatUptime, o as SERVICES } from "./router-HtY6Ax1-.mjs";
+import { i as subscribeTelemetry, n as cn, r as getTelemetry, t as Shell } from "./shell-BWSXM2MC.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-Bel0ZPE4.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var roleTone = {
@@ -98,7 +99,7 @@ function Home() {
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
 						k: "cluster",
-						v: "NOMINAL",
+						v: tel.source === "live" ? "LIVE" : "SIM",
 						sub: `${tel.nodes.filter((n) => n.ready).length}/7 hosts ready`
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
@@ -200,7 +201,9 @@ function Home() {
 								" · NFS ",
 								tel.nfsOk ? "UP" : "DOWN",
 								" · etcd ",
-								tel.etcdOk ? "OK" : "FAULT"
+								tel.etcdOk ? "OK" : "FAULT",
+								" · ",
+								tel.source === "live" ? "PROM LIVE" : "PROM SIM"
 							]
 						})
 					]

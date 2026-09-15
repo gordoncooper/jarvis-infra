@@ -1,8 +1,9 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { b as require_jsx_runtime, z as require_react } from "../_libs/@tanstack/react-router+[...].mjs";
-import { a as WORKLOADS, c as getTelemetry, i as Shell, l as subscribeTelemetry, n as ROLE_LABEL, o as cn, s as formatUptime, t as NODES } from "./shell-DQaP3aRL.mjs";
+import { a as ROLE_LABEL, i as NODES, n as formatUptime } from "./router-HtY6Ax1-.mjs";
+import { i as subscribeTelemetry, n as cn, r as getTelemetry, t as Shell } from "./shell-BWSXM2MC.mjs";
 import { a as ResponsiveContainer, i as Area, n as YAxis, o as Tooltip, r as XAxis, t as AreaChart } from "../_libs/recharts+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/status-dQlYtTcK.js
+//#region node_modules/.nitro/vite/services/ssr/assets/status-Bmw719ds.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function Status() {
@@ -26,7 +27,7 @@ function Status() {
 						})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", {
 							className: "font-mono text-[10px] leading-relaxed text-muted",
 							children: `k3s ${NODES[0].k3s}
-flux  main@54bf0a5  ${tel.fluxOk ? "True" : "False"}
+prom  ${tel.source === "live" ? "LIVE scrape" : "SIMULATED"}
 nfs   data-01:/cluster/nfs  ${tel.nfsOk ? "nfs4" : "down"}
 etcd  ctrl-01  ${tel.etcdOk ? "leader" : "lost"}`
 						})]
@@ -195,7 +196,7 @@ etcd  ctrl-01  ${tel.etcdOk ? "leader" : "lost"}`
 								children: "WORKLOADS"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 								className: "mt-2 divide-y divide-line font-mono text-[11px]",
-								children: WORKLOADS.map((w) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+								children: tel.workloads.map((w) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
 									className: "flex flex-wrap items-center gap-x-3 py-1.5",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {

@@ -2,22 +2,23 @@
 
 Metal layer for the JARVIS home cluster (six M920x + bastion).
 
-- **This repo** — Ansible, k3s join, Gitea bootstrap, secrets, TLS, backups, **jarvis-home image (Home + Status)**
-- **Gitea** `http://git.lan/jarvis/cluster.git` — Flux origin (authoritative)
-- **GitHub** `gordoncooper/jarvis-cluster` — **mirror only**
+| | |
+|---|---|
+| **This repo** | Ansible, k3s join, Gitea bootstrap, secrets, TLS, backups, **jarvis-home image** |
+| **Gitea** | `http://git.lan/jarvis/cluster.git` — Flux origin (authoritative) |
+| **GitHub cluster** | `gordoncooper/jarvis-cluster` — **mirror only** |
 
-**Start here for a from-scratch rebuild:** [docs/REBUILD.md](docs/REBUILD.md)  
-**Mistakes we will not repeat:** [docs/LESSONS.md](docs/LESSONS.md)  
-**How to use it day to day:** [docs/INTERACT.md](docs/INTERACT.md)
+**Known-good git tag: v0.4.4** (`jarvis-home:v0.2`). This tree: **jarvis-home:v0.4.5** (Prometheus tiles).
 
-Command center source: [apps/jarvis-home/](apps/jarvis-home/) (`output/` is the production bundle — commit it).
+**Rebuild:** [docs/REBUILD.md](docs/REBUILD.md) · **Lessons:** [docs/LESSONS.md](docs/LESSONS.md) · **Day to day:** [docs/INTERACT.md](docs/INTERACT.md)  
+**Command center:** [apps/jarvis-home/](apps/jarvis-home/) (`output/` is committed)
 
-PHASE1–21 live in [docs/history/](docs/history/). Known-good tag: **v0.4.4**.
-
-```
-ansible-playbook playbooks/ping.yml
-ansible-playbook playbooks/site.yml
-./k3s/install-server.sh
-./k3s/join-agents.sh
-./scripts/install-jarvis-home.sh    # before Flux
-```
+| URL | App |
+|---|---|
+| https://home.lan | Command center (Home) |
+| https://home.lan/status | Status floor |
+| https://chat.lan | Open WebUI |
+| http://agent.lan:18789 | OpenClaw |
+| https://grafana.lan | Grafana |
+| http://git.lan | Gitea |
+| https://llm.lan | LiteLLM |
