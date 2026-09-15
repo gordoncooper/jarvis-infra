@@ -1,9 +1,9 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { b as require_jsx_runtime, v as Link, z as require_react } from "../_libs/@tanstack/react-router+[...].mjs";
 import { i as Lock, n as Server, o as Cpu, r as Radio, s as ArrowUpRight } from "../_libs/lucide-react.mjs";
-import { a as ROLE_LABEL, i as NODES, n as formatUptime, o as SERVICES } from "./router-HtY6Ax1-.mjs";
-import { i as subscribeTelemetry, n as cn, r as getTelemetry, t as Shell } from "./shell-BWSXM2MC.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-Bel0ZPE4.js
+import { a as ROLE_LABEL, i as NODES, n as formatUptime, o as SERVICES } from "./router-D4XSGiua.mjs";
+import { a as subscribeTelemetry, i as getTelemetry, n as Shell, r as cn, t as EventStream } from "./event-stream-C3_QSYyX.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-0pt1ftrk.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var roleTone = {
@@ -118,6 +118,13 @@ function Home() {
 						sub: `${g2.vramUsedMiB.toFixed(0)} MiB nomic`
 					})
 				]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", {
+				className: "mt-8",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EventStream, {
+					tel,
+					compact: true
+				})
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
 				className: "mt-12",

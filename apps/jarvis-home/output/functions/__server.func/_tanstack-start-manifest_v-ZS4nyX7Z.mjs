@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-DPqXKYSd.js
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-ZS4nyX7Z.js
 var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "/workspace/src/routes/__root.tsx",
@@ -7,22 +7,22 @@ var tsrStartManifest = () => ({ routes: {
 			"/status",
 			"/api/telemetry"
 		],
-		preloads: ["/assets/index-CRJG-XNe.js"],
+		preloads: ["/assets/index-DeSQq6jj.js"],
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-CRJG-XNe.js"
+			src: "/assets/index-DeSQq6jj.js"
 		} }]
 	},
 	"/": {
 		filePath: "/workspace/src/routes/index.tsx",
 		children: void 0,
-		preloads: ["/assets/routes-CMOOgk81.js", "/assets/shell-BG7qI-OF.js"]
+		preloads: ["/assets/routes-BQRZbgeB.js", "/assets/event-stream-D_HADNaV.js"]
 	},
 	"/status": {
 		filePath: "/workspace/src/routes/status.tsx",
 		children: void 0,
-		preloads: ["/assets/status-DdFZhzeL.js", "/assets/shell-BG7qI-OF.js"]
+		preloads: ["/assets/status-BmKWSSmh.js", "/assets/event-stream-D_HADNaV.js"]
 	}
 } });
 //#endregion

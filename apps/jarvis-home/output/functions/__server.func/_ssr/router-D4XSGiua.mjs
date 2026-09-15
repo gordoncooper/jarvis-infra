@@ -2,7 +2,9 @@ import { i as __toESM } from "../_runtime.mjs";
 import { _ as createRootRoute, b as require_jsx_runtime, g as createFileRoute, h as lazyRouteComponent, l as Scripts, m as Outlet, p as createRouter, u as HeadContent, y as useRouter, z as require_react } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as TriangleAlert } from "../_libs/lucide-react.mjs";
 import { a as union, i as string, n as number, r as object, t as literal } from "../_libs/zod.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-HtY6Ax1-.js
+import { request } from "node:https";
+import { readFileSync } from "node:fs";
+//#region node_modules/.nitro/vite/services/ssr/assets/router-D4XSGiua.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var __defProp = Object.defineProperty;
@@ -281,7 +283,7 @@ function PreviewHostBridge() {
 	}, [router]);
 	return null;
 }
-var styles_default = "/assets/styles-zhZH1DRn.css";
+var styles_default = "/assets/styles-C153xe-D.css";
 var APP_NAME = "JARVIS";
 var Route$3 = createRootRoute({
 	head: () => ({
@@ -335,9 +337,9 @@ var Route$3 = createRootRoute({
 		] })]
 	})
 });
-var $$splitComponentImporter$1 = () => import("./routes-Bel0ZPE4.mjs");
+var $$splitComponentImporter$1 = () => import("./routes-0pt1ftrk.mjs");
 var Route$2 = createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter$1, "component") });
-var $$splitComponentImporter = () => import("./status-Bmw719ds.mjs");
+var $$splitComponentImporter = () => import("./status-ozBD7ExT.mjs");
 var Route$1 = createFileRoute("/status")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
 var K3S_VERSION = "v1.36.4+k3s1";
 var NODES = [
@@ -570,7 +572,108 @@ var GPU_UUID = {
 /** Fixed origin so SSR HTML matches the first client paint. */
 var BOOT_MS = Date.parse("2026-09-03T16:00:00-07:00");
 var T0 = Date.parse("2026-09-14T21:00:00-07:00");
-function seedTelemetry(source = "sim") {
+function seedEvents(now) {
+	const m = 6e4;
+	return [
+		{
+			t: now - 9.6 * m,
+			src: "flux",
+			lvl: "ok",
+			ns: "flux-system",
+			reason: "GitOperationSucceeded",
+			msg: "GitRepository/flux-system fetched main"
+		},
+		{
+			t: now - 9.4 * m,
+			src: "flux",
+			lvl: "ok",
+			ns: "flux-system",
+			reason: "ReconciliationSucceeded",
+			msg: "Kustomization/flux-system applied"
+		},
+		{
+			t: now - 8.1 * m,
+			src: "k8s",
+			lvl: "info",
+			ns: "apps",
+			reason: "Scheduled",
+			msg: "pod/homepage → apps-01"
+		},
+		{
+			t: now - 7.8 * m,
+			src: "k8s",
+			lvl: "ok",
+			ns: "apps",
+			reason: "Started",
+			msg: "container homepage started (srvx :3000)"
+		},
+		{
+			t: now - 6.5 * m,
+			src: "prom",
+			lvl: "ok",
+			ns: "monitoring",
+			reason: "Scrape",
+			msg: "nvidia-gpu-exporter 2/2 Ready"
+		},
+		{
+			t: now - 5.2 * m,
+			src: "openclaw",
+			lvl: "info",
+			ns: "agents",
+			reason: "Ready",
+			msg: "openclaw gateway bind=lan :18789"
+		},
+		{
+			t: now - 4.4 * m,
+			src: "k8s",
+			lvl: "info",
+			ns: "inference",
+			reason: "Pulled",
+			msg: "ollama image already present on gpu-01"
+		},
+		{
+			t: now - 3.3 * m,
+			src: "flux",
+			lvl: "ok",
+			ns: "flux-system",
+			reason: "ReconciliationSucceeded",
+			msg: "Kustomization/apps health check passed"
+		},
+		{
+			t: now - 2.7 * m,
+			src: "prom",
+			lvl: "info",
+			ns: "monitoring",
+			reason: "Scrape",
+			msg: "node-exporter 6/6 · nfs4 clients ok"
+		},
+		{
+			t: now - 1.8 * m,
+			src: "openclaw",
+			lvl: "info",
+			ns: "agents",
+			reason: "Session",
+			msg: "openclaw control UI 1 paired device"
+		},
+		{
+			t: now - .9 * m,
+			src: "k8s",
+			lvl: "ok",
+			ns: "apps",
+			reason: "Probe",
+			msg: "homepage readiness / → 200"
+		},
+		{
+			t: now - .3 * m,
+			src: "prom",
+			lvl: "info",
+			ns: "monitoring",
+			reason: "Sample",
+			msg: "gpu-01 68C · gpu-02 60C"
+		}
+	].filter((e) => e.t >= now - 6e5).sort((a, b) => b.t - a.t);
+}
+function seedTelemetry(source = "sim", now = T0) {
 	const nodes = NODES.map((n) => ({
 		id: n.id,
 		cpuPct: n.role === "bastion" ? 8 : n.role.startsWith("gpu") ? 14 : 9,
@@ -579,10 +682,11 @@ function seedTelemetry(source = "sim") {
 		load: n.role === "bastion" ? .4 : .7,
 		ready: true
 	}));
+	const originSec = Math.floor(now / 1e3);
 	return {
-		ts: T0,
+		ts: now,
 		source,
-		uptimeSec: Math.floor((T0 - BOOT_MS) / 1e3),
+		uptimeSec: Math.floor((now - BOOT_MS) / 1e3),
 		fluxOk: true,
 		nfsOk: true,
 		etcdOk: true,
@@ -605,21 +709,14 @@ function seedTelemetry(source = "sim") {
 			uuid: GPU_UUID["gpu-02"]
 		}],
 		gpuHistory: Array.from({ length: 36 }, (_, i) => ({
-			t: i,
+			t: originSec - (35 - i) * 30,
 			gpu01: 68 + Math.sin(i / 5) * 1.2,
 			gpu02: 53 + Math.cos(i / 6) * 1.4,
 			util01: Math.max(0, 4 + Math.sin(i / 3) * 6),
 			util02: Math.max(0, 1 + Math.cos(i / 4) * 2)
 		})),
-		events: [{
-			t: T0 - 4e4,
-			lvl: "ok",
-			msg: "waiting for prometheus scrape"
-		}, {
-			t: T0 - 9e4,
-			lvl: "info",
-			msg: "preview / no in-cluster prometheus"
-		}],
+		events: seedEvents(now),
+		eventWindowSec: 600,
 		workloads: WORKLOADS.map((w) => ({ ...w }))
 	};
 }
@@ -628,6 +725,144 @@ function formatUptime(sec) {
 	const h = Math.floor(sec % 86400 / 3600);
 	const m = Math.floor(sec % 3600 / 60);
 	return `${d}d ${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m`;
+}
+var SA = "/var/run/secrets/kubernetes.io/serviceaccount";
+var WINDOW_MS = 6e5;
+function parseTime(raw) {
+	if (!raw) return 0;
+	const n = Date.parse(raw);
+	return Number.isFinite(n) ? n : 0;
+}
+function classifySrc(ns, kind, name) {
+	const k = kind.toLowerCase();
+	const n = name.toLowerCase();
+	if (ns === "flux-system" || k.includes("kustomization") || k.includes("gitrepository")) return "flux";
+	if (ns === "agents" || n.includes("openclaw")) return "openclaw";
+	if (ns === "monitoring" || n.includes("prometheus") || n.includes("grafana")) return "prom";
+	return "k8s";
+}
+function classifyLvl(type, reason) {
+	const r = reason.toLowerCase();
+	if (type === "Warning" || r.includes("fail") || r.includes("error") || r.includes("backoff") || r.includes("unhealthy") || r.includes("timeout")) {
+		if (r.includes("backoff") || r.includes("fail") || r.includes("error") || r.includes("crash")) return "err";
+		return "warn";
+	}
+	if (r.includes("succeed") || r.includes("started") || r.includes("ready") || r.includes("pulled") || r.includes("created")) return "ok";
+	return "info";
+}
+function k8sGet(path, timeoutMs) {
+	const host = process.env.KUBERNETES_SERVICE_HOST;
+	const port = process.env.KUBERNETES_SERVICE_PORT || "443";
+	if (!host) return Promise.reject(/* @__PURE__ */ new Error("not in cluster"));
+	const token = readFileSync(`${SA}/token`, "utf8").trim();
+	const ca = readFileSync(`${SA}/ca.crt`);
+	return new Promise((resolve, reject) => {
+		const req = request({
+			hostname: host,
+			port,
+			path,
+			method: "GET",
+			ca,
+			headers: {
+				Authorization: `Bearer ${token}`,
+				Accept: "application/json"
+			},
+			timeout: timeoutMs
+		}, (res) => {
+			const chunks = [];
+			res.on("data", (c) => chunks.push(c));
+			res.on("end", () => {
+				const body = Buffer.concat(chunks).toString("utf8");
+				if ((res.statusCode ?? 500) >= 400) {
+					reject(/* @__PURE__ */ new Error(`k8s ${res.statusCode} ${path}`));
+					return;
+				}
+				try {
+					resolve(JSON.parse(body));
+				} catch (err) {
+					reject(err);
+				}
+			});
+		});
+		req.on("timeout", () => {
+			req.destroy();
+			reject(/* @__PURE__ */ new Error("k8s timeout"));
+		});
+		req.on("error", reject);
+		req.end();
+	});
+}
+function fromCoreEvent(ev, now) {
+	const t = parseTime(ev.eventTime) || parseTime(ev.lastTimestamp) || parseTime(ev.firstTimestamp) || parseTime(ev.metadata?.creationTimestamp);
+	if (!t || t < now - WINDOW_MS) return null;
+	const ns = ev.involvedObject?.namespace || ev.metadata?.namespace || "";
+	if (ns === "kube-system" && ev.type !== "Warning") return null;
+	const kind = ev.involvedObject?.kind || "Event";
+	const name = ev.involvedObject?.name || ev.metadata?.name || "";
+	const reason = ev.reason || "Event";
+	const msgCore = (ev.message || reason).replace(/\s+/g, " ").trim();
+	const obj = `${kind.toLowerCase()}/${name}`;
+	const count = ev.count && ev.count > 1 ? ` ×${ev.count}` : "";
+	return {
+		t,
+		src: classifySrc(ns, kind, name),
+		lvl: classifyLvl(ev.type || "Normal", reason),
+		ns: ns || void 0,
+		reason,
+		msg: `${obj} ${msgCore}${count}`.slice(0, 180)
+	};
+}
+function fromFlux(kind, item, now) {
+	const name = item.metadata?.name || kind.toLowerCase();
+	const ns = item.metadata?.namespace || "flux-system";
+	const out = [];
+	for (const c of item.status?.conditions ?? []) {
+		const t = parseTime(c.lastTransitionTime);
+		if (!t || t < now - WINDOW_MS) continue;
+		const ok = c.status === "True";
+		const reason = c.reason || c.type || "Condition";
+		const msg = (c.message || reason).replace(/\s+/g, " ").trim();
+		out.push({
+			t,
+			src: "flux",
+			lvl: ok ? "ok" : c.type === "Ready" ? "err" : "warn",
+			ns,
+			reason,
+			msg: `${kind}/${name} ${msg}`.slice(0, 180)
+		});
+	}
+	return out;
+}
+function dedupe(events) {
+	const seen = /* @__PURE__ */ new Set();
+	const out = [];
+	for (const e of events.sort((a, b) => b.t - a.t)) {
+		const key = `${e.src}|${e.reason}|${e.msg}|${Math.floor(e.t / 15e3)}`;
+		if (seen.has(key)) continue;
+		seen.add(key);
+		out.push(e);
+	}
+	return out.slice(0, 80);
+}
+async function collectClusterEvents(now, fallback) {
+	if (!process.env.KUBERNETES_SERVICE_HOST) return fallback === "seed" ? seedEvents(now) : [];
+	try {
+		const [evWrap, ksWrap, gitWrap] = await Promise.allSettled([
+			k8sGet("/api/v1/events?limit=250", 2e3),
+			k8sGet("/apis/kustomize.toolkit.fluxcd.io/v1/kustomizations", 2e3),
+			k8sGet("/apis/source.toolkit.fluxcd.io/v1/gitrepositories", 2e3)
+		]);
+		const gathered = [];
+		if (evWrap.status === "fulfilled") for (const ev of evWrap.value.items ?? []) {
+			const row = fromCoreEvent(ev, now);
+			if (row) gathered.push(row);
+		}
+		if (ksWrap.status === "fulfilled") for (const it of ksWrap.value.items ?? []) gathered.push(...fromFlux("Kustomization", it, now));
+		if (gitWrap.status === "fulfilled") for (const it of gitWrap.value.items ?? []) gathered.push(...fromFlux("GitRepository", it, now));
+		const unique = dedupe(gathered);
+		if (unique.length) return unique;
+	} catch {}
+	return fallback === "seed" ? seedEvents(now) : [];
 }
 var DEFAULT_PROM = "http://prometheus.monitoring.svc:9090";
 function num(row, fallback = 0) {
@@ -685,7 +920,7 @@ function pstateLabel(v) {
 }
 async function scrapePrometheus() {
 	const base = (process.env.PROMETHEUS_URL ?? DEFAULT_PROM).replace(/\/$/, "");
-	if (!base || base === "off") return seedTelemetry("sim");
+	if (!base || base === "off") return seedTelemetry("sim", Date.now());
 	const [gpuTemp, gpuUtil, gpuMemUsed, gpuMemTotal, gpuInfo, gpuPstate, cpu, ram, disk, load, boot, nodeUp, gpuUp, nfs, flux, depReady, depSpec] = await Promise.all([
 		query(base, Q.gpuTemp, 2500),
 		query(base, Q.gpuUtil, 2500),
@@ -787,7 +1022,7 @@ async function scrapePrometheus() {
 		const d = hu2[0]?.values ?? [];
 		const n = Math.max(a.length, b.length, c.length, d.length);
 		if (n > 2) gpuHistory = Array.from({ length: n }, (_, i) => ({
-			t: i,
+			t: Number(a[i]?.[0] ?? b[i]?.[0] ?? start + i * 30),
 			gpu01: Number(a[i]?.[1] ?? gpus[0].tempC),
 			gpu02: Number(b[i]?.[1] ?? gpus[1].tempC),
 			util01: Number(c[i]?.[1] ?? gpus[0].utilPct),
@@ -795,7 +1030,7 @@ async function scrapePrometheus() {
 		}));
 	} catch {
 		gpuHistory = [...fallback.gpuHistory.slice(-20), {
-			t: (fallback.gpuHistory.at(-1)?.t ?? 0) + 1,
+			t: (fallback.gpuHistory.at(-1)?.t ?? Math.floor(now / 1e3)) + 30,
 			gpu01: gpus[0].tempC,
 			gpu02: gpus[1].tempC,
 			util01: gpus[0].utilPct,
@@ -806,30 +1041,38 @@ async function scrapePrometheus() {
 	const nodeExportersUp = nodeUp.filter((r) => Number(r.value[1]) === 1).length;
 	const nfsClients = num(nfs[0], 0);
 	const fluxOk = num(flux[0], 0) >= 1;
-	const events = [
+	let events = await collectClusterEvents(now, "empty");
+	if (events.length === 0) events = [
 		{
 			t: now,
+			src: "prom",
 			lvl: gpuExportersUp === 2 ? "ok" : "warn",
+			ns: "monitoring",
+			reason: "Scrape",
 			msg: `nvidia-gpu-exporter ${gpuExportersUp}/2 Ready`
 		},
 		{
 			t: now - 1e3,
-			lvl: "info",
-			msg: `gpu-01 ${gpus[0].tempC.toFixed(0)}C  ${gpus[0].vramUsedMiB.toFixed(0)} MiB`
-		},
-		{
-			t: now - 2e3,
-			lvl: "info",
-			msg: `gpu-02 ${gpus[1].tempC.toFixed(0)}C  ${gpus[1].vramUsedMiB.toFixed(0)} MiB`
-		},
-		{
-			t: now - 3e3,
+			src: "prom",
 			lvl: nodeExportersUp >= 6 ? "ok" : "warn",
+			ns: "monitoring",
+			reason: "Scrape",
 			msg: `node-exporter ${nodeExportersUp}/6`
 		},
 		{
-			t: now - 4e3,
+			t: now - 2e3,
+			src: "flux",
+			lvl: fluxOk ? "ok" : "err",
+			ns: "flux-system",
+			reason: fluxOk ? "Ready" : "Stalled",
+			msg: fluxOk ? "kustomize-controller available" : "kustomize-controller not ready"
+		},
+		{
+			t: now - 3e3,
+			src: "prom",
 			lvl: nfsClients >= 4 ? "ok" : "warn",
+			ns: "monitoring",
+			reason: "NFS",
 			msg: `nfs4 /mnt/nfs on ${nfsClients} clients`
 		}
 	];
@@ -844,6 +1087,7 @@ async function scrapePrometheus() {
 		gpus,
 		gpuHistory,
 		events,
+		eventWindowSec: 600,
 		workloads
 	};
 }
@@ -853,7 +1097,7 @@ async function scrapeTelemetrySafe() {
 			setTimeout(() => rej(/* @__PURE__ */ new Error("prometheus scrape timeout")), 4e3);
 		})]);
 	} catch {
-		return seedTelemetry("sim");
+		return seedTelemetry("sim", Date.now());
 	}
 }
 var Route = createFileRoute("/api/telemetry")({ server: { handlers: { GET: async () => {

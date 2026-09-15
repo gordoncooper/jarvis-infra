@@ -1,11 +1,15 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { b as require_jsx_runtime, z as require_react } from "../_libs/@tanstack/react-router+[...].mjs";
-import { a as ROLE_LABEL, i as NODES, n as formatUptime } from "./router-HtY6Ax1-.mjs";
-import { i as subscribeTelemetry, n as cn, r as getTelemetry, t as Shell } from "./shell-BWSXM2MC.mjs";
+import { a as ROLE_LABEL, i as NODES, n as formatUptime } from "./router-D4XSGiua.mjs";
+import { a as subscribeTelemetry, i as getTelemetry, n as Shell, t as EventStream } from "./event-stream-C3_QSYyX.mjs";
 import { a as ResponsiveContainer, i as Area, n as YAxis, o as Tooltip, r as XAxis, t as AreaChart } from "../_libs/recharts+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/status-Bmw719ds.js
+//#region node_modules/.nitro/vite/services/ssr/assets/status-ozBD7ExT.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
+function clockLabel(t) {
+	if (t > 1e9) return (/* @__PURE__ */ new Date(t * 1e3)).toISOString().slice(11, 19);
+	return String(t);
+}
 function Status() {
 	const tel = (0, import_react.useSyncExternalStore)(subscribeTelemetry, getTelemetry, getTelemetry);
 	const byId = (0, import_react.useMemo)(() => Object.fromEntries(tel.nodes.map((n) => [n.id, n])), [tel.nodes]);
@@ -29,7 +33,8 @@ function Status() {
 							children: `k3s ${NODES[0].k3s}
 prom  ${tel.source === "live" ? "LIVE scrape" : "SIMULATED"}
 nfs   data-01:/cluster/nfs  ${tel.nfsOk ? "nfs4" : "down"}
-etcd  ctrl-01  ${tel.etcdOk ? "leader" : "lost"}`
+etcd  ctrl-01  ${tel.etcdOk ? "leader" : "lost"}
+flux  ${tel.fluxOk ? "ready" : "stalled"}`
 						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", {
@@ -76,13 +81,16 @@ etcd  ctrl-01  ${tel.etcdOk ? "leader" : "lost"}`
 													domain: [40, 80],
 													hide: true
 												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tooltip, { contentStyle: {
-													background: "#0e1216",
-													border: "1px solid #2a3844",
-													fontFamily: "IBM Plex Mono, monospace",
-													fontSize: 11,
-													color: "#e8edf2"
-												} }),
+												/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tooltip, {
+													labelFormatter: (v) => clockLabel(Number(v)),
+													contentStyle: {
+														background: "#0e1216",
+														border: "1px solid #2a3844",
+														fontFamily: "IBM Plex Mono, monospace",
+														fontSize: 11,
+														color: "#e8edf2"
+													}
+												}),
 												/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Area, {
 													type: "monotone",
 													dataKey: g.id === "gpu-01" ? "gpu01" : "gpu02",
@@ -97,6 +105,10 @@ etcd  ctrl-01  ${tel.etcdOk ? "leader" : "lost"}`
 										})
 									})
 								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "mt-1 font-mono text-[10px] text-faint",
+									children: "temp · last ~18 min"
+								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Meter, {
 									label: "VRAM",
 									value: g.vramUsedMiB / g.vramTotalMiB,
@@ -104,6 +116,37 @@ etcd  ctrl-01  ${tel.etcdOk ? "leader" : "lost"}`
 								})
 							]
 						}, g.id))
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", {
+						className: "mt-4",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EventStream, { tel })
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+						className: "mt-4 rounded-md border border-line bg-bg-elev/90 p-3",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "font-mono text-[10px] tracking-[0.2em] text-muted",
+							children: "WORKLOADS"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+							className: "mt-2 divide-y divide-line font-mono text-[11px] sm:columns-2",
+							children: tel.workloads.map((w) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+								className: "flex flex-wrap items-center gap-x-3 py-1.5 break-inside-avoid",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-faint",
+										children: w.ns
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: w.name }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "ml-auto text-muted",
+										children: w.node
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-ok",
+										children: w.ready
+									})
+								]
+							}, w.ns + w.name))
+						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", {
 						className: "mt-4 overflow-x-auto",
@@ -186,54 +229,6 @@ etcd  ctrl-01  ${tel.etcdOk ? "leader" : "lost"}`
 								}, n.id);
 							}) })]
 						})
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-						className: "mt-4 grid gap-3 lg:grid-cols-5",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
-							className: "rounded-md border border-line bg-bg-elev/90 p-3 lg:col-span-3",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								className: "font-mono text-[10px] tracking-[0.2em] text-muted",
-								children: "WORKLOADS"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-								className: "mt-2 divide-y divide-line font-mono text-[11px]",
-								children: tel.workloads.map((w) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-									className: "flex flex-wrap items-center gap-x-3 py-1.5",
-									children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-faint",
-											children: w.ns
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: w.name }),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "ml-auto text-muted",
-											children: w.node
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-ok",
-											children: w.ready
-										})
-									]
-								}, w.ns + w.name))
-							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
-							className: "rounded-md border border-line bg-bg/80 p-3 lg:col-span-2",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								className: "font-mono text-[10px] tracking-[0.2em] text-muted",
-								children: "EVENT STREAM"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-								className: "mt-2 space-y-1.5 font-mono text-[11px]",
-								children: tel.events.map((e, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-									className: "flex gap-2",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "shrink-0 tabular-nums text-faint",
-										children: new Date(e.t).toISOString().slice(11, 19)
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: cn(e.lvl === "ok" && "text-ok", e.lvl === "warn" && "text-warn", e.lvl === "info" && "text-muted"),
-										children: e.msg
-									})]
-								}, e.t + e.msg + i))
-							})]
-						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
 						className: "mt-4 rounded-md border border-line bg-bg-elev/80 p-3",
