@@ -6,4 +6,4 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 User=agent
-ExecStart=/home/agent/jarvis-cluster/scripts/backup-jarvis.sh
+ExecStart=/home/agent/jarvis-infra/scripts/backup-jarvis.sh

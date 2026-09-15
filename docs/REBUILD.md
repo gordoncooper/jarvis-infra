@@ -2,14 +2,15 @@
 
 Pins live in [`VERSION`](../VERSION). This file is the **procedure**.
 If a number here disagrees with `VERSION`, **`VERSION` wins**.
+Operator contract: [OPERATING.md](OPERATING.md).
 
-`PHASE*.md`, old changelog entries, and `GITHUB-CUTOVER.md` are **history**.
+`PHASE*.md`, old changelog entries, and `docs/history/GITHUB-CUTOVER.md` are **history**.
 Do not rewrite them to match the living pin. Do not retag old git tags.
 
-```
+~~
 . ~/jarvis-infra/VERSION
-echo "checkout $GIT_TAG   image $IMAGE"
-```
+echo "checkout $GIT_TAG   image $IMAGE   k3s $K3S"
+~~
 
 `GIT_TAG` and `IMAGE_TAG` are allowed to differ (docs cut vs image cut).
 
@@ -20,7 +21,7 @@ GitHub `gordoncooper/jarvis-cluster` is a **mirror**. Never point Flux at GitHub
 Hardware: 6x ThinkCentre M920x i7-8700T, Ubuntu 26.04, user **`agent`** (never `bastion`).
 gpu-01 / gpu-02: RTX A1000. Other four: Patriot P300 512G as `/cluster`.
 
-USB (not in Git): mkcert `rootCA-key.pem`. Age key when SOPS lands (not required yet).
+USB (not in Git): mkcert `rootCA-key.pem` and age `keys.txt` (mode 600).
 
 ## Homepage contract (Home + Status)
 
@@ -38,7 +39,7 @@ Same image, two routes. Both must come back after a greenfield rebuild.
 
 `output/` is **in git**. Do not install gethomepage. Do not `npm run build` on the cluster.
 
-Image: `IMAGE` from `VERSION` · `imagePullPolicy: Never` · node `apps-01` · SA `homepage`.
+Image: `IMAGE` from `VERSION` · `imagePullPolicy: Never` · `nodeSelector: jarvis.role: apps` · SA `homepage`.
 
 **Order:** import the image **before** Flux applies the Deployment. If you get
 `ErrImageNeverPull`, run the install script, then
@@ -55,7 +56,7 @@ for nodes **and** `git.lan chat.lan jarvis.lan llm.lan grafana.lan home.lan`
 Ubuntu 26.04 on all seven boxes. Create `agent` with passwordless sudo + SSH
 from bastion. Clone this repo on the bastion **as agent**:
 
-```bash
+~~bash
 sudo su - agent
 git clone git@github.com:gordoncooper/jarvis-infra.git ~/jarvis-infra
 cd ~/jarvis-infra
@@ -66,88 +67,106 @@ git checkout "$GIT_TAG"
 test -d apps/jarvis-home/output
 test -f apps/jarvis-home/Dockerfile
 test -f VERSION
-sudo apt update && sudo apt install -y ansible git python3-yaml bzip2
+sudo apt update && sudo apt install -y ansible git python3-yaml bzip2 age
+# sops (not always packaged): see secrets/README.md
 ansible-playbook playbooks/ping.yml
 ansible-playbook playbooks/identify-disks.yml
+# site.yml formats P300s when cluster_format_disks is true — greenfield empty disks only
 ansible-playbook playbooks/site.yml
 ansible-playbook playbooks/verify.yml
-```
+~~
 
 ## 2. k3s + command-center image
 
-```bash
+Install scripts source `VERSION` and pass `INSTALL_K3S_VERSION="$K3S"`.
+Do not run unpinned `curl | sh`.
+
+~~bash
 ./k3s/install-server.sh
 ./k3s/join-agents.sh
 ansible-playbook playbooks/nvidia-runtime.yml --limit gpu-01,gpu-02
 ./scripts/install-jarvis-home.sh
-```
+~~
 
 ## 3. Gitea (chicken-egg)
 
-```bash
+Gitea is **not** in Flux. Apply once from this repo.
+
+~~bash
 ssh -n ctrl-01 'sudo mkdir -p /cluster/local/gitea && sudo chown -R 1000:1000 /cluster/local/gitea'
 kubectl apply -f bootstrap/gitea.yaml
 kubectl -n gitea rollout status deploy/gitea
-```
+~~
 
 Repair: restore `gitea.tgz` first ([RESTORE.md](RESTORE.md)), skip empty repo.
 
 ## 4. Load cluster YAML into Gitea
 
-```bash
+~~bash
 git clone --mirror git@github.com:gordoncooper/jarvis-cluster.git /tmp/jarvis-cluster.git
 git --git-dir=/tmp/jarvis-cluster.git push --mirror http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git
-```
+~~
 
 ## 5. Secrets then Flux (git.lan only)
 
-SOPS is **not** required yet. Until `secrets/secrets.sops.yaml` exists, secrets
-are chmod 600 files on bastion (`~/.litellm-master.key`, `~/.xai-api.key`, ...)
-and NFS `bastion-secrets.tgz`. See [secrets/README.md](../secrets/README.md).
+Age private key from USB → `~/.config/sops/age/keys.txt` (mode 600).
 
-```bash
+~~bash
+chmod 600 ~/.config/sops/age/keys.txt
+./scripts/materialize-bastion-secrets.sh
 ./bootstrap/apply-secrets.sh
 ./bootstrap/flux-bootstrap.sh
-```
+~~
+
+If the age key is missing but NFS survived: `./scripts/restore-bastion-secrets.sh YYYYMMDD-HHMM`
+then `apply-secrets.sh`.
 
 If homepage is `ErrImageNeverPull` / 503: `./scripts/install-jarvis-home.sh`
 then delete the pod.
 
 ## 6. TLS
 
-```bash
+USB: mkcert `rootCA-key.pem`. Then:
+
+~~bash
 ./scripts/lan-https.sh
 ./scripts/install-lan-ca.sh
-```
+~~
 
 git.lan stays **HTTP**. agent.lan:**18789** stays HTTP.
 
 ## 7. Models (GPU)
 
-```bash
+Live (2026-09-15): `qwen2.5:7b-instruct-q6_K` + derived `jarvis` on gpu-01;
+`nomic-embed-text` on gpu-02.
+
+~~bash
 git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ./scripts/create-jarvis-ollama.sh
 ./scripts/pull-embed-model.sh
 ./scripts/seed-open-webui-model.sh
-```
+~~
 
 Knowledge collection **lab-docs**: create empty in Open WebUI, re-upload notes
 (files are NFS-backup only).
 
 ## 8. Bastion extras
 
-```bash
+~~bash
 ./scripts/configure-goose.sh
 sudo cp systemd/jarvis-backup.* /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now jarvis-backup.timer
 ./scripts/check-contract.sh
 ./scripts/verify-jarvis.sh
-```
+~~
+
+The unit `ExecStart` is `/home/agent/jarvis-infra/scripts/backup-jarvis.sh`.
 
 ## 9. Optional data
 
 See [RESTORE.md](RESTORE.md). Re-pair OpenClaw at http://agent.lan:18789.
+`WEBUI_SECRET_KEY` lives in the apps secret / `apps-local.tgz`, not in SOPS.
 
 ## Do not
 
@@ -164,3 +183,4 @@ See [RESTORE.md](RESTORE.md). Re-pair OpenClaw at http://agent.lan:18789.
 - Copy image/git tags into this file — edit `VERSION` and both `homepage.yaml` files
 - Retag any tag already on origin (never `git tag -f`)
 - Treat `GIT_TAG` and `IMAGE_TAG` as the same number
+- Install k3s without `INSTALL_K3S_VERSION` from `VERSION`

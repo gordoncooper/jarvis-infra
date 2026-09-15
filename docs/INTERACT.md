@@ -1,5 +1,8 @@
 # How to talk to JARVIS
 
+Operator/copilot contract: [OPERATING.md](OPERATING.md). Pins: `~/jarvis-infra/VERSION`.
+Proof: `~/jarvis-infra/scripts/verify-jarvis.sh`.
+
 | Surface | URL / cmd | Best for | Model / cost |
 | --- | --- | --- | --- |
 | Command board | https://home.lan | Services + rack + compact events. Header **LIVE** = Prometheus; **SIM** = fallback. | — |
@@ -18,4 +21,5 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 
 Pick **jarvis-local** for chatter and RAG. Pick **jarvis-grok-code** when it must run tools or write YAML.
 
-Pins: `~/jarvis-infra/VERSION`. Proof: `~/jarvis-infra/scripts/verify-jarvis.sh`.
+Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard.
+Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic needs HTTPS.

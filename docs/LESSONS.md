@@ -1,7 +1,9 @@
 # JARVIS — mistakes we will not repeat
 
-Lived on the cluster 2026-08-30 -> 2026-09-15. If a future playbook
-contradicts this file, **this file wins**.
+Lived on the cluster 2026-08-30 -> 2026-09-15.
+
+Authority: live cluster, then `VERSION`, then [OPERATING.md](OPERATING.md),
+then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSION.
 
 ## Never do these
 
@@ -9,7 +11,7 @@ contradicts this file, **this file wins**.
 | --- | --- | --- |
 | Put `agent.lan` on `192.168.8.11` | Port 80 is Traefik on **every** node. OpenClaw returns `proxy_attribution_required`. | DNS **and** `/etc/hosts` -> **192.168.8.16**. Browser **http://agent.lan:18789** (hostPort). |
 | `command:` / `args:` on `openedai-speech-min` | Replaces `startup.sh` -> CrashLoopBackOff | Image default CMD only. Mount `/app/voices` + `/app/config`. |
-| Chat-paste gzip+base64 YAML | Chat mutates the payload -> `zlib error` | Plain `cat > file.yaml << 'EOF'`. |
+| Chat-paste gzip+base64 YAML | Chat mutates the payload -> `zlib error` | Plain heredoc into a file. |
 | `kube-state-metrics:v2.14.2` | registry.k8s.io **404** | **v2.20.0** |
 | `nvidia.com/gpu: 1` on an exporter | Steals the A1000 from Ollama | RuntimeClass + `NVIDIA_VISIBLE_DEVICES=all`, **no** GPU resource |
 | `nvidia_gpu_exporter` AUTO fields, driver 595 | Panic: metric name contains `[us]` | `--query-field-names=uuid,name,...` — never AUTO |
@@ -17,10 +19,6 @@ contradicts this file, **this file wins**.
 | `--bind 0.0.0.0` | Invalid --bind | Config `"bind": "lan"` |
 | xAI `max_completion_tokens` | LiteLLM 400 | `drop_params` + drop `max_completion_tokens` |
 | OpenClaw default SA | list nodes 403 | SA `openclaw` + ClusterRole `openclaw-readonly` |
-| User Settings -> Audio for Piper | Only Default / Kokoro.js | **https://chat.lan/admin/settings** -> TTS OpenAI |
-| Waveform next to the mic on HTTP | Permission denied (getUserMedia) | HTTPS. TTS = speaker on the **reply** |
-| Grafana 14574 Host empty | Variables query `nvidia_smi_index` | Query `nvidia_smi_gpu_info` **or** export `index` |
-| Grafana 14574 type Host every time | Variables not saved / Refresh off | Refresh = On dashboard load; Save dashboard |
 | Homepage ConfigMap on `/app/config` | `ENOENT mkdir /app/config/logs` (500) | Obsolete. home.lan is `jarvis-home`. |
 | Flux homepage before local image | `ErrImageNeverPull` on apps-01 | `install-jarvis-home.sh` **then** Flux. |
 | `imagePullPolicy: Always` on jarvis-home | Docker Hub 404 | Never. Image lives in k3s containerd on **apps-01 only**. |
@@ -30,16 +28,18 @@ contradicts this file, **this file wins**.
 | Copy pins into REBUILD / README / PHASE | Greenfield checks out the wrong tag | Edit `VERSION` + yaml only. History stays frozen. |
 | Retag a tag that already exists on origin | GitHub + Gitea fork | Next number is new. Never `git tag -f`. |
 | Run JARVIS scripts as user `bastion` | repos missing; silent `set -e` exit | `sudo su - agent`. HOME=/home/agent |
-| `set -euo pipefail` + `exit` at the `agent@` prompt | kills `su - agent`; you are `bastion@` | Wrap in `bash << 'SCRIPT'` ... `SCRIPT` |
-| `ssh` inside `bash << 'SCRIPT'` without `-n` | ssh eats the rest of the script; paste stops after first ssh | Always `ssh -n` |
-| Nested `ssh ... << EOF` inside `bash << 'SCRIPT'` | same stdin eat | One-line `ssh -n host "cmd"` |
+| `set -euo pipefail` + `exit` at the `agent@` prompt | kills `su - agent`; you are `bastion@` | Wrap in a quoted heredoc |
+| `ssh` inside a quoted heredoc without `-n` | ssh eats the rest of the script; paste stops after first ssh | Always `ssh -n` |
+| Nested `ssh ...` heredoc inside an outer heredoc | same stdin eat | One-line `ssh -n host "cmd"` |
 | Shrink READMEs/docs to fit chat | GitHub gets a stub | Full file, or two complete pastes. Never a summary version. |
-| `sops --decrypt` before `secrets.sops.yaml` exists | rebuild stalls | Bastion chmod 600 files + `restore-bastion-secrets.sh` |
+| Skip SOPS decrypt when the age key is on USB | House-fire rebuild invents new keys | `materialize-bastion-secrets.sh` then `apply-secrets.sh`. chmod 600 files are fallback. |
 | Follow `GITHUB-CUTOVER.md` as current | old v0.1 / v0.4.4 commands | `docs/REBUILD.md`. Cutover is history. |
 | Tarball dumps of `output/` into `public/` | junk `.tgz` on home.lan | Never copy archives into `public/` or `output/static/` |
 | OpenClaw image has no curl/kubectl | exec fails | `node …/prom.js` and `node …/k8s.js` |
 | Goose `OPENAI_HOST: http://llm.lan` after TLS | Traefik 404 | `OPENAI_HOST: https://llm.lan` (no trailing `/v1`) |
 | Goose `OPENAI_HOST: …/v1` | `/v1/v1/chat/completions` 404 | Host only, Goose adds `/v1` |
+| Unpinned `curl | sh` k3s install | Newer k3s than `VERSION` | `INSTALL_K3S_VERSION` from `VERSION` in install-server / join-agents |
+| `cluster_format_disks: true` on disks that already hold `/cluster` | Wipes P300 data | Greenfield only, after `identify-disks.yml` |
 
 ## DNS / hosts
 

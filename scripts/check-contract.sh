@@ -33,12 +33,12 @@ check_yaml() {
 }
 
 check_yaml "$ROOT/apps/jarvis-home/homepage.yaml"
-for f in \
-  "${CLUSTER_YAML:-$HOME/cluster/clusters/jarvis/apps/homepage.yaml}" \
-  "${HOME}/cluster/k8s/apps/homepage.yaml"
-do
-  [ -f "$f" ] && check_yaml "$f"
-done
+CLUSTER_YAML="${CLUSTER_YAML:-$HOME/cluster/clusters/jarvis/apps/homepage.yaml}"
+if [ -f "$CLUSTER_YAML" ]; then
+  check_yaml "$CLUSTER_YAML"
+else
+  bad "missing $CLUSTER_YAML"
+fi
 
 REBUILD="$ROOT/docs/REBUILD.md"
 stale=$(grep -nE 'jarvis-home:v0\.[0-9]|git checkout v0\.[0-9]' "$REBUILD" || true)
@@ -53,6 +53,20 @@ if grep -nE 'JARVIS_HOME_TAG:-\s*v0\.' "$ROOT/scripts/install-jarvis-home.sh"; t
   bad "install-jarvis-home.sh has a hardcoded default tag — source VERSION"
 else
   ok "install-jarvis-home.sh defaults from VERSION"
+fi
+
+if grep -q 'INSTALL_K3S_VERSION' "$ROOT/k3s/install-server.sh" \
+   && grep -q 'INSTALL_K3S_VERSION' "$ROOT/k3s/join-agents.sh"; then
+  ok "k3s install/join pin INSTALL_K3S_VERSION from VERSION"
+else
+  bad "k3s scripts missing INSTALL_K3S_VERSION"
+fi
+
+unit="$ROOT/systemd/jarvis-backup.service"
+if grep -q 'ExecStart=/home/agent/jarvis-infra/scripts/backup-jarvis.sh' "$unit"; then
+  ok "backup unit path is jarvis-infra"
+else
+  bad "$unit ExecStart does not match live jarvis-infra path"
 fi
 
 say "== done =="
