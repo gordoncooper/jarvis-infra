@@ -9,7 +9,7 @@ KEEP_DAYS=7
 ssh -o BatchMode=yes "$REMOTE" "sudo mkdir -p $ROOT/$STAMP && sudo chmod 750 $ROOT $ROOT/$STAMP"
 
 echo "== etcd snapshot =="
-ssh -o BatchMode=yes ctrl-01 'sudo k3s etcd-snapshot save' || true
+ssh -o BatchMode=yes ctrl-01 'sudo k3s etcd-snapshot save --config /etc/rancher/k3s/snapshot.yaml' || true
 
 echo "== hostPaths =="
 ssh -o BatchMode=yes ctrl-01 "sudo tar -C /cluster/local -czf - gitea" \

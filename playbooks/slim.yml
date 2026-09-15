@@ -1,0 +1,6 @@
+---
+- name: Slim desktop leftovers
+  hosts: cluster
+  become: true
+  roles:
+    - slim
