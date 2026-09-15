@@ -21,7 +21,7 @@ kubectl get pods -A --field-selector=status.phase!=Succeeded
 echo; echo "----- gpu -----"
 for n in gpu-01 gpu-02; do
   kubectl get node "$n" -o jsonpath="$n gpu={.status.capacity.nvidia\.com/gpu} alloc={.status.allocatable.nvidia\.com/gpu}{'\n'}"
-  ssh "$n" 'nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv'
+  ssh -n -o BatchMode=yes "$n" 'nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv'
 done
 
 echo; echo "----- ollama -----"
@@ -30,7 +30,7 @@ kubectl -n inference exec deploy/ollama-embed -- ollama list
 
 echo; echo "----- nfs -----"
 for h in ctrl-01 gpu-01 gpu-02 data-01 data-02 apps-01; do
-  mnt=$(ssh "$h" 'findmnt -n -o TARGET,SOURCE /mnt/nfs 2>/dev/null || true')
+  mnt=$(ssh -n -o BatchMode=yes "$h" 'findmnt -n -o TARGET,SOURCE /mnt/nfs 2>/dev/null || true')
   printf '%-10s %s\n' "$h" "${mnt:-server-or-unmounted}"
 done
 
@@ -96,7 +96,7 @@ git -C "$HOME/cluster" describe --tags --always 2>/dev/null || true
 git -C "$HOME/jarvis-infra" describe --tags --always 2>/dev/null || true
 
 echo; echo "----- etcd snapshots -----"
-ssh data-01 'ls -lh /cluster/nfs/snapshots | tail -5'
+ssh -n -o BatchMode=yes data-01 'ls -lh /cluster/nfs/snapshots | tail -5'
 
 echo; echo "----- files -----"
 if bash "$ROOT/scripts/check-contract.sh"; then

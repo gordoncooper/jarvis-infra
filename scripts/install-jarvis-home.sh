@@ -30,7 +30,7 @@ ls -ld "$SRC" "$SRC/output" "$SRC/Dockerfile" || {
 }
 
 echo "== docker on $HOST =="
-ssh -o BatchMode=yes "$HOST" 'sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io'
+ssh -n -o BatchMode=yes "$HOST" 'sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io'
 
 echo "== upload build context =="
 tar -C "$SRC" -czf /tmp/jarvis-home-src.tgz Dockerfile output
