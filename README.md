@@ -17,7 +17,7 @@ apps are **not** here — they live in Gitea and are mirrored to
 
 ## What this cluster is for
 
-Gordon's LAN-only JARVIS: talk to it in a browser, have it **use the lab**
+LAN-only home JARVIS: talk to it in a browser, have it **use the lab**
 (kubectl, Prometheus, git), keep Grok for tools and a local 7B for private/cheap
 chat. No public ports. SuperGrok chat quota is **not** the xAI API —
 `jarvis-grok-code` bills [console.x.ai](https://console.x.ai).
