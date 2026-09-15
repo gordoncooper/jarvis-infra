@@ -2,7 +2,9 @@
 
 | Surface | URL / cmd | Best for | Model / cost |
 |---|---|---|---|
-| Command board | https://home.lan | Status at a glance | — |
+| Command board | https://home.lan | Home — services + rack | — |
+| Status floor | https://home.lan/status | Dense node/GPU/workload view | — |
+
 | Chat | https://chat.lan | Q&A, RAG, voice, light coding | `jarvis-local` free; `jarvis-grok*` SuperGrok |
 | Agent | http://agent.lan:18789 | Cluster ops, files, live metrics | `jarvis-grok-code` (API) |
 | Goose | `goose session` on bastion | Terminal agent on the git repo | `jarvis-grok-code` via **https://llm.lan** |

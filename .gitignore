@@ -1,4 +1,5 @@
 # secrets — never commit plaintext
+secrets/secrets.yaml
 secrets/*.yaml
 !secrets/*.example.yaml
 !secrets/*.sops.yaml
@@ -22,3 +23,6 @@ __pycache__/
 /cluster/
 .kube/
 .env
+
+# apps/jarvis-home/output is the production SSR bundle (Home + /status).
+# It MUST be committed. Do not add output/ here.

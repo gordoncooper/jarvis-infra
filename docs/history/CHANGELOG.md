@@ -1,5 +1,16 @@
 # JARVIS changelog
 
+## 2026-09-14 22:00  Phase 21 command center LIVE
+
+home.lan **200**, /status **200**. Image `jarvis-home:v0.2` on apps-01.
+Gitea `021d7a3`. Pod Ready 1/1. srvx `--prod` (not npx).
+v0.1 hung 0/1 Ready for hours. Run scripts as **agent**, never `bastion`.
+Greenfield: commit `apps/jarvis-home/output/` in jarvis-infra; tag **v0.4.4**
+on both repos (cluster already has v0.3–v0.4.3); `install-jarvis-home.sh` before Flux.
+
+
+## 2026-09-08 21:13  Phase 20 HTTPS UP
+
 ## 2026-09-08 21:13  Phase 20 HTTPS UP
 
 home.lan and grafana.lan on mkcert. git.lan stays HTTP.

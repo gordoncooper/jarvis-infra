@@ -24,6 +24,17 @@ ssh ctrl-01 'sudo k3s server --cluster-reset --cluster-reset-restore-path=/mnt/n
 
 k3s restore is a **reset**. Agents may need `k3s-agent` restart.
 
+The command-center image is **not** in NFS. After a node wipe of apps-01
+(or a greenfield k3s), Home **and** Status come back only after:
+
+```bash
+# bastion as agent — needs ~/jarvis-infra/apps/jarvis-home/output
+~/jarvis-infra/scripts/install-jarvis-home.sh
+kubectl -n apps delete pod -l app=homepage
+# expect https://home.lan/ and https://home.lan/status both 200
+```
+
+
 ## 3. hostPath tarballs (service down)
 
 Extract **on the node that owns the path**:

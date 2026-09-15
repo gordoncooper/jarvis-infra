@@ -1,6 +1,8 @@
 # JARVIS git layout (decided 2026-09-13)
 
-Live Gitea HEAD at export: **5fb0f6e** (`tls: HTTPS home.lan grafana.lan chat.lan; git.lan stays HTTP`).
+Live Gitea command center: **021d7a3** (`apps: jarvis-home v0.2 — srvx --prod, no npx`).
+Known-good paired tags: **v0.4.4** on both repos (cluster already had v0.3–v0.4.3).
+
 GitHub account: https://github.com/gordoncooper (private).
 SOPS + age: **yes**.
 
@@ -54,7 +56,8 @@ Chicken-egg: Flux needs Gitea; Gitea is a cluster app.
 8. Create k8s secrets from SOPS (or the checklist): LiteLLM, xAI, Grafana,
    OpenClaw gateway
 9. `lan-https.sh` (new CA if the old mkcert key is gone)
-10. Restore hostPath tarballs **only if** you want old chats/dashboards;
+10. `./scripts/install-jarvis-home.sh` **before** Flux applies homepage (or immediately after on `ErrImageNeverPull`)
+11. Restore hostPath tarballs **only if** you want old chats/dashboards;
     otherwise greenfield (models re-pull)
 
 GitHub never becomes authoritative. After rebuild, Gitea is origin again;

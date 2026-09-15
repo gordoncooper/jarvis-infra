@@ -21,7 +21,14 @@ contradicts this file, **this file wins**.
 | Waveform next to the mic on HTTP | Permission denied (getUserMedia) | HTTPS. TTS = speaker on the **reply** |
 | Grafana 14574 Host empty | Variables query `nvidia_smi_index` | Query `nvidia_smi_gpu_info` **or** export `index` in nvidia-smi fields |
 | Grafana 14574 type Host every time | Variables not saved / Refresh off | Settings → Variables: Refresh = On dashboard load; Save dashboard |
-| Homepage ConfigMap on `/app/config` | `ENOENT mkdir /app/config/logs` (500) | subPath each yaml; emptyDir for `/app/config/logs` |
+| Homepage ConfigMap on `/app/config` | `ENOENT mkdir /app/config/logs` (500) | **Obsolete.** home.lan is `jarvis-home`, not gethomepage. |
+| Flux homepage before local image | `ErrImageNeverPull` on apps-01 | `./scripts/install-jarvis-home.sh` **then** Flux. `imagePullPolicy: Never`. |
+| `imagePullPolicy: Always` on jarvis-home | Docker Hub 404 | Never. Image lives in k3s containerd on **apps-01 only**. |
+| `npx srvx` as image CMD | non-TTY npx prompts/hangs; Ready never; :3000 connection refused | `node ./node_modules/srvx/bin/srvx.mjs --prod …` (v0.2) |
+| Same tag + `imagePullPolicy: Never` | kubelet keeps old layers after rebuild | Bump tag (`v0.2`) **after** import, then Flux |
+| Run JARVIS scripts as user `bastion` | `~/jarvis-infra` and `~/cluster` missing; `set -e` + `test -d` exits with **no error text** | `sudo su - agent`. HOME must be `/home/agent`. |
+| Inline `set -euo pipefail` with no echos | Failed `test -d` looks like a no-op | `bash ~/jarvis-infra/scripts/fix-homepage-v0.2.sh` (prints who/paths) |
+
 | OpenClaw image has no curl/kubectl | exec fails | `node …/prom.js` and `node …/k8s.js` |
 | `k3s etcd-snapshot save` Unknown flag --tls-san | Snapshot CLI ignores **server** keys | Ignore; snapshot still saves to `/mnt/nfs/snapshots` |
 | Goose `OPENAI_HOST: http://llm.lan` after TLSStore | Traefik `404 page not found` | `OPENAI_HOST: https://llm.lan` (no trailing `/v1`) |
