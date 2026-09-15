@@ -13,9 +13,8 @@ var install_page_default = "<!DOCTYPE html>\n<html lang=\"en\" class=\"device-de
 //#region \0virtual:grok-og-identity
 var grokOgIdentity = { "site": {
 	"title": "JARVIS",
-	"type": "website",
+	"description": "Homelab command-center HUD",
 	"card": "custom",
-	"description": "Home-lab command center — six-node k3s, dual RTX A1000.",
 	"image": "/og.jpg"
 } };
 //#endregion

@@ -1,0 +1,23 @@
+JARVIS home HUD drop — scp then merge. Do not Flux before import.
+
+On your laptop (after download):
+  scp jarvis-home-hud-v0.4.9.tgz agent@bastion:/tmp/
+
+On bastion as agent:
+  cd ~/jarvis-infra
+  tar -tzf /tmp/jarvis-home-hud-v0.4.9.tgz | head
+  tar -C /tmp -xzf /tmp/jarvis-home-hud-v0.4.9.tgz
+  # merge (keeps git history on other files)
+  rsync -a /tmp/jarvis-home/ ~/jarvis-infra/apps/jarvis-home/
+  cp ~/jarvis-infra/apps/jarvis-home/homepage.yaml ~/cluster/clusters/jarvis/apps/homepage.yaml
+
+  # pins — image only; do not retag git
+  # Edit VERSION: IMAGE_TAG=v0.4.9 and IMAGE=docker.io/library/jarvis-home:v0.4.9
+  # Both homepage.yaml files already say v0.4.9 in this drop.
+
+  ./scripts/check-contract.sh
+  ./scripts/install-jarvis-home.sh          # BEFORE Flux
+  kubectl -n apps delete pod -l app=homepage
+  # wait Ready, then https://home.lan  (LIVE 7/7, click a rack tile)
+
+Do not bump GIT_TAG until you like it. Do not npx srvx.

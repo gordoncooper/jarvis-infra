@@ -1,0 +1,312 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+}
+
+@theme {
+  --color-bg: #07090b;
+  --color-elev: #0e1216;
+  --color-panel: #12181e;
+  --color-fg: #e8edf2;
+  --color-muted: #8b98a5;
+  --color-faint: #5c6974;
+  --color-line: #1e2830;
+  --color-line-s: #2a3844;
+  --color-accent: #5eead4;
+  --color-warn: #e8b86d;
+  --color-danger: #e07a6a;
+  --color-ok: #7dcea0;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --text-2xs: 0.625rem;
+  --radius-xs: 2px;
+  --shadow-hud: 0 1px 0 color-mix(in oklab, var(--color-accent) 18%, transparent);
+  --shadow-dossier: -24px 0 80px #000a, inset 2px 0 0 color-mix(in oklab, var(--color-accent) 35%, transparent);
+  --drop-shadow-accent: 0 0 6px color-mix(in oklab, var(--color-accent) 50%, transparent);
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html,
+  body {
+    min-height: 100%;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+  }
+}
+
+@layer components {
+  .hud-grid {
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--color-line) 70%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--color-line) 70%, transparent) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+  }
+  .scanlines {
+    background: repeating-linear-gradient(
+      transparent 0 2px,
+      color-mix(in oklab, var(--color-bg) 28%, transparent) 3px
+    );
+    opacity: 0.18;
+    mix-blend-mode: multiply;
+  }
+  .hexmark {
+    position: fixed;
+    right: -4rem;
+    top: 4rem;
+    z-index: 0;
+    width: 22rem;
+    height: 22rem;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235eead4' stroke-width='0.6'><path d='M12 2 20 7v10l-8 5-8-5V7z'/></svg>")
+      center / contain no-repeat;
+    opacity: 0.05;
+  }
+  .hud-frame {
+    pointer-events: none;
+    position: fixed;
+    inset: 8px;
+    z-index: 25;
+  }
+  .hud-frame .c {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
+    border-style: solid;
+  }
+  .hud-frame .tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
+  .hud-frame .tr { top: 0; right: 0; border-width: 1px 1px 0 0; }
+  .hud-frame .bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+  .hud-frame .br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+  .scan-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+    background-size: 40% 100%;
+    background-repeat: no-repeat;
+    animation: scan 4.8s linear infinite;
+    opacity: 0.55;
+  }
+  @keyframes scan {
+    0% { background-position: -40% 0; }
+    100% { background-position: 140% 0; }
+  }
+  .pulse-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 99px;
+    background: var(--color-faint);
+  }
+  .pulse-dot.ok {
+    background: var(--color-ok);
+    animation: ping 2.2s ease-out infinite;
+  }
+  @keyframes ping {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-ok) 60%, transparent);
+    }
+    70% {
+      box-shadow: 0 0 0 8px transparent;
+    }
+  }
+  .hex-glow {
+    color: var(--color-accent);
+    filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-accent) 50%, transparent));
+    animation: hexglow 3.2s ease-in-out infinite;
+  }
+  @keyframes hexglow {
+    0%, 100% { filter: drop-shadow(0 0 4px color-mix(in oklab, var(--color-accent) 40%, transparent)); }
+    50% { filter: drop-shadow(0 0 11px color-mix(in oklab, var(--color-accent) 70%, transparent)); }
+  }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--color-line);
+    padding: 0.22rem 0.45rem;
+    color: var(--color-muted);
+    background: var(--color-elev);
+  }
+  .chip.ok {
+    color: var(--color-ok);
+    border-color: color-mix(in oklab, var(--color-ok) 35%, transparent);
+  }
+  .chip.bad {
+    color: var(--color-danger);
+    border-color: color-mix(in oklab, var(--color-danger) 40%, transparent);
+  }
+  .tile {
+    position: relative;
+    background-color: color-mix(in oklab, var(--color-elev) 92%, transparent);
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--color-accent) 65%, transparent), color-mix(in oklab, var(--color-accent) 65%, transparent)),
+      linear-gradient(color-mix(in oklab, var(--color-accent) 65%, transparent), color-mix(in oklab, var(--color-accent) 65%, transparent)),
+      linear-gradient(color-mix(in oklab, var(--color-accent) 65%, transparent), color-mix(in oklab, var(--color-accent) 65%, transparent)),
+      linear-gradient(color-mix(in oklab, var(--color-accent) 65%, transparent), color-mix(in oklab, var(--color-accent) 65%, transparent)),
+      linear-gradient(color-mix(in oklab, var(--color-accent) 65%, transparent), color-mix(in oklab, var(--color-accent) 65%, transparent)),
+      linear-gradient(color-mix(in oklab, var(--color-accent) 65%, transparent), color-mix(in oklab, var(--color-accent) 65%, transparent)),
+      linear-gradient(color-mix(in oklab, var(--color-accent) 65%, transparent), color-mix(in oklab, var(--color-accent) 65%, transparent)),
+      linear-gradient(color-mix(in oklab, var(--color-accent) 65%, transparent), color-mix(in oklab, var(--color-accent) 65%, transparent));
+    background-size: 9px 1px, 1px 9px, 9px 1px, 1px 9px, 9px 1px, 1px 9px, 9px 1px, 1px 9px;
+    background-position: top left, top left, top right, top right, bottom left, bottom left, bottom right, bottom right;
+    background-repeat: no-repeat;
+    border: 1px solid var(--color-line);
+    border-radius: 2px;
+    padding: 0.7rem 0.8rem;
+    text-align: left;
+    color: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    width: 100%;
+    display: block;
+    font: inherit;
+    min-height: 44px;
+  }
+  .tile:hover,
+  .tile:focus-visible {
+    border-color: color-mix(in oklab, var(--color-accent) 45%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-accent) 22%, transparent),
+      0 0 18px color-mix(in oklab, var(--color-accent) 10%, transparent);
+    outline: none;
+  }
+  .tile .lbl {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    color: var(--color-muted);
+    text-transform: uppercase;
+  }
+  .tile .val {
+    font-family: var(--font-mono);
+    font-size: 1.12rem;
+    margin-top: 0.18rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .tile .val.small {
+    font-size: 0.78rem;
+    word-break: break-all;
+  }
+  .tile .sub {
+    font-size: 0.68rem;
+    color: var(--color-faint);
+    margin-top: 0.12rem;
+    font-family: var(--font-mono);
+  }
+  .hint {
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.16em;
+    color: var(--color-faint);
+    text-transform: uppercase;
+    margin-top: 0.4rem;
+  }
+  .dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 99px;
+    background: var(--color-ok);
+    display: inline-block;
+  }
+  .dot.off {
+    background: var(--color-danger);
+  }
+  .h-bar {
+    height: 3px;
+  }
+  .h-spark {
+    height: 5.2rem;
+    display: block;
+    margin-top: 0.35rem;
+  }
+  .kv {
+    display: grid;
+    grid-template-columns: 7.2rem 1fr;
+    gap: 0.28rem 0.65rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+  .kv dt {
+    color: var(--color-faint);
+  }
+  .kv dd {
+    color: var(--color-fg);
+    overflow-wrap: anywhere;
+  }
+  .lvl-ok {
+    color: var(--color-ok);
+  }
+  .lvl-warn {
+    color: var(--color-warn);
+  }
+  .lvl-err {
+    color: var(--color-danger);
+  }
+  .lvl-info {
+    color: var(--color-accent);
+  }
+  .dossier-enter {
+    animation: dossier-in 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes dossier-in {
+    from { transform: translateX(18px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanlines,
+  .pulse-dot.ok,
+  .hex-glow,
+  .scan-bar,
+  .dossier-enter {
+    animation: none;
+  }
+  .scanlines {
+    display: none;
+  }
+}
