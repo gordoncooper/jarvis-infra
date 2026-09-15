@@ -1,0 +1,3 @@
+# CLI-only: k3s etcd-snapshot save --config /etc/rancher/k3s/snapshot.yaml
+etcd-snapshot-dir: /mnt/nfs/snapshots
+etcd-snapshot-retention: 8

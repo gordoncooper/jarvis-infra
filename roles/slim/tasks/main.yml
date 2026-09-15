@@ -40,6 +40,20 @@
   when: slim_purge_desktop | bool
   failed_when: false
 
+# Ubuntu 26.04 "firefox" is a snap stub. dist-upgrade reinstalls it unless held.
+- name: Purge firefox apt stub
+  ansible.builtin.apt:
+    name: firefox
+    state: absent
+    purge: true
+  failed_when: false
+
+- name: Hold firefox so dist-upgrade cannot pull the snap stub back
+  ansible.builtin.dpkg_selections:
+    name: firefox
+    selection: hold
+  failed_when: false
+
 - name: Autoremove leftover apt packages
   ansible.builtin.apt:
     autoremove: true
