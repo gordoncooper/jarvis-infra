@@ -33,7 +33,9 @@ Image is local only: `imagePullPolicy: Never`, nodeSelector `jarvis.role=apps`
 | v0.1 | — | `npx srvx` never bound :3000 |
 | v0.2 | v0.4.4 | srvx `--prod`. Tiles simulated. |
 | v0.4.5 | v0.4.5 | Prometheus scrape. `PROMETHEUS_URL`. |
-| v0.4.8 | v0.4.8 | 10-min event stream + events RBAC. **current IMAGE_TAG** |
+| v0.4.8 | v0.4.8 | 10-min event stream + events RBAC |
+
+Living image pin is [`VERSION`](../../VERSION), not this table.
 
 ```bash
 ~/jarvis-infra/scripts/install-jarvis-home.sh

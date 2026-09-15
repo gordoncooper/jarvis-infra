@@ -12,6 +12,7 @@ Procedure: [REBUILD.md](REBUILD.md). Footguns: [LESSONS.md](LESSONS.md).
 5. LESSONS (rack landmines still true).
 6. `docs/history/` and `PHASE*` — frozen snapshots. Do not rewrite when VERSION moves.
 7. GitHub `gordoncooper/jarvis-infra` (origin for this repo) and `jarvis-cluster` (**mirror only**).
+   No third repo. SOPS lives here (`secrets/secrets.sops.yaml`).
 
 ## Hard rules
 

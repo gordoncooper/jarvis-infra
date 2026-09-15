@@ -19,6 +19,8 @@ Do not retag old git tags. Alignment: `scripts/check-contract.sh`.
 | Rebuild | [docs/REBUILD.md](docs/REBUILD.md) |
 | Lessons | [docs/LESSONS.md](docs/LESSONS.md) |
 | Day to day | [docs/INTERACT.md](docs/INTERACT.md) |
+| Operator | [docs/OPERATING.md](docs/OPERATING.md) |
+| Restore | [docs/RESTORE.md](docs/RESTORE.md) |
 | Command center | [apps/jarvis-home/](apps/jarvis-home/) (`output/` is committed) |
 
 ## Why two repos
@@ -154,7 +156,9 @@ LAN only. mkcert TLS. Never internet-exposed.
 - `scripts/install-jarvis-home.sh` — docker build on apps-01, `k3s ctr import`
 - `scripts/check-contract.sh` / `verify-jarvis.sh` — pin + live proof
 - `scripts/mirror-to-github.sh` — Gitea to GitHub cluster mirror
-- `docs/` — rebuild, restore, lessons, history (PHASE1-22 are snapshots)
+- `docs/` — OPERATING, INTERACT, REBUILD, RESTORE, LESSONS; `docs/history/` is frozen
+- `secrets/` — SOPS+age (`secrets.sops.yaml` in git; age key is not)
+- `systemd/` — nightly NFS backup timer (unit path is this repo)
 
 Greenfield does **not** run `npm run build` on the cluster.
 
