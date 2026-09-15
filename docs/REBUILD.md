@@ -8,7 +8,7 @@ gpu-01/gpu-02: RTX A1000. Other four: Patriot P300 512G as `/cluster`.
 
 USB (not in Git): `~/.config/sops/age/keys.txt` and mkcert `rootCA-key.pem`.
 
-Known-good snapshot: **v0.4.4** (command center live, home 200 / status 200).
+Known-good snapshot: **v0.4.6** (command center live, home 200 / status 200).
 GitHub already has v0.1 … v0.4.3 on `jarvis-cluster` — do not reuse those.
 
 ## Homepage contract (Home + Status)
@@ -22,7 +22,7 @@ Same image, two routes. Both must come back after a greenfield rebuild.
 | Deploy / Service / Ingress | Gitea / jarvis-cluster | `clusters/jarvis/apps/homepage.yaml` |
 | DNS | router | `home.lan` → `192.168.8.11` |
 
-Image: `docker.io/library/jarvis-home:v0.2` · `imagePullPolicy: Never` · node `apps-01`.
+Image: `docker.io/library/jarvis-home:v0.4.5` · `imagePullPolicy: Never` · node `apps-01`.
 `output/` is **in git**. Do not install gethomepage.
 
 **Order:** build+import the image **before** Flux applies the Deployment. If you get `ErrImageNeverPull`, run the install script, then `kubectl -n apps delete pod -l app=homepage`.
@@ -42,7 +42,7 @@ from bastion. Clone this repo on the bastion **as agent**:
 sudo su - agent
 git clone git@github.com:gordoncooper/jarvis-infra.git ~/jarvis-infra
 cd ~/jarvis-infra
-git checkout v0.4.4    # or main if you want HEAD
+git checkout v0.4.6    # or main if you want HEAD
 # confirm the command-center bundle is present
 test -d apps/jarvis-home/output
 test -f apps/jarvis-home/Dockerfile
@@ -76,7 +76,7 @@ Repair: restore `gitea.tgz` first ([RESTORE.md](RESTORE.md)), skip empty repo.
 
 ## 4. Load cluster YAML into Gitea
 
-This YAML includes `clusters/jarvis/apps/homepage.yaml` (`jarvis-home:v0.2`).
+This YAML includes `clusters/jarvis/apps/homepage.yaml` (`jarvis-home:v0.4.5`).
 
 ```bash
 git clone --mirror git@github.com:gordoncooper/jarvis-cluster.git /tmp/jarvis-cluster.git
@@ -128,7 +128,7 @@ sudo systemctl enable --now jarvis-backup.timer
 # MUST see:
 #   home_https   200
 #   home_status  200
-#   image docker.io/library/jarvis-home:v0.2
+#   image docker.io/library/jarvis-home:v0.4.5
 ```
 
 ## 9. Optional data (old chats / Grafana sqlite)
@@ -144,7 +144,7 @@ Re-pair OpenClaw at http://agent.lan:18789.
 - Commit mkcert keys or plaintext `secrets.yaml`
 - `nvidia.com/gpu` on the exporter
 - Run Goose against `jarvis-local` (invents hardware)
-- Point homepage at `ghcr.io/gethomepage` (replaced by `jarvis-home:v0.2`)
+- Point homepage at `ghcr.io/gethomepage` (replaced by `jarvis-home:v0.4.5`)
 - Let Flux schedule homepage before `install-jarvis-home.sh` (`ErrImageNeverPull`)
 - Use `npx srvx` as the image CMD (Ready stays 0/1, home.lan 503)
 - Run these scripts as user `bastion` (`~/jarvis-infra` is empty there)
