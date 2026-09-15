@@ -67,3 +67,13 @@ STT is Whisper local. Mic/waveform needs HTTPS. Wake-word is later.
 - Do not invent hostnames (not j3rvis) or load averages.
 - git.lan stays HTTP. agent.lan:18789 stays HTTP.
 - Homepage image is local on apps-01 (`imagePullPolicy: Never`).
+
+## Learned facts
+
+Git briefing (this file) is **stable**. Things JARVIS is **told to remember** go to
+`learned.md` (OpenClaw workspace + NFS mirror), collection **jarvis-learned**.
+
+Promote from bastion: `~/jarvis-infra/scripts/remember.sh the fact here`
+OpenClaw: append a bullet to `learned.md` in the workspace, then seed runs hourly
+(or Goose runs `seed-learned.sh`). Chat.lan 7B **cannot** write — it only reads RAG.
+Never put secrets in learned.md. Dreams / MEMORY.md stay private to OpenClaw.

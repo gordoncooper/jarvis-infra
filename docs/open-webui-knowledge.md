@@ -9,3 +9,9 @@ If a chat has no knowledge chip: **+** → Attach Knowledge → `lab-docs`, or t
 Embeddings: gpu-02 `nomic-embed-text`. Generation: gpu-01 `jarvis`.
 
 Do not upload secrets. Keep the canary line in briefing.md (`blue-banana-42`).
+
+## jarvis-learned
+
+Promoted facts from `learned.md` (not git). Publish: `scripts/seed-learned.sh`.
+Append + publish: `scripts/remember.sh <fact>`.
+Attach both **lab-docs** and **jarvis-learned** if a chat has no chips.

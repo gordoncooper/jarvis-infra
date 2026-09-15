@@ -32,6 +32,10 @@ tar -C "$HOME" -czf - \
   | ssh -n -o BatchMode=yes "$REMOTE" "sudo tee $ROOT/$STAMP/bastion-secrets.tgz >/dev/null"
 ssh -n -o BatchMode=yes "$REMOTE" "sudo chmod 600 $ROOT/$STAMP/bastion-secrets.tgz"
 
+echo "== learned.md (NFS mirror) =="
+ssh -n -o BatchMode=yes "$REMOTE" "sudo test -f /cluster/nfs/jarvis/learned.md && sudo tar -C /cluster/nfs -czf - jarvis" \
+  | ssh -n -o BatchMode=yes "$REMOTE" "sudo tee $ROOT/$STAMP/jarvis-learned.tgz >/dev/null" || echo "WARN: no nfs jarvis dir"
+
 echo "== github mirror (best-effort) =="
 "$HOME/jarvis-infra/scripts/mirror-to-github.sh" || echo "WARN: github mirror failed"
 
