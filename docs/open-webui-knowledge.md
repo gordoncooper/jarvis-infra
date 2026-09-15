@@ -1,17 +1,11 @@
-# Open WebUI — attach Knowledge (v0.11.3)
+# Open WebUI — Knowledge (`lab-docs`)
 
-Chat models live in the **chat picker**, not Workspace → Models.
+Source of truth: [`briefing.md`](briefing.md) in git.
+Publish: `~/jarvis-infra/scripts/seed-lab-docs.sh` (JWT from the WebUI secret; no browser).
 
-Create: Workspace → Knowledge → Create (`lab-docs`) → open it → **+** → upload.
+The `jarvis-local` model record is told to use collection **lab-docs**.
+If a chat has no knowledge chip: **+** → Attach Knowledge → `lab-docs`, or type `#`.
 
-Attach in a chat:
+Embeddings: gpu-02 `nomic-embed-text`. Generation: gpu-01 `jarvis`.
 
-1. New Chat, pick **jarvis-local**
-2. **+** left of the input → **Attach Knowledge** → `lab-docs`
-3. Chip on the message means retrieval is on
-4. Ask; look for “Retrieved N source”
-
-Same thing: type `#` and pick the collection.
-
-Embeddings: gpu-02 `nomic-embed-text` via `RAG_OLLAMA_BASE_URL=http://ollama-embed.inference.svc.cluster.local:11434`.
-Generation: gpu-01 `jarvis`.
+Do not upload secrets. Keep the canary line in briefing.md (`blue-banana-42`).

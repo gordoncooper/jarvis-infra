@@ -10,7 +10,7 @@ Proof: `~/jarvis-infra/scripts/verify-jarvis.sh`.
 | Telemetry | https://home.lan/api/telemetry | JSON snapshot (source, GPUs, events) | — |
 | Chat | https://chat.lan | Q&A, RAG, voice | `jarvis-local` free; `jarvis-grok*` SuperGrok |
 | Agent | http://agent.lan:18789 | Cluster ops, files, live metrics | `jarvis-grok-code` (API) |
-| Goose | `goose session` on bastion | Terminal agent on the git repo | `jarvis-grok-code` via **https://llm.lan** |
+| Goose | `goose session` on bastion | Terminal agent on the git repo | Live default **jarvis-local** via **https://llm.lan**; grok-code when you need tools |
 | Grafana | https://grafana.lan | Graphs (NVIDIA 14574) | — |
 | API | https://llm.lan/v1 | Anything OpenAI-shaped | LiteLLM |
 | GitOps | http://git.lan | YAML in `~/cluster` as **agent** | — |
@@ -24,4 +24,4 @@ Pick **jarvis-local** for chatter and RAG. Pick **jarvis-grok-code** when it mus
 Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
 Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic needs HTTPS.
 
-Audio click-ops: [open-webui-audio.md](open-webui-audio.md). RAG: [open-webui-knowledge.md](open-webui-knowledge.md).
+Audio click-ops: [open-webui-audio.md](open-webui-audio.md). RAG: [open-webui-knowledge.md](open-webui-knowledge.md). Briefing: [briefing.md](briefing.md) (seeded into `lab-docs`).

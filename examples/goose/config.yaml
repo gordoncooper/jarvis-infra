@@ -1,3 +1,4 @@
+GOOSE_MOIM_MESSAGE_FILE: /home/agent/jarvis-infra/docs/briefing.md
 # ~/.config/goose/config.yaml  (no secrets)
 GOOSE_PROVIDER: openai
 GOOSE_MODEL: jarvis-grok-code
