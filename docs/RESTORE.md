@@ -1,58 +1,116 @@
 # JARVIS restore (after power loss)
 
-Backups: `data-01:/cluster/nfs/backups/YYYYMMDD-HHMM/`  
-etcd: `data-01:/cluster/nfs/snapshots/` (also `/mnt/nfs/snapshots` on ctrl-01)
+Procedure only. Pins live in [`VERSION`](../VERSION).
+Operator contract: [OPERATING.md](OPERATING.md). Rebuild from scratch: [REBUILD.md](REBUILD.md).
 
-Do **not** restore unless the live cluster is actually dead.
+Do **not** restore unless the live cluster (or that component) is actually dead.
+The 2026-09-15 dry-run proved stamp `YYYYMMDD-HHMM` tarballs are readable; it did
+**not** unpack onto `$HOME` or `/cluster/local`.
 
-## 1. Confirm backups
+Backups: `data-01:/cluster/nfs/backups/<STAMP>/`
+etcd: `ctrl-01:/mnt/nfs/snapshots/` (NFS: `data-01:/cluster/nfs/snapshots`).
+data-01 is the NFS server (`/cluster/nfs/...`). Other nodes mount that at `/mnt/nfs`.
 
-```bash
-ssh data-01 'sudo ls -lh /cluster/nfs/backups; sudo ls -lh /cluster/nfs/snapshots | tail'
-ssh data-01 'sudo tar -tzf /cluster/nfs/backups/LATEST/gitea.tgz | head'
-ssh data-01 'sudo tar -tzf /cluster/nfs/backups/LATEST/apps-local.tgz | head'
-ssh data-01 'sudo tar -tzf /cluster/nfs/backups/LATEST/grafana.tgz | head'
-```
+Run every command as **agent**. Always `ssh -n`.
 
-## 2. etcd (ctrl-01 only, cluster down)
+## 1. Confirm the stamp (read-only)
 
-```bash
-ssh ctrl-01 'sudo systemctl stop k3s'
-ssh ctrl-01 'sudo k3s server --cluster-reset --cluster-reset-restore-path=/mnt/nfs/snapshots/SNAPSHOTFILE'
-# then start k3s; agents rejoin
-```
+Pick `STAMP` (newest successful `OK` from `journalctl -u jarvis-backup.service`).
 
-k3s restore is a **reset**. Agents may need `k3s-agent` restart.
+~~bash
+STAMP=YYYYMMDD-HHMM   # example: 20260915-0331
+ssh -n data-01 "sudo ls -lh /cluster/nfs/backups/$STAMP"
+ssh -n data-01 "sudo sh -c 'for f in /cluster/nfs/backups/'$STAMP'/*.tgz; do gzip -t \"$f\" && echo gzip_ok \"$f\"; done'"
+ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/gitea.tgz | head"
+ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/apps-local.tgz | grep -E '^(open-webui/webui.db|openclaw/)'"
+ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/grafana.tgz | head"
+ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/bastion-secrets.tgz"
+ssh -n ctrl-01 "sudo k3s etcd-snapshot ls --config /etc/rancher/k3s/snapshot.yaml | tail"
+~~
 
-The command-center image is **not** in NFS. After a node wipe of apps-01
-(or a greenfield k3s), Home **and** Status come back only after:
+Expect four tgz: `gitea.tgz`, `grafana.tgz`, `apps-local.tgz`, `bastion-secrets.tgz` (mode 600).
 
-```bash
-# bastion as agent — needs ~/jarvis-infra/apps/jarvis-home/output
-~/jarvis-infra/scripts/install-jarvis-home.sh
+## 2. hostPath tarballs (that component down)
+
+Extract **on the node that owns the path**. Scale the workload to 0 first.
+NFS clients use `/mnt/nfs/backups/$STAMP/...`. On data-01 itself use `/cluster/nfs/backups/...`.
+
+| tarball | node | dest (tar -C) | contains |
+| --- | --- | --- | --- |
+| `gitea.tgz` | ctrl-01 | `/cluster/local` | `gitea/` |
+| `grafana.tgz` | data-02 | `/cluster/local` | `grafana/` |
+| `apps-local.tgz` | apps-01 | `/cluster/local` | `open-webui/` + `openclaw/` |
+
+~~bash
+# Gitea
+kubectl -n gitea scale deploy/gitea --replicas=0
+ssh -n ctrl-01 "sudo tar -C /cluster/local -xzf /mnt/nfs/backups/$STAMP/gitea.tgz"
+kubectl -n gitea scale deploy/gitea --replicas=1
+kubectl -n gitea rollout status deploy/gitea
+
+# Grafana
+kubectl -n monitoring scale deploy/grafana --replicas=0
+ssh -n data-02 "sudo tar -C /cluster/local -xzf /mnt/nfs/backups/$STAMP/grafana.tgz"
+kubectl -n monitoring scale deploy/grafana --replicas=1
+
+# Open WebUI + OpenClaw
+kubectl -n apps scale deploy/open-webui --replicas=0
+kubectl -n agents scale deploy/openclaw --replicas=0
+ssh -n apps-01 "sudo tar -C /cluster/local -xzf /mnt/nfs/backups/$STAMP/apps-local.tgz"
+kubectl -n apps scale deploy/open-webui --replicas=1
+kubectl -n agents scale deploy/openclaw --replicas=1
+~~
+
+`WEBUI_SECRET_KEY` lives in the apps secret / `apps-local.tgz`, not in SOPS.
+
+## 3. Bastion secrets
+
+If NFS survived and this is a **new or wiped** `$HOME`:
+
+~~bash
+./scripts/restore-bastion-secrets.sh "$STAMP"
+# default is tar -k (skip files that already exist)
+# FORCE=1 ./scripts/restore-bastion-secrets.sh "$STAMP"   # overwrite, wiped HOME only
+./bootstrap/apply-secrets.sh
+~~
+
+If NFS is gone but the age private key is on USB:
+
+~~bash
+chmod 600 ~/.config/sops/age/keys.txt
+./scripts/materialize-bastion-secrets.sh
+./bootstrap/apply-secrets.sh
+~~
+
+Do not unpack `bastion-secrets.tgz` onto a healthy bastion whose hashes already MATCH (dry-run 11/11). That is a no-op with `tar -k`.
+
+## 4. Homepage image (not in NFS)
+
+Image lives in k3s containerd on **apps-01** only (`imagePullPolicy: Never`).
+After an apps-01 wipe or greenfield k3s:
+
+~~bash
+./scripts/install-jarvis-home.sh
 kubectl -n apps delete pod -l app=homepage
 # expect https://home.lan/ and https://home.lan/status both 200
-```
+~~
 
+## 5. etcd (ctrl-01 only, cluster actually down)
 
-## 3. hostPath tarballs (service down)
+This is a **reset**. Do not run it to "refresh" a healthy cluster.
+Agents may need `k3s-agent` restarted after.
 
-Extract **on the node that owns the path**:
+~~bash
+# SNAPSHOTFILE = a name from: ssh -n ctrl-01 'sudo ls /mnt/nfs/snapshots'
+ssh -n ctrl-01 'sudo systemctl stop k3s'
+ssh -n ctrl-01 'sudo k3s server --cluster-reset --cluster-reset-restore-path=/mnt/nfs/snapshots/SNAPSHOTFILE'
+# then start k3s; restart k3s-agent on workers if they do not rejoin
+~~
 
-| tarball | node | dest |
-|---|---|---|
-| gitea.tgz | ctrl-01 | /cluster/local |
-| apps-local.tgz | apps-01 | /cluster/local (open-webui, openclaw) |
-| grafana.tgz | data-02 | /cluster/local |
-| bastion-secrets.tgz | bastion | ~agent (mode 600) |
+Scheduled files are `etcd-snapshot-ctrl-01-*`. Nightly backup also writes `on-demand-ctrl-01-*`.
 
-```bash
-# example: Gitea
-kubectl -n gitea scale deploy/gitea --replicas=0
-ssh ctrl-01 'sudo tar -C /cluster/local -xzf /mnt/nfs/backups/STAMP/gitea.tgz'
-kubectl -n gitea scale deploy/gitea --replicas=1
-```
+## 6. After
 
-## 4. After any OpenClaw restore/recycle
-
-Re-pair http://agent.lan:18789 (`openclaw devices approve`).
+- Re-pair OpenClaw at http://agent.lan:18789 (`openclaw devices approve`).
+- `./scripts/check-contract.sh`
+- `./scripts/verify-jarvis.sh`
