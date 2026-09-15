@@ -155,7 +155,8 @@ LAN only. mkcert TLS. Never internet-exposed.
 - `apps/jarvis-home/` — Dockerfile + committed `output/` SSR bundle
 - `scripts/install-jarvis-home.sh` — docker build on apps-01, `k3s ctr import`
 - `scripts/check-contract.sh` / `verify-jarvis.sh` — pin + live proof
-- `scripts/mirror-to-github.sh` — Gitea to GitHub cluster mirror
+- `scripts/backup-jarvis.sh` / `restore-bastion-secrets.sh` / `materialize-bastion-secrets.sh`
+- `scripts/mirror-to-github.sh` — Gitea → GitHub cluster mirror (also the 03:30 timer)
 - `docs/` — OPERATING, INTERACT, REBUILD, RESTORE, LESSONS; `docs/history/` is frozen
 - `secrets/` — SOPS+age (`secrets.sops.yaml` in git; age key is not)
 - `systemd/` — nightly NFS backup timer (unit path is this repo)
@@ -171,3 +172,13 @@ ansible-playbook playbooks/site.yml
 ```
 
 Full order: [docs/REBUILD.md](docs/REBUILD.md).
+
+## Two push paths
+
+| What you changed | Repo on bastion | Push to |
+| --- | --- | --- |
+| Metal, docs, image, scripts, SOPS | `~/jarvis-infra` | **GitHub** `gordoncooper/jarvis-infra` |
+| Cluster YAML (`clusters/jarvis/`) | `~/cluster` | **Gitea** `http://git.lan/jarvis/cluster.git` |
+
+Never push cluster YAML to GitHub as origin. After a Gitea push, Flux reconciles;
+`scripts/mirror-to-github.sh` updates the GitHub **mirror**.

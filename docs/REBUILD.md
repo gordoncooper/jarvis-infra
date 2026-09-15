@@ -137,8 +137,8 @@ git.lan stays **HTTP**. agent.lan:**18789** stays HTTP.
 
 ## 7. Models (GPU)
 
-Live (2026-09-15): `qwen2.5:7b-instruct-q6_K` + derived `jarvis` on gpu-01;
-`nomic-embed-text` on gpu-02.
+`create-jarvis-ollama.sh` builds the chat model on gpu-01.
+`pull-embed-model.sh` pulls the embed model on gpu-02.
 
 ~~bash
 git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
