@@ -32,6 +32,7 @@ LIVE_RE = re.compile(
 )
 MEM_RE = re.compile(
     r"(?is)\b(remember(?:\s+that)?|learned(?:\s+fact)?|canary|"
+    r"cluster[- ]wide (test )?fact|secret test phrase|"
     r"what did (i|we) (tell|ask you to remember)|"
     r"do you remember|silver-orbit|red-comet|told you to remember)\b"
 )

@@ -1,3 +1,5 @@
+The lab is a **physical** LAN rack of ThinkCentre M920x PCs plus a bastion jump host — not a cloud VPC.
+
 # JARVIS lab briefing
 
 Curated facts for the local 7B (Open WebUI knowledge `lab-docs`) and Goose.
