@@ -11,7 +11,7 @@ Full context: [LESSONS.md](LESSONS.md).
 | TTS Engine | OpenAI |
 | API Base URL | `http://piper.apps.svc.cluster.local:8000/v1` |
 | API Key | `sk-local` |
-| TTS Voice | `alloy` |
+| TTS Voice | `alloy` (mapped to **en_GB-northern_english_male-medium** — JARVIS) |
 | TTS Model | `tts-1` |
 
 The user-gear Audio page only offers Default / Web API / Kokoro.js. That is **not** Piper.
@@ -19,3 +19,5 @@ The user-gear Audio page only offers Default / Web API / Kokoro.js. That is **no
 **TTS test:** assistant-message speaker icon (not the input waveform).
 
 **Call/mic:** HTTPS + trusted mkcert CA. Toast “Permission denied when accessing media devices” = getUserMedia blocked.
+
+`echo` / `nova` / `shimmer` stay US libritts. Map is Flux ConfigMap `piper-voice-map`.
