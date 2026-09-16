@@ -47,3 +47,5 @@ Chrome is **not** a custom Open WebUI image. Flux mounts ConfigMap `jarvis-webui
 
 After any Open WebUI **digest bump**: Recreate, `curl -sk https://chat.lan/ | grep jarvis-hud`,
 glance chat.lan. Do not fork the image.
+
+Picker whitelist + arena-off persist via `scripts/seed-webui-ui.sh` (sqlite). Rebuilds must run it after Open WebUI is up.
