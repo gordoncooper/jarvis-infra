@@ -34,7 +34,7 @@ export -n WEBUI_JWT_SECRET || true
 export TOKEN
 export BRIEF_FILE="$TMP"
 python3 - << 'PY'
-import json, os, ssl, urllib.request
+import json, os, ssl, time, urllib.error, urllib.request
 from pathlib import Path
 api = "https://chat.lan/api/v1"
 token = os.environ["TOKEN"]
@@ -46,9 +46,13 @@ def req(method, url, data=None, headers=None):
     if headers:
         h.update(headers)
     r = urllib.request.Request(url, data=data, method=method, headers=h)
-    with urllib.request.urlopen(r, context=ctx, timeout=60) as resp:
-        body = resp.read()
-        return json.loads(body) if body else {}
+    try:
+        with urllib.request.urlopen(r, context=ctx, timeout=90) as resp:
+            body = resp.read()
+            return json.loads(body) if body else {}
+    except urllib.error.HTTPError as e:
+        err = e.read()[:400]
+        raise SystemExit("%s %s -> %s %s" % (method, url, e.code, err))
 
 raw = req("GET", api + "/knowledge/")
 know = raw if isinstance(raw, list) else (raw.get("items") or [])
@@ -91,10 +95,43 @@ fid = file_obj.get("id")
 if not fid:
     raise SystemExit(f"upload failed: {file_obj!r}")
 print("uploaded", fid, "bytes", len(brief))
-req("POST", api + "/knowledge/" + coll["id"] + "/file/add",
-    data=json.dumps({"file_id": fid}).encode(),
-    headers={"Content-Type": "application/json"})
-print("added to jarvis-learned")
+status = "pending"
+for _ in range(30):
+    meta = req("GET", api + "/files/" + fid)
+    status = str((meta.get("data") or {}).get("status") or "")
+    print("file_status", status)
+    if status.startswith("complet"):
+        break
+    if status in ("failed", "error"):
+        raise SystemExit("file process failed: %r" % (meta.get("data"),))
+    time.sleep(1)
+else:
+    print("warn: still", status, "trying add")
+added = False
+for i in range(4):
+    url = api + "/knowledge/" + coll["id"] + "/file/add"
+    r = urllib.request.Request(
+        url,
+        data=json.dumps({"file_id": fid}).encode(),
+        method="POST",
+        headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(r, context=ctx, timeout=90) as resp:
+            resp.read()
+        added = True
+        print("added to jarvis-learned")
+        break
+    except urllib.error.HTTPError as e:
+        err = e.read().decode("utf-8", "replace")
+        if e.code == 400 and "Duplicate content" in err:
+            print("already in jarvis-learned (duplicate content)")
+            added = True
+            break
+        print("add retry", i, e.code, err[:200])
+        time.sleep(2)
+if not added:
+    raise SystemExit("knowledge add failed")
 PY
 unset TOKEN
 bash "$ROOT/scripts/refresh-goose-context.sh"
