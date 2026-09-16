@@ -27,10 +27,16 @@ Git tag and image tag are independent. Pins live in `VERSION`.
 
 1. **DONE — glass freeze (v0.4.30).** chat.lan alias `jarvis`. SIMPLE = talk/inventory (7B). COMPLEX = inspect (`are nodes ready/up`, `get pods`, `kubectl get`) → `jarvis-hands` (OpenClaw readonly). REASONING = YAML/Flux → grok-code. Do **not** retune SYSTEM, LIVE_RE, HUD CSS, or keyword_tier_rules unless chat.lan regresses.
 2. **Later — OpenClaw writes:** widen ClusterRole + approvals. Same shim. Not this tag.
-3. **DONE — wake v1 (v0.4.31).** Laptop `scripts/jarvis-wake.py` (stock hey_jarvis) → pinned Voice chat. Local commands (stop/pause/resume/repeat/mute) never hit chat.lan. Headphones. Room Pi still parked. See INTERACT.md.
+3. **DONE — wake v1 (v0.4.31).** Laptop `scripts/jarvis-wake.py` (stock hey_jarvis) → pinned Voice chat. Local commands (stop/pause/resume/repeat/mute) never hit chat.lan. Headphones. See INTERACT.md.
 4. **Later — Tailscale / off-LAN.**
 
-Parked: inbox.md, nested Goose, daily Grok cap, replacing Open WebUI, Qwen swap.
+## Deferred polish (not north-star)
+
+- Adaptive silence RMS floor (`jarvis-wake.py`) — some utterances still hit MAX_UTTER (~8s).
+- Laptop `systemd --user` unit so hey_jarvis starts at login.
+- Hide openWakeWord CUDA warning (CPUExecutionProvider is correct).
+
+Do not retune SYSTEM / LIVE_RE / HUD CSS / keyword_tier_rules unless chat.lan regresses.
 
 ## Freeze (do not break)
 
