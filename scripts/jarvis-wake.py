@@ -213,16 +213,37 @@ def play_mp3(data: bytes):
 
 def load_wake():
     from openwakeword.model import Model
+    cache = Path.home() / ".cache/jarvis-wake/models"
+    cache.mkdir(parents=True, exist_ok=True)
+    base = "https://github.com/dscripka/openWakeWord/releases/download/v0.5.1/"
+    files = {
+        "hey_jarvis_v0.1.onnx": base + "hey_jarvis_v0.1.onnx",
+        "melspectrogram.onnx": base + "melspectrogram.onnx",
+        "embedding_model.onnx": base + "embedding_model.onnx",
+    }
+    for name, url in files.items():
+        dest = cache / name
+        if dest.exists() and dest.stat().st_size > 10000:
+            continue
+        print("download", name)
+        r = requests.get(url, timeout=120)
+        r.raise_for_status()
+        dest.write_bytes(r.content)
+        print("saved", dest, dest.stat().st_size)
+    jarvis = str(cache / "hey_jarvis_v0.1.onnx")
+    melspec = str(cache / "melspectrogram.onnx")
+    embed = str(cache / "embedding_model.onnx")
     try:
-        import openwakeword.utils as u
-        if hasattr(u, "download_models"):
-            u.download_models()
-    except Exception as e:
-        print("model download skip", e)
-    try:
-        return Model(wakeword_models=["hey_jarvis"], inference_framework="onnx")
+        return Model(
+            wakeword_model_paths=[jarvis],
+            melspec_onnx_model_path=melspec,
+            embedding_onnx_model_path=embed,
+        )
     except TypeError:
-        return Model(wakeword_models=["hey_jarvis"])
+        try:
+            return Model(wakeword_models=[jarvis], inference_framework="onnx")
+        except TypeError:
+            return Model(wakeword_model_paths=[jarvis])
 
 
 def main():
@@ -247,7 +268,19 @@ def main():
             frame, _ = stream.read(CHUNK)
             pcm = np.squeeze(frame)
             scores = oww.predict(pcm)
-            score = float(scores.get(WAKE_KEY) or scores.get("hey jarvis") or 0)
+            score = 0.0
+            if isinstance(scores, dict):
+                for k, v in scores.items():
+                    if "jarvis" in str(k).lower():
+                        try:
+                            score = max(score, float(v))
+                        except Exception:
+                            pass
+            if score == 0.0 and isinstance(scores, dict):
+                try:
+                    score = float(next(iter(scores.values())))
+                except Exception:
+                    score = 0.0
             if score >= WAKE_THR:
                 hits += 1
             else:
