@@ -63,3 +63,4 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 - Listener commands (stop/pause/resume/repeat/mute/status) run after STT and must not be POSTed to chat.lan.
 - openWakeWord CUDA warning on the laptop is fine (CPUExecutionProvider).
 - Adaptive silence (`0.22 * peak`) can still hit MAX_UTTER (~8s) in a noisy room; not a command bug.
+- Do not intent-gate a LIVE telemetry dump into the 7B prompt. Clock is always-on; live numbers are Hands or home.lan.

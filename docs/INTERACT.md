@@ -131,3 +131,5 @@ Handled on the laptop after STT. **Not sent to chat.lan.** Wake with hey jarvis,
 ## Router
 
 Alias `jarvis` is LiteLLM `complexity_router`. **Direction:** replace exact-phrase `keyword_tier_rules` with `classifier_type: llm` (grok-4-fast, heuristic fallback). Chip shows the resolved model. Picker is the escape hatch. See [PLAN.md](PLAN.md).
+
+Chat filter injects `[clock …]` + `learned.md` only. Live cluster numbers are Hands, not a regex dump.
