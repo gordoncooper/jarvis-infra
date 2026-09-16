@@ -51,3 +51,14 @@ glance chat.lan. Do not fork the image.
 Picker whitelist + arena-off persist via `scripts/seed-webui-ui.sh` (sqlite). Rebuilds must run it after Open WebUI is up.
 
 Chat memory: say **remember that ...** in chat.lan (alias `jarvis`). It appends `/cluster/local/openclaw/learned.md`; `seed-learned.sh` hourly copies into knowledge.
+
+## Hands (OpenClaw)
+
+Cluster actuator is **OpenClaw**, not the 7B, not nested Goose.
+
+- Browser: http://agent.lan:18789 (pair once; HTTP; token on bastion).
+- One turn from bastion: `./scripts/openclaw-ask.sh "using cluster-health, are nodes Ready?"`
+- Goose stays operator-on-bastion (`ssh`/`kubectl` you run). Do not wrap Goose inside OpenClaw.
+- chat.lan must not auto-invoke OpenClaw. Point sir at agent.lan or this script when a write/inspect-with-shell is needed.
+- Skills in the pod: `cluster-health`, `cluster-metrics`, `lab-map` (readonly ClusterRole).
+

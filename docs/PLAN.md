@@ -15,7 +15,7 @@ Done:
 Stop polishing: 7B will still narrate deletes; near-duplicate learned lines; seed-learned knowledge API 400.
 
 Left (in order):
-1. Hands from chat.lan — OpenClaw is the cluster actuator; Goose is operator-on-bastion. Handoff, do not nest Goose.
+1. Hands v1 DONE: `scripts/openclaw-ask.sh` + http://agent.lan:18789. chat.lan does not auto-invoke. Next (later): optional WS `chat.send` from chat.lan with a confirm step — not nested Goose.
 2. Tag v0.4.26 when this chunk lands (image stays v0.4.9).
 3. seed-learned.sh WebUI upload 400 (rebuild RAG).
 Later: wake-word, Tailscale, spend cap, Qwen3.
