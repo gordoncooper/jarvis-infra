@@ -74,3 +74,5 @@ Cluster actuator is **OpenClaw**, not the 7B, not nested Goose.
 
 Same chat.lan, model chip `jarvis-hands`. LiteLLM → OpenClaw `agent --message` via pod sidecar `:4001`.
 ClusterRole is still **readonly**. Mutate later. Break-glass: http://agent.lan:18789
+
+Route chip v10: LOCAL / HANDS / GROK-CODE. In-chat jarvis uses sidebar wordmark; picker stays stock.

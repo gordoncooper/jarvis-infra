@@ -39,3 +39,5 @@ Parked: inbox.md, WS-from-OWUI-filter, nested Goose, daily Grok cap, replacing O
 - **Later:** full RBAC writes; wake-word; Tailscale; inlet auto-pick.
 
 - Default glass **jarvis**: inspect phrases → **jarvis-hands** (COMPLEX); mutate/yaml → grok-code; small talk → local.
+
+- Chip v10: HANDS phrases + stream model; in-chat jarvis wordmark.
