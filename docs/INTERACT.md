@@ -61,4 +61,4 @@ Cluster actuator is **OpenClaw**, not the 7B, not nested Goose.
 - Goose stays operator-on-bastion (`ssh`/`kubectl` you run). Do not wrap Goose inside OpenClaw.
 - chat.lan must not auto-invoke OpenClaw. Point sir at agent.lan or this script when a write/inspect-with-shell is needed.
 - Skills in the pod: `cluster-health`, `cluster-metrics`, `lab-map` (readonly ClusterRole).
-
+- Default output is assistant text. `OPENCLAW_ASK_JSON=1` dumps the gateway JSON.

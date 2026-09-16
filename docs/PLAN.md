@@ -12,12 +12,12 @@ Done:
 - lab-docs + learned.md. Chat remember is append-only (`remember that …` → `/cluster/local/openclaw/learned.md`).
 - LIVE telemetry only on rack-status phrasing.
 
-Stop polishing: 7B will still narrate deletes; near-duplicate learned lines; seed-learned knowledge API 400.
+Stop polishing: 7B will still narrate deletes; near-duplicate learned lines. seed-learned is idempotent.
 
 Left (in order):
 1. Hands v1 DONE: `scripts/openclaw-ask.sh` + http://agent.lan:18789. chat.lan does not auto-invoke. Next (later): optional WS `chat.send` from chat.lan with a confirm step — not nested Goose.
 2. Tag v0.4.26 when this chunk lands (image stays v0.4.9).
-3. seed-learned.sh WebUI upload 400 (rebuild RAG).
+3. seed-learned.sh DONE — wait for embed; duplicate content = success (idempotent).
 Later: wake-word, Tailscale, spend cap, Qwen3.
 
 Living goal. Not live inventory. Live cluster still wins.
