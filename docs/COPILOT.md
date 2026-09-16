@@ -149,15 +149,14 @@ Hands locked: dual door. chat.lan talks; OpenClaw (agent.lan / openclaw-ask.sh) 
 
 Hands in-glass: LiteLLM `jarvis-hands` → OpenClaw shim :4001 (readonly RBAC). agent.lan / openclaw-ask.sh is break-glass. No inbox. Writes = later RBAC.
 
-## Frozen glass (v0.4.30)
+## Glass (see docs/PLAN.md)
 
-Do not keep iterating persona/router/HUD. Working split:
-- Default model `jarvis` (LiteLLM complexity_router). Chip = resolved backend.
-- SIMPLE: hello / who are you / rack inventory → ollama/jarvis (7B).
-- COMPLEX: inspect → jarvis-hands (OpenClaw, ClusterRole openclaw-readonly).
-- REASONING: write yaml / flux / patch → jarvis-grok-code.
-- SYSTEM file: `cluster/clusters/jarvis/apps/jarvis-system-prompt.txt` (real M920x names).
-- Next work if asked: OpenClaw writes, Tailscale; wake v1 is laptop hey_jarvis (INTERACT.md) — not glass retune.
+Default model `jarvis`. Chip = resolved backend. Do not add exact-phrase router rules.
+- SIMPLE: talk / inventory → jarvis-local (7B).
+- COMPLEX: live inspect → jarvis-hands (OpenClaw readonly).
+- REASONING: yaml / flux / patch → jarvis-grok-code.
+- SYSTEM: `cluster/clusters/jarvis/apps/jarvis-system-prompt.txt`.
+- Next: PLAN remaining (subtract LIVE regex, then LLM classifier routing). Not per-question hacks.
 
 Wake-word v0: `./scripts/ensure-voice-chat.sh` pins OWUI chat **Voice**. Call mode is Chrome-only; `hey_jarvis` is not in-cluster.
 
