@@ -19,6 +19,7 @@ Git tag and image tag are independent. Pins live in `VERSION`.
 - Voice: Piper GB male (`alloy`).
 - Memory: `learned.md` + lab-docs; seed-learned idempotent (duplicate content = success).
 - Telemetry: intent-gated LIVE only.
+- Wake v1 laptop hey_jarvis (v0.4.31): Voice chat + local commands. Not k3s.
 - Hands v1 CLI/UI: proven (6 Ready). **Not** the everyday door.
 - Hands v2 in-glass: **`jarvis-hands` read-only** (this step). OpenClaw ClusterRole stays `openclaw-readonly`.
 
@@ -26,7 +27,7 @@ Git tag and image tag are independent. Pins live in `VERSION`.
 
 1. **DONE — glass freeze (v0.4.30).** chat.lan alias `jarvis`. SIMPLE = talk/inventory (7B). COMPLEX = inspect (`are nodes ready/up`, `get pods`, `kubectl get`) → `jarvis-hands` (OpenClaw readonly). REASONING = YAML/Flux → grok-code. Do **not** retune SYSTEM, LIVE_RE, HUD CSS, or keyword_tier_rules unless chat.lan regresses.
 2. **Later — OpenClaw writes:** widen ClusterRole + approvals. Same shim. Not this tag.
-3. **Wake-word v1 (laptop).** Stock **hey_jarvis** via `scripts/jarvis-wake.py` on Tony's laptop → pinned **Voice** chat. Not k3s. Headphones. Room Pi parked.
+3. **DONE — wake v1 (v0.4.31).** Laptop `scripts/jarvis-wake.py` (stock hey_jarvis) → pinned Voice chat. Local commands (stop/pause/resume/repeat/mute) never hit chat.lan. Headphones. Room Pi still parked. See INTERACT.md.
 4. **Later — Tailscale / off-LAN.**
 
 Parked: inbox.md, nested Goose, daily Grok cap, replacing Open WebUI, Qwen swap.

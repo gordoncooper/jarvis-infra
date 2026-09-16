@@ -57,3 +57,9 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 - `ENABLE_*` env is not enough when PersistentConfig already wrote sqlite (`task.follow_up.enable`).
 - Piped `ssh -n … | ssh -n tee` writes empty tarballs and `pipefail` aborts at hostPaths. `-n` only on the producer.
 - Glass freeze v0.4.30: do not retune SYSTEM / LIVE_RE / keyword_tier_rules / HUD CSS unless chat.lan regresses. Router keywords are literal (`are the nodes up` != `are nodes ready`). OpenClaw agent timeout 180s (90s timed out cold Hands). Secret phrase is briefing blue-banana-42, not learned.md silver-orbit-3.
+
+- Laptop `jarvis-wake.py` is transport only (mic → Voice chat → speaker). Never special-case questions on the laptop.
+- Wall clock is one `[clock …]` line from the OWUI filter (America/Los_Angeles) on every chat.lan turn. Do not inject per-question facts in the listener.
+- Listener commands (stop/pause/resume/repeat/mute/status) run after STT and must not be POSTed to chat.lan.
+- openWakeWord CUDA warning on the laptop is fine (CPUExecutionProvider).
+- Adaptive silence (`0.22 * peak`) can still hit MAX_UTTER (~8s) in a noisy room; not a command bug.

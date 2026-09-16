@@ -53,3 +53,5 @@ HUD for chat.lan is ConfigMap inject (see INTERACT): collapsed sidebar, no sugge
 After Open WebUI restore: `./scripts/seed-webui-ui.sh` then `./scripts/seed-open-webui-model.sh`.
 
 **Frozen glass (v0.4.30):** do not retune chat.lan persona/router/HUD unless it regresses. Writes / wake-word / Tailscale are later PLAN items.
+
+Laptop wake (hey_jarvis) is not a cluster unit. See [INTERACT.md](INTERACT.md) (venv, Voice chat, local commands).

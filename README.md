@@ -140,7 +140,7 @@ not ctrl-01.
 | URL | What |
 | --- | --- |
 | https://home.lan | Command center (Home + /status + 10-min event stream). Header LIVE = Prometheus. |
-| https://chat.lan | Open WebUI (Whisper STT, Piper TTS) |
+| https://chat.lan | Open WebUI (Whisper STT, Piper TTS). Laptop hey_jarvis → pinned Voice chat (INTERACT.md). |
 | http://agent.lan:18789 | OpenClaw. DNS must be .16. HTTP on purpose. |
 | https://llm.lan/v1 | LiteLLM (jarvis-local, jarvis-grok, jarvis-grok-code) |
 | http://git.lan | Gitea (HTTP on purpose — Flux origin) |
