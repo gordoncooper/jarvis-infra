@@ -61,3 +61,22 @@ class Filter:
             note = f"\n\nMEMORY write failed ({type(e).__name__}). Use remember.sh on the bastion."
         msgs[-1]["content"] = last + note
         return body
+    def outlet(self, body, __user__=None):
+        msgs = body.get("messages") or []
+        if not msgs:
+            return body
+        last = msgs[-1]
+        content = last.get("content") or ""
+        if not isinstance(content, str):
+            return body
+        claimed = re.search(
+            r"(?i)(saved|stored|written|appended|removed|deleted|remembered (your|that)|I will remember)",
+            content,
+        )
+        if claimed and "MEMORY stored in /learned/learned.md" not in content:
+            last["content"] = content + (
+                "\n\nCorrection: nothing was written to learned.md this turn. "
+                "Only a successful remember-filter append persists. Do not invent timestamps."
+            )
+        return body
+
