@@ -160,3 +160,5 @@ Do not keep iterating persona/router/HUD. Working split:
 - Next work if asked: OpenClaw writes, wake-word, Tailscale — not glass retune.
 
 Wake-word v0: `./scripts/ensure-voice-chat.sh` pins OWUI chat **Voice**. Call mode is Chrome-only; `hey_jarvis` is not in-cluster.
+
+Wake-word v1 is **laptop-only** (`scripts/jarvis-wake.py`). Env is `~/.config/jarvis-wake/env` (not git). Never print the token.

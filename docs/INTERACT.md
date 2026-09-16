@@ -89,3 +89,21 @@ Pinned sidebar chat **Voice**, model **jarvis**. This is the dedicated voice ses
    Stock **hey_jarvis** is a later laptop listener (`openWakeWord`), not a cluster pod.
 
 Idempotent create/pin: `./scripts/ensure-voice-chat.sh`
+
+## Wake word v1 (laptop)
+
+Stock **hey_jarvis** runs on the laptop, not in the cluster.
+
+1. On bastion (already): `~/.config/jarvis-wake/env` (mode 600, JWT, not git).
+2. On the laptop:
+   `mkdir -p ~/.config/jarvis-wake`
+   `scp agent@192.168.8.10:.config/jarvis-wake/env ~/.config/jarvis-wake/env`
+   `scp agent@192.168.8.10:jarvis-infra/scripts/jarvis-wake.py ~/jarvis-wake.py`
+   `scp agent@192.168.8.10:jarvis-infra/scripts/requirements-wake.txt ~/requirements-wake.txt`
+   Ubuntu: `sudo apt-get install -y python3-venv portaudio19-dev ffmpeg`
+   `python3 -m venv ~/.local/jarvis-wake && ~/.local/jarvis-wake/bin/pip install -r ~/requirements-wake.txt`
+   `~/.local/jarvis-wake/bin/python ~/jarvis-wake.py`
+3. Headphones. Say **hey jarvis**, then the question. Transcript + reply land in pinned **Voice**.
+4. Call mode still works if you would rather click.
+
+Do not run `jarvis-wake.py` as `agent` on the bastion (no mic).
