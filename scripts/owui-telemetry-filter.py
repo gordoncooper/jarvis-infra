@@ -49,6 +49,8 @@ class Filter:
                 "MEMORY from learned.md (cite only if asked about remembered facts; "
                 "source /learned/learned.md; never invent facts):\n" + mem
             )
-        if extra:
-            last["content"] = c + "\n\n" + "\n\n".join(extra)
+        if extra and "<<<begin_ctx>>>" not in c:
+            last["content"] = (
+                c + "\n\n<<<begin_ctx>>>\n" + "\n\n".join(extra) + "\n<<<end_ctx>>>"
+            )
         return body
