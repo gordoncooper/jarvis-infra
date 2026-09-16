@@ -6,7 +6,8 @@ import json
 import urllib.request
 
 URL = "http://homepage.apps.svc.cluster.local:3000/api/telemetry"
-KEYS = ("node", "kubectl", "gpu", "vram", "pod", "cluster", "rack", "status", "nvidia", "who is up")
+KEYS = ("kubectl", "gpu", "vram", "nvidia", "who is up", "cluster status", "pod status", "the rack", "nodes in")
+SKIP = ("remember", "learned fact", "learned.md")
 
 def _pct(v):
     try:
@@ -22,7 +23,10 @@ class Filter:
         last = msgs[-1].get("content") or ""
         if not isinstance(last, str):
             return body
-        if not any(k in last.lower() for k in KEYS):
+        low = last.lower()
+        if any(s in low for s in SKIP):
+            return body
+        if not any(k in low for k in KEYS):
             return body
         try:
             t = json.loads(urllib.request.urlopen(URL, timeout=3).read())
