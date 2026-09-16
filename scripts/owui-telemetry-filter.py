@@ -1,6 +1,6 @@
 """
 title: JARVIS live telemetry
-description: LIVE only for rack-status intent; always attach learned.md
+description: LIVE for rack-status; MEMORY only for recall; never on dictionary questions
 """
 import json
 import re
@@ -10,12 +10,9 @@ from pathlib import Path
 URL = "http://homepage.apps.svc.cluster.local:3000/api/telemetry"
 LEARNED = Path("/learned/learned.md")
 
-# Dictionary / explain questions — never dump the rack.
 DEF_RE = re.compile(
     r"(?is)^\s*(what is|what's|whats|what are|define|explain)\b"
 )
-
-# Operational: THIS rack, right now.
 LIVE_RE = re.compile(
     r"(?is)("
     r"\bnodes?\s+(are\s+)?(in|on)\s+(the\s+)?(rack|cluster)\b"
@@ -32,6 +29,11 @@ LIVE_RE = re.compile(
     r"|\blive (status|telemetry|stats|numbers)\b"
     r"|\bhome\.lan\b"
     r")"
+)
+MEM_RE = re.compile(
+    r"(?is)\b(remember(?:\s+that)?|learned(?:\s+fact)?|canary|"
+    r"what did (i|we) (tell|ask you to remember)|"
+    r"do you remember|silver-orbit|red-comet|told you to remember)\b"
 )
 
 def _pct(v):
@@ -55,8 +57,7 @@ def live_block():
             f"vram={g.get('vramUsedMiB','?')}/{g.get('vramTotalMiB','?')} MiB"
         )
     return (
-        "LIVE telemetry (cite only if the user asked for rack/node/GPU status; "
-        "% is percent used, MiB is GPU memory; do not convert % to GB; do not dump this on dictionary questions): "
+        "LIVE telemetry (cite only these fields; % is percent used, MiB is GPU memory): "
         f"source={t.get('source')} k3s={t.get('k3s')} fluxOk={t.get('fluxOk')} nfsOk={t.get('nfsOk')} etcdOk={t.get('etcdOk')} "
         f"nodes=[{'; '.join(nodes)}] gpus=[{'; '.join(gpus)}]"
     )
@@ -69,20 +70,22 @@ class Filter:
         last = msgs[-1].get("content") or ""
         if not isinstance(last, str):
             return body
-        extra = []
-        try:
-            mem = LEARNED.read_text(encoding="utf-8")[:4000].strip()
-            if mem:
-                extra.append(
-                    "MEMORY from learned.md (answer from this only when asked about remembered/learned facts; "
-                    "do not recite it otherwise):\n" + mem
-                )
-        except Exception:
-            pass
         text = last.strip()
+        extra = []
         want_live = bool(LIVE_RE.search(text))
-        is_pure_def = bool(DEF_RE.match(text)) and not want_live
-        if want_live and not is_pure_def:
+        want_mem = bool(MEM_RE.search(text))
+        is_def = bool(DEF_RE.match(text))
+        # Dictionary with no rack/recall intent: inject nothing.
+        if is_def and not want_live and not want_mem:
+            return body
+        if want_mem:
+            try:
+                mem = LEARNED.read_text(encoding="utf-8")[:4000].strip()
+                if mem:
+                    extra.append("MEMORY from learned.md (this is the answer if they asked a learned/remembered fact):\n" + mem)
+            except Exception:
+                pass
+        if want_live:
             try:
                 extra.append(live_block())
             except Exception as e:
