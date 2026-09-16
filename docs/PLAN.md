@@ -30,3 +30,10 @@ Git tag and image tag are independent. Pins live in `VERSION`.
 4. **Later — Tailscale / off-LAN.**
 
 Parked: inbox.md, WS-from-OWUI-filter, nested Goose, daily Grok cap, replacing Open WebUI.
+
+## Status 2026-09-16
+
+- **jarvis-hands in-glass:** works (picker). OpenClaw `cluster-health` listed 6 Ready nodes. No bastion.
+- **Not auto-routed:** extra complexity_router tier `HANDS` made model `jarvis` unhealthy. Leave picker-only until an OWUI inlet (not a 5th tier).
+- **Shim:** threaded SSE, headers before `openclaw agent`, memory **2Gi**.
+- **Later:** full RBAC writes; wake-word; Tailscale; inlet auto-pick.
