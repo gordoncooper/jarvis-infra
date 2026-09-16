@@ -24,4 +24,5 @@ Pick **jarvis-local** for chatter and RAG. Pick **jarvis-grok-code** when it mus
 Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
 Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic needs HTTPS.
 
+Chat chrome: ConfigMap `jarvis-webui-hud` (teal HUD CSS + title JARVIS). Recreate once on change. Sidebar still suffixes `(Open WebUI)` on v0.11.3.
 Audio click-ops: [open-webui-audio.md](open-webui-audio.md). RAG: [open-webui-knowledge.md](open-webui-knowledge.md). Briefing: [briefing.md](briefing.md) (`lab-docs`). Promoted facts: `scripts/remember.sh` → `jarvis-learned`.
