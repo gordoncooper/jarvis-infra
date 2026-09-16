@@ -13,7 +13,7 @@ This file is the onboarding map. Do not treat it as live inventory.
 The six-node k3s rack **is** JARVIS (Iron Man-style). Local-first: cheap 7B
 for chatter/RAG; `jarvis-grok` / `jarvis-grok-code` when the job needs a
 bigger brain (API cost). Lab only — no house/HA. LAN-only until Tailscale.
-Voice is chat STT/TTS; wake-word later. Auto-router later.
+Voice is chat STT/TTS; wake-word later. Unified mouth + router: [`PLAN.md`](PLAN.md).
 
 Character for the 7B: [`persona.txt`](persona.txt). Rack facts for the 7B:
 [`briefing.md`](briefing.md). You (this copilot) are Grok in chat with the
@@ -32,12 +32,13 @@ operator; you are **not** the 7B.
 ## Reading order
 
 1. This file
-2. `VERSION` (bastion `~/jarvis-infra/VERSION` is canonical)
-3. [`OPERATING.md`](OPERATING.md)
-4. [`INTERACT.md`](INTERACT.md)
-5. [`LESSONS.md`](LESSONS.md)
-6. [`briefing.md`](briefing.md) + [`persona.txt`](persona.txt)
-7. Task-specific: REBUILD, RESTORE, [`open-webui-knowledge.md`](open-webui-knowledge.md)
+2. [`PLAN.md`](PLAN.md) — north star (router / hands / RAG)
+3. `VERSION` (bastion `~/jarvis-infra/VERSION` is canonical)
+4. [`OPERATING.md`](OPERATING.md)
+5. [`INTERACT.md`](INTERACT.md)
+6. [`LESSONS.md`](LESSONS.md)
+7. [`briefing.md`](briefing.md) + [`persona.txt`](persona.txt)
+8. Task-specific: REBUILD, RESTORE, [`open-webui-knowledge.md`](open-webui-knowledge.md)
 8. Cluster repo README — YAML only; scripts live here
 
 Stop when the task is clear. Do not binge `PHASE*`.

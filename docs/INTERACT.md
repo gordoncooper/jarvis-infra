@@ -19,7 +19,9 @@ Proof: `~/jarvis-infra/scripts/verify-jarvis.sh`.
 **git.lan stays HTTP** (Flux). **agent.lan:18789** is HTTP on purpose (hostPort).
 Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 
-Pick **jarvis-local** for chatter and RAG. Pick **jarvis-grok-code** when it must run tools or write YAML.
+Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Tony's override. Indicator chip = which model ran, not a selector. North star: [PLAN.md](PLAN.md).
+
+Until that alias exists: pick **jarvis-local** for chatter and RAG. Pick **jarvis-grok-code** when it must run tools or write YAML.
 
 Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
 Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic needs HTTPS.
