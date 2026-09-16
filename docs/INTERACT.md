@@ -49,3 +49,5 @@ After any Open WebUI **digest bump**: Recreate, `curl -sk https://chat.lan/ | gr
 glance chat.lan. Do not fork the image.
 
 Picker whitelist + arena-off persist via `scripts/seed-webui-ui.sh` (sqlite). Rebuilds must run it after Open WebUI is up.
+
+Chat memory: say **remember that ...** in chat.lan (alias `jarvis`). It appends `/cluster/local/openclaw/learned.md`; `seed-learned.sh` hourly copies into knowledge.
