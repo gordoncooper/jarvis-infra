@@ -2,7 +2,7 @@
 """Laptop hey_jarvis → chat.lan Voice chat. Run on the laptop, not bastion."""
 from __future__ import annotations
 
-import argparse, json, os, ssl, struct, sys, time, uuid, wave
+import argparse, json, os, re, ssl, struct, sys, time, uuid, wave
 from io import BytesIO
 from pathlib import Path
 
@@ -22,6 +22,46 @@ MAX_UTTER = 8.0
 MIN_UTTER = 0.40
 RMS_SILENCE = 0  # adaptive
 
+
+
+def norm_cmd(s: str) -> str:
+    s = (s or "").lower()
+    s = re.sub(r"[^a-z0-9\s]", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+# Local only. Never sent to chat.lan.
+COMMANDS = {
+    "stop": (
+        "go away", "go away now", "you can go away", "you can go away now",
+        "that will be all", "that'll be all", "that is all", "thats all", "that's all",
+        "jarvis stop", "stop listening", "good night", "goodnight",
+        "dismissed", "you are dismissed", "youre dismissed",
+        "power down", "stand down",
+    ),
+    "pause": ("pause", "stand by", "standby", "hold on"),
+    "resume": ("resume", "im back", "i m back", "listen up", "carry on", "continue listening"),
+    "repeat": ("repeat", "say that again", "repeat that", "what did you say"),
+    "mute_tts": ("mute replies", "text only", "dont speak", "do not speak"),
+    "unmute_tts": ("unmute replies", "speak again", "you can talk"),
+    "status": ("status", "are you listening"),
+}
+
+def match_cmd(text: str) -> str | None:
+    n = norm_cmd(text)
+    if not n:
+        return None
+    padded = f" {n} "
+    for kind, phrases in COMMANDS.items():
+        for ph in phrases:
+            if n == ph or padded.find(f" {ph} ") >= 0:
+                return kind
+    return None
+
+def cmd_help() -> str:
+    lines = ["listener commands (not sent to JARVIS):"]
+    for k, v in COMMANDS.items():
+        lines.append(f"  {k:10}  {', '.join(v[:4])}")
+    return "\n".join(lines)
 
 def load_env(path: Path) -> dict:
     d = {}
@@ -250,9 +290,13 @@ def main():
     ap = argparse.ArgumentParser(description="hey_jarvis laptop listener")
     ap.add_argument("--env", default=str(ENV_PATH))
     ap.add_argument("--list-devices", action="store_true")
+    ap.add_argument("--commands", action="store_true")
     args = ap.parse_args()
     if args.list_devices:
         print(sd.query_devices())
+        return
+    if args.commands:
+        print(cmd_help())
         return
     cfg = load_env(Path(args.env))
     api = OWUI(cfg["OWUI_URL"], cfg["OWUI_TOKEN"])
@@ -261,6 +305,11 @@ def main():
     print(f"mic default={sd.query_devices(kind='input')['name']!r}  chat={chat_id}  model={model}  env_chat_id={bool((cfg.get('CHAT_ID') or '').strip())}")
     print("headphones recommended (Piper can retrigger the wake word)")
     print("listening for hey_jarvis  Ctrl-C to stop")
+    print(cmd_help())
+    paused = False
+    mute_tts = False
+    last_reply = ""
+    last_mp3 = b""
     oww = load_wake()
     hits = 0
     with sd.InputStream(samplerate=RATE, channels=1, dtype="int16", blocksize=CHUNK) as stream:
@@ -323,17 +372,80 @@ def main():
             print("heard:", text)
             if not text:
                 continue
+            cmd = match_cmd(text)
+
+            def say_local(msg: str):
+                print("local:", msg)
+                if mute_tts and cmd not in ("unmute_tts", "status", "stop"):
+                    return
+                try:
+                    play_mp3(api.speak(msg))
+                except Exception as e:
+                    print("TTS error", e)
+
+            if cmd == "stop":
+                say_local("Standing down.")
+                raise SystemExit(0)
+            if cmd == "pause":
+                paused = True
+                say_local("Standing by.")
+                time.sleep(0.4)
+                oww.reset()
+                continue
+            if cmd == "resume":
+                paused = False
+                say_local("Listening.")
+                time.sleep(0.4)
+                oww.reset()
+                continue
+            if cmd == "repeat":
+                if last_mp3:
+                    print("repeat last")
+                    play_mp3(last_mp3)
+                elif last_reply:
+                    say_local(last_reply)
+                else:
+                    say_local("Nothing to repeat.")
+                time.sleep(0.4)
+                oww.reset()
+                continue
+            if cmd == "mute_tts":
+                mute_tts = True
+                print("local: replies muted")
+                time.sleep(0.3)
+                oww.reset()
+                continue
+            if cmd == "unmute_tts":
+                mute_tts = False
+                say_local("Speaking again.")
+                time.sleep(0.4)
+                oww.reset()
+                continue
+            if cmd == "status":
+                say_local("Standing by." if paused else "Listening for hey jarvis.")
+                time.sleep(0.4)
+                oww.reset()
+                continue
+            if paused:
+                say_local("Standing by. Say resume.")
+                time.sleep(0.4)
+                oww.reset()
+                continue
             try:
                 reply = api.complete(chat_id, model, text)
             except Exception as e:
                 print("chat error", e)
                 continue
-            print("jarvis:", (reply or "")[:240])
-            if reply:
+            last_reply = reply or ""
+            print("jarvis:", last_reply[:240])
+            if last_reply and not mute_tts:
                 try:
-                    play_mp3(api.speak(reply))
+                    last_mp3 = api.speak(last_reply)
+                    play_mp3(last_mp3)
                 except Exception as e:
                     print("TTS error", e)
+            elif mute_tts:
+                print("tts muted")
             time.sleep(1.2)
             oww.reset()
 

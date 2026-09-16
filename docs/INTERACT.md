@@ -111,3 +111,19 @@ Do not run `jarvis-wake.py` as `agent` on the bastion (no mic).
 Laptop listener is transport only (mic → Voice chat → speaker). It must not special-case questions.
 Wall clock is one labeled `[clock …]` line from the OWUI filter on every chat.lan turn (America/Los_Angeles).
 Cluster LIVE dump stays intent-gated. Do not add per-question injects on the laptop.
+
+### Laptop listener commands
+
+Handled on the laptop after STT. **Not sent to chat.lan.** Wake with hey jarvis, then:
+
+| Command | Example phrases |
+|---|---|
+| stop | go away, that's all, jarvis stop, stand down, good night |
+| pause | pause, stand by |
+| resume | resume, I'm back, carry on |
+| repeat | repeat, say that again |
+| mute TTS | mute replies, text only |
+| unmute TTS | unmute replies, speak again |
+| status | status, are you listening |
+
+`python3 ~/jarvis-wake.py --commands` prints the list. Ctrl-C still works.
