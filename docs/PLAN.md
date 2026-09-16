@@ -37,3 +37,5 @@ Parked: inbox.md, WS-from-OWUI-filter, nested Goose, daily Grok cap, replacing O
 - **Not auto-routed:** extra complexity_router tier `HANDS` made model `jarvis` unhealthy. Leave picker-only until an OWUI inlet (not a 5th tier).
 - **Shim:** threaded SSE, headers before `openclaw agent`, memory **2Gi**.
 - **Later:** full RBAC writes; wake-word; Tailscale; inlet auto-pick.
+
+- Default glass **jarvis**: inspect phrases → **jarvis-hands** (COMPLEX); mutate/yaml → grok-code; small talk → local.
