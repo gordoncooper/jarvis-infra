@@ -69,3 +69,8 @@ Cluster actuator is **OpenClaw**, not the 7B, not nested Goose.
 - **OpenClaw** — cluster hands: http://agent.lan:18789 or `./scripts/openclaw-ask.sh "using cluster-health, are nodes Ready?"`
 - **Goose** — you on the bastion only. Do not nest Goose inside OpenClaw or chat.lan.
 - If chat.lan is asked to mutate or run kubectl: refuse and point at OpenClaw. Do not invent command output.
+
+## jarvis-hands (in-glass, read-only)
+
+Same chat.lan, model chip `jarvis-hands`. LiteLLM → OpenClaw `agent --message` via pod sidecar `:4001`.
+ClusterRole is still **readonly**. Mutate later. Break-glass: http://agent.lan:18789
