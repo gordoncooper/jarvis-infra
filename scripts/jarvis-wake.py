@@ -66,18 +66,31 @@ class OWUI:
     def post(self, path, **kw):
         return self._parse(self.s.post(self.base + path, timeout=120, **kw))
 
+    def _chats(self, path):
+        body = self.get(path)
+        if isinstance(body, list):
+            return body
+        if isinstance(body, dict):
+            for k in ("items", "chats", "data"):
+                if isinstance(body.get(k), list):
+                    return body[k]
+        return []
+
     def find_voice(self, chat_id: str | None):
-        if chat_id:
-            return chat_id
-        body = self.get("/api/v1/chats/")
-        items = body if isinstance(body, list) else []
+        cid = (chat_id or "").strip()
+        if cid:
+            return cid
+        items = self._chats("/api/v1/chats/") + self._chats("/api/v1/chats/pinned")
+        titles = []
         for c in items:
-            title = ""
-            if isinstance(c, dict):
-                ch = c.get("chat") if isinstance(c.get("chat"), dict) else c
-                title = str(ch.get("title") or c.get("title") or "")
+            if not isinstance(c, dict):
+                continue
+            ch = c.get("chat") if isinstance(c.get("chat"), dict) else c
+            title = str(ch.get("title") or c.get("title") or "")
+            titles.append(title)
             if title.strip() == TITLE and c.get("id"):
                 return c["id"]
+        print("chat titles:", titles[:20], file=sys.stderr)
         raise SystemExit("Voice chat not found — run ensure-voice-chat.sh on bastion")
 
     def transcribe(self, wav: bytes) -> str:
@@ -200,7 +213,16 @@ def play_mp3(data: bytes):
 
 def load_wake():
     from openwakeword.model import Model
-    return Model(wakeword_models=["hey_jarvis"], inference_framework="onnx")
+    try:
+        import openwakeword.utils as u
+        if hasattr(u, "download_models"):
+            u.download_models()
+    except Exception as e:
+        print("model download skip", e)
+    try:
+        return Model(wakeword_models=["hey_jarvis"], inference_framework="onnx")
+    except TypeError:
+        return Model(wakeword_models=["hey_jarvis"])
 
 
 def main():
@@ -215,7 +237,7 @@ def main():
     api = OWUI(cfg["OWUI_URL"], cfg["OWUI_TOKEN"])
     chat_id = api.find_voice(cfg.get("CHAT_ID") or None)
     model = cfg.get("MODEL") or "jarvis"
-    print(f"mic default={sd.query_devices(kind='input')['name']!r}  chat={chat_id}  model={model}")
+    print(f"mic default={sd.query_devices(kind='input')['name']!r}  chat={chat_id}  model={model}  env_chat_id={bool((cfg.get('CHAT_ID') or '').strip())}")
     print("headphones recommended (Piper can retrigger the wake word)")
     print("listening for hey_jarvis  Ctrl-C to stop")
     oww = load_wake()
