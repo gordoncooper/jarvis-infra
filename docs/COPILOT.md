@@ -126,3 +126,18 @@ Source of truth: cluster `clusters/jarvis/apps/jarvis-webui-hud.yaml` +
 `open-webui.yaml` volume/command. Live sqlite on apps-01
 `/cluster/local/open-webui/webui.db` holds prompt chips and follow-up enable.
 Homepage image tag is independent; do not bump it for WebUI CSS.
+
+## Docs after every major step
+
+Same commit as the change (or the next one if sqlite-only). Do not leave INTERACT /
+OPERATING / LESSONS / COPILOT describing the previous UI or flag. History under
+`docs/history/` stays frozen.
+
+Minimum:
+- Operator path → `docs/INTERACT.md`
+- How we run the rack → `docs/OPERATING.md`
+- Trap that burned us → `docs/LESSONS.md` (one row or bullet)
+- Cold-start pointer → `docs/COPILOT.md` if a new discover command exists
+
+Do not copy `GIT_TAG` / `IMAGE` into REBUILD.md. Do not bump the homepage image
+for chat.lan CSS.
