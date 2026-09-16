@@ -13,11 +13,12 @@ LEARNED = Path("/learned/learned.md")
 DEF_RE = re.compile(r"(?is)^\s*(what is|what's|whats|what are|define|explain)\b")
 LIVE_RE = re.compile(
     r"(?is)("
-    r"\bnodes?\s+(are\s+)?(in|on)\s+(the\s+)?(rack|cluster)\b"
-    r"|\bin the rack\b|\brack (nodes?|status)\b|\bcluster status\b|\bpod status\b"
-    r"|\bkubectl\s+get\b|\bgpu-0[12]\b|\bnvidia-smi\b"
+    r"\bnodes?\s+(are\s+)?(in|on|up|ready)\b"
+    r"|\brack status\b|\brack nodes\b"
+    r"|\bcluster (status|health|nodes?|details)\b|\blive (data|cluster|status|telemetry|stats|numbers|health)\b"
+    r"|\bpod status\b|\bkubectl\s+get\b|\bgpu-0[12]\b|\bnvidia-smi\b"
     r"|\b(gpu|vram)\s+(temp|temperature|util|usage|status|memory|stats|hot)\b"
-    r"|\bhow hot\b|\bwho is up\b|\blive (status|telemetry|stats|numbers)\b|\bhome\.lan\b"
+    r"|\bhow hot\b|\bwho is up\b|\bhome\.lan\b"
     r")"
 )
 # Recall only. Do NOT match "remember" (that is the write filter).
@@ -29,7 +30,7 @@ MEM_RE = re.compile(
     r"canary|silver-orbit|red-comet|"
     r"what did (i|we) (tell|ask you to remember)|"
     r"do you remember|"
-    r"secret test phrase"
+    r"blue-banana|lab-docs canary"
     r")\b"
 )
 SRC_RE = re.compile(r"(?is)\b(where did you (get|pull|save|find|store)|what('?s| is) the source)\b")
