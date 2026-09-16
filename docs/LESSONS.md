@@ -55,3 +55,4 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 - Tailwind class selectors (`self-center.font-medium`) miss 0.11.3; key off the **JARVIS** text node.
 - Sidebar expand remounts the brand; one-shot `setTimeout` is not enough — `childList` only.
 - `ENABLE_*` env is not enough when PersistentConfig already wrote sqlite (`task.follow_up.enable`).
+- Piped `ssh -n … | ssh -n tee` writes empty tarballs and `pipefail` aborts at hostPaths. `-n` only on the producer.
