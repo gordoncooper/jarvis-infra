@@ -17,10 +17,10 @@ CHUNK = 1280
 WAKE_KEY = "hey_jarvis"
 WAKE_THR = 0.6
 WAKE_HITS = 3
-SILENCE_SEC = 1.1
-MAX_UTTER = 12.0
-MIN_UTTER = 0.45
-RMS_SILENCE = 350
+SILENCE_SEC = 0.85
+MAX_UTTER = 8.0
+MIN_UTTER = 0.40
+RMS_SILENCE = 0  # adaptive
 
 
 def load_env(path: Path) -> dict:
@@ -294,13 +294,16 @@ def main():
             uttered = []
             silent = 0.0
             t0 = time.time()
+            peak = 1.0
             while time.time() - t0 < MAX_UTTER:
                 frame, _ = stream.read(CHUNK)
                 chunk = np.squeeze(frame)
                 uttered.append(chunk)
                 rms = float(np.sqrt(np.mean(chunk.astype(np.float64) ** 2)))
+                peak = max(peak, rms)
+                floor = max(400.0, 0.22 * peak)
                 dt = CHUNK / RATE
-                if rms < RMS_SILENCE:
+                if rms < floor:
                     silent += dt
                     if silent >= SILENCE_SEC and (time.time() - t0) >= MIN_UTTER:
                         break
@@ -320,6 +323,12 @@ def main():
             print("heard:", text)
             if not text:
                 continue
+            if __import__("re").search(
+                r"\b(date|today|time|clock|day of the week|what day)\b", text, __import__("re").I
+            ):
+                now = time.strftime("%A %Y-%m-%d %H:%M %Z")
+                text = text + f"\n[laptop clock: {now}]"
+                print("clock inject", now)
             try:
                 reply = api.complete(chat_id, model, text)
             except Exception as e:
@@ -336,4 +345,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nstopped")
