@@ -21,7 +21,6 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 
 Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Tony's override. Indicator chip = which model ran, not a selector. North star: [PLAN.md](PLAN.md).
 
-Default model is LiteLLM alias **`jarvis`** (router). Inspect prompts get LIVE telemetry via `scripts/owui-telemetry-filter.py` (OWUI global filter). Bottom-right **ROUTED** chip reads the completion body (`ollama/jarvis`, `jarvis-hands` / `openclaw`, grok-code). It does not guess from prompt keywords. Inspect phrases go Hands; do not retune keywords without a regression. Picker is `jarvis` plus the grok ids (`jarvis-embed` hidden). Native function-calling off in chat.lan so Grok does not `ask_user` on YAML; OpenClaw still has tools on `jarvis-grok-code`.
 
 Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
 Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic needs HTTPS.
@@ -133,3 +132,7 @@ Handled on the laptop after STT. **Not sent to chat.lan.** Wake with hey jarvis,
 Alias `jarvis` is LiteLLM `complexity_router`. **Direction:** replace exact-phrase `keyword_tier_rules` with `classifier_type: llm` (grok-4-fast, heuristic fallback). Chip shows the resolved model. Picker is the escape hatch. See [PLAN.md](PLAN.md).
 
 Chat filter injects `[clock …]` + `learned.md` only. Live cluster numbers are Hands, not a regex dump.
+
+## Routed model chip
+
+chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.

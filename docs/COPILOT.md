@@ -161,3 +161,5 @@ Default model `jarvis`. Chip = resolved backend. Do not add exact-phrase router 
 Wake-word v0: `./scripts/ensure-voice-chat.sh` pins OWUI chat **Voice**. Call mode is Chrome-only; `hey_jarvis` is not in-cluster.
 
 Wake-word v1 is **laptop-only** (`scripts/jarvis-wake.py`). Env is `~/.config/jarvis-wake/env` (not git). Never print the token.
+
+- chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.

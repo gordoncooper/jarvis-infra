@@ -104,3 +104,7 @@ Keep: live > Gitea > VERSION; independent git/image tags; never retag; agent not
 - OpenClaw timeout 180. Shim ASK_TIMEOUT 180. LiteLLM hands timeout 240.
 - Canary **blue-banana-42** (briefing). silver-orbit-3 is learned.md, not the secret phrase.
 - New chat after SYSTEM/filter/router changes.
+
+### Dropped: chat.lan route chip
+
+chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.

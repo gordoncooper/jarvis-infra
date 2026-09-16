@@ -64,3 +64,5 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 - openWakeWord CUDA warning on the laptop is fine (CPUExecutionProvider).
 - Adaptive silence (`0.22 * peak`) can still hit MAX_UTTER (~8s) in a noisy room; not a command bug.
 - Do not intent-gate a LIVE telemetry dump into the 7B prompt. Clock is always-on; live numbers are Hands or home.lan.
+
+- chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
