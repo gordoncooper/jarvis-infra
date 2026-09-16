@@ -18,7 +18,56 @@ def wall_clock():
 
 
 class Filter:
+
+    def stream(self, event, **kwargs):
+        """Stamp an invisible route marker into the first content delta."""
+        if not isinstance(event, dict):
+            return event
+        eid = str(event.get("id") or "")
+        model = str(event.get("model") or "")
+        blob = eid + " " + model
+        kind = None
+        if "jarvis-hands" in blob or model == "openclaw" or "chatcmpl-jarvis-hands" in blob:
+            kind = "hands"
+        elif "grok-build" in blob or "grok-code" in blob or "jarvis-grok-code" in blob:
+            kind = "code"
+        elif "ollama" in blob or model.endswith("/jarvis") or "jarvis-local" in blob:
+            kind = "local"
+        elif "jarvis-grok" in blob:
+            kind = "grok"
+        if not kind:
+            return event
+        bits = {"local": "000", "hands": "001", "code": "011", "grok": "010"}[kind]
+        mark = "\u2060" + "".join("\u200b" if b == "0" else "\u200c" for b in bits) + "\u2060"
+        try:
+            ch = (event.get("choices") or [{}])[0]
+            delta = ch.get("delta") or {}
+            if "content" in delta and not getattr(self, "_jarvis_marked", False):
+                delta["content"] = mark + (delta.get("content") or "")
+                ch["delta"] = delta
+                event["choices"] = [ch] + (event.get("choices") or [])[1:]
+                self._jarvis_marked = True
+            elif "message" in ch and not getattr(self, "_jarvis_marked", False):
+                msg = ch["message"]
+                if isinstance(msg, dict) and "content" in msg:
+                    msg["content"] = mark + (msg.get("content") or "")
+                    self._jarvis_marked = True
+        except Exception:
+            pass
+        em = kwargs.get("__event_emitter__")
+        if em and not getattr(self, "_jarvis_emitted", False):
+            label = {"local": "LOCAL  ollama/jarvis", "hands": "HANDS  jarvis-hands",
+                     "code": "GROK-CODE", "grok": "GROK"}.get(kind, kind)
+            try:
+                em({"type": "status", "data": {"description": "ROUTED · " + label, "done": False}})
+                self._jarvis_emitted = True
+            except Exception:
+                pass
+        return event
+
     def inlet(self, body, __user__=None):
+        self._jarvis_marked = False
+        self._jarvis_emitted = False
         if not isinstance(body, dict):
             return body
         model = str(body.get("model") or "")
