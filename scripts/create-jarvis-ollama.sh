@@ -8,4 +8,10 @@ kubectl -n inference exec deploy/ollama -- ollama pull "$BASE"
 kubectl -n inference exec -i deploy/ollama -- sh -c 'cat > /tmp/Modelfile && ollama create jarvis -f /tmp/Modelfile && ollama list' << EOF2
 FROM ${BASE}
 SYSTEM """${SYS}"""
+PARAMETER stop "How can I assist"
+PARAMETER stop "How can I help you"
+PARAMETER stop "What can I help you with"
+PARAMETER stop "How can I be more helpful"
+PARAMETER stop "Is there anything else"
+PARAMETER stop "Let me know if you need"
 EOF2
