@@ -1,11 +1,13 @@
 """
 title: JARVIS live telemetry
-description: Always-on clock + learned.md. No LIVE dump. No intent regex.
+description: Clock + learned.md on inlet; route tag on outlet.
 """
 from datetime import datetime
 from pathlib import Path
+import json
 
 LEARNED = Path("/learned/learned.md")
+DEBUG = Path("/tmp/jarvis-route.txt")
 
 
 def wall_clock():
@@ -17,57 +19,31 @@ def wall_clock():
     return now.strftime("%A %Y-%m-%d %H:%M %Z")
 
 
+def classify(blob: str):
+    s = (blob or "").lower()
+    if "jarvis-hands" in s or "openclaw" in s or "chatcmpl-jarvis-hands" in s:
+        return "hands"
+    if "grok-build" in s or "grok-code" in s or "jarvis-grok-code" in s:
+        return "code"
+    if "ollama/jarvis" in s or "jarvis-local" in s or s.endswith("/jarvis"):
+        return "local"
+    if "jarvis-grok" in s:
+        return "grok"
+    return None
+
+
+TAG = {"hands": "⟦H⟧", "local": "⟦L⟧", "code": "⟦C⟧", "grok": "⟦G⟧"}
+
+
+def _dbg(msg: str):
+    try:
+        DEBUG.write_text(msg[:2000])
+    except Exception:
+        pass
+
+
 class Filter:
-
-    def stream(self, event, **kwargs):
-        """Stamp an invisible route marker into the first content delta."""
-        if not isinstance(event, dict):
-            return event
-        eid = str(event.get("id") or "")
-        model = str(event.get("model") or "")
-        blob = eid + " " + model
-        kind = None
-        if "jarvis-hands" in blob or model == "openclaw" or "chatcmpl-jarvis-hands" in blob:
-            kind = "hands"
-        elif "grok-build" in blob or "grok-code" in blob or "jarvis-grok-code" in blob:
-            kind = "code"
-        elif "ollama" in blob or model.endswith("/jarvis") or "jarvis-local" in blob:
-            kind = "local"
-        elif "jarvis-grok" in blob:
-            kind = "grok"
-        if not kind:
-            return event
-        bits = {"local": "000", "hands": "001", "code": "011", "grok": "010"}[kind]
-        mark = "\u2060" + "".join("\u200b" if b == "0" else "\u200c" for b in bits) + "\u2060"
-        try:
-            ch = (event.get("choices") or [{}])[0]
-            delta = ch.get("delta") or {}
-            if "content" in delta and not getattr(self, "_jarvis_marked", False):
-                delta["content"] = mark + (delta.get("content") or "")
-                ch["delta"] = delta
-                event["choices"] = [ch] + (event.get("choices") or [])[1:]
-                self._jarvis_marked = True
-            elif "message" in ch and not getattr(self, "_jarvis_marked", False):
-                msg = ch["message"]
-                if isinstance(msg, dict) and "content" in msg:
-                    msg["content"] = mark + (msg.get("content") or "")
-                    self._jarvis_marked = True
-        except Exception:
-            pass
-        em = kwargs.get("__event_emitter__")
-        if em and not getattr(self, "_jarvis_emitted", False):
-            label = {"local": "LOCAL  ollama/jarvis", "hands": "HANDS  jarvis-hands",
-                     "code": "GROK-CODE", "grok": "GROK"}.get(kind, kind)
-            try:
-                em({"type": "status", "data": {"description": "ROUTED · " + label, "done": False}})
-                self._jarvis_emitted = True
-            except Exception:
-                pass
-        return event
-
-    def inlet(self, body, __user__=None):
-        self._jarvis_marked = False
-        self._jarvis_emitted = False
+    def inlet(self, body, __user__=None, **kwargs):
         if not isinstance(body, dict):
             return body
         model = str(body.get("model") or "")
@@ -102,4 +78,31 @@ class Filter:
             last["content"] = (
                 c + "\n\n<<<begin_ctx>>>\n" + "\n\n".join(extra) + "\n<<<end_ctx>>>"
             )
+        return body
+
+    def outlet(self, body, __user__=None, **kwargs):
+        if not isinstance(body, dict):
+            return body
+        blob = " ".join(
+            [
+                str(body.get("model") or ""),
+                str(body.get("id") or ""),
+                str((body.get("choices") or [{}])[0].get("model") or "")
+                if isinstance(body.get("choices"), list) and body.get("choices")
+                else "",
+            ]
+        )
+        kind = classify(blob)
+        _dbg("keys=" + ",".join(map(str, body.keys())) + " blob=" + blob[:300] + " kind=" + str(kind))
+        if not kind:
+            return body
+        tag = TAG[kind]
+        msgs = body.get("messages")
+        if isinstance(msgs, list):
+            for m in reversed(msgs):
+                if isinstance(m, dict) and m.get("role") == "assistant":
+                    c = m.get("content") or ""
+                    if isinstance(c, str) and tag not in c[:12]:
+                        m["content"] = tag + c
+                    break
         return body
