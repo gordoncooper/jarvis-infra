@@ -65,6 +65,9 @@ def live_block():
 
 class Filter:
     def inlet(self, body, __user__=None):
+        model = str((body or {}).get('model') or '')
+        if 'hands' in model:
+            return body
         msgs = body.get("messages") or []
         if not msgs:
             return body
