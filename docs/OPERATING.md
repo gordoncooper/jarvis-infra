@@ -47,3 +47,5 @@ bastion `~/.config/sops/age/keys.txt` (mode 600) + USB copy.
 
 chmod 600 bastion files + NFS `bastion-secrets.tgz` are the rack-reboot path.
 SOPS + USB age key is the house-fire path.
+
+HUD for chat.lan is ConfigMap inject (see INTERACT). Empty prompt chips + follow-ups disabled in sqlite.

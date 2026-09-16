@@ -48,3 +48,10 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 | --- | --- |
 | git.lan jarvis.lan grafana.lan llm.lan chat.lan **home.lan** | 192.168.8.11 |
 | agent.lan | **192.168.8.16** |
+
+## Open WebUI HUD
+
+- Do not `MutationObserver` + rewrite text with `characterData` — infinite loop, “Page Unresponsive”.
+- Tailwind class selectors (`self-center.font-medium`) miss 0.11.3; key off the **JARVIS** text node.
+- Sidebar expand remounts the brand; one-shot `setTimeout` is not enough — `childList` only.
+- `ENABLE_*` env is not enough when PersistentConfig already wrote sqlite (`task.follow_up.enable`).

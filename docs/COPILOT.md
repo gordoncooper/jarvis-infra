@@ -119,3 +119,10 @@ the homepage image unless /status is wrong.
 Repos: https://github.com/gordoncooper/jarvis-infra
        https://github.com/gordoncooper/jarvis-cluster  (mirror only)
 ~~
+
+## chat.lan HUD
+
+Source of truth: cluster `clusters/jarvis/apps/jarvis-webui-hud.yaml` +
+`open-webui.yaml` volume/command. Live sqlite on apps-01
+`/cluster/local/open-webui/webui.db` holds prompt chips and follow-up enable.
+Homepage image tag is independent; do not bump it for WebUI CSS.

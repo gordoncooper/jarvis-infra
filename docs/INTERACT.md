@@ -26,3 +26,22 @@ Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic
 
 Chat chrome: ConfigMap `jarvis-webui-hud` (teal HUD CSS + title JARVIS). Recreate once on change. Sidebar still suffixes `(Open WebUI)` on v0.11.3.
 Audio click-ops: [open-webui-audio.md](open-webui-audio.md). RAG: [open-webui-knowledge.md](open-webui-knowledge.md). Briefing: [briefing.md](briefing.md) (`lab-docs`). Promoted facts: `scripts/remember.sh` → `jarvis-learned`.
+
+## chat.lan HUD
+
+Chrome is **not** a custom Open WebUI image. Flux mounts ConfigMap `jarvis-webui-hud`
+(`clusters/jarvis/apps/jarvis-webui-hud.yaml`) and the container `command` runs
+`/hud/inject-hud.sh`, which patches `/app/build/index.html` then `exec`s upstream `start.sh`.
+
+- Generic CSS: `html/body/#app`, sidebar rail, 28px grid, vignette, slow heartbeat.
+- JS (no `characterData` observer — that froze the tab): strip `(Open WebUI)`,
+  mark the **JARVIS** text node, mark empty-state **jarvis-local** only (skip
+  `button` / listbox so the model picker stays stock type), hide the version footer.
+  `childList` observer re-applies after the sidebar is expanded.
+- Default **collapsed** sidebar: `localStorage.sidebar=false` (per browser, not a cookie).
+- Suggestions off: sqlite `ui.prompt_suggestions=[]`.
+- Follow-ups off: sqlite `task.follow_up.enable=false` (YAML `ENABLE_FOLLOW_UP_GENERATION=false`
+  loses to PersistentConfig until the db row is false).
+
+After any Open WebUI **digest bump**: Recreate, `curl -sk https://chat.lan/ | grep jarvis-hud`,
+glance chat.lan. Do not fork the image.
