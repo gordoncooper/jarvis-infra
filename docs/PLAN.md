@@ -26,7 +26,7 @@ Git tag and image tag are independent. Pins live in `VERSION`.
 
 1. **DONE — glass freeze (v0.4.30).** chat.lan alias `jarvis`. SIMPLE = talk/inventory (7B). COMPLEX = inspect (`are nodes ready/up`, `get pods`, `kubectl get`) → `jarvis-hands` (OpenClaw readonly). REASONING = YAML/Flux → grok-code. Do **not** retune SYSTEM, LIVE_RE, HUD CSS, or keyword_tier_rules unless chat.lan regresses.
 2. **Later — OpenClaw writes:** widen ClusterRole + approvals. Same shim. Not this tag.
-3. **Later — wake-word / always-on listen.**
+3. **Wake-word (in progress).** v0: dedicated pinned **Voice** chat + OWUI Call mode (laptop Chrome). Stock phrase **hey_jarvis** is v1 (laptop process, not k3s). v2 room Pi is parked.
 4. **Later — Tailscale / off-LAN.**
 
 Parked: inbox.md, nested Goose, daily Grok cap, replacing Open WebUI, Qwen swap.

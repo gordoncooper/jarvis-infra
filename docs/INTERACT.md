@@ -76,3 +76,16 @@ Same chat.lan, model chip `jarvis-hands`. LiteLLM → OpenClaw `agent --message`
 ClusterRole is still **readonly**. Mutate later. Break-glass: http://agent.lan:18789
 
 Route chip v10: LOCAL / HANDS / GROK-CODE. In-chat jarvis uses sidebar wordmark; picker stays stock.
+
+## Voice chat (wake-word v0)
+
+Pinned sidebar chat **Voice**, model **jarvis**. This is the dedicated voice session
+(not whichever tab you were typing in).
+
+1. https://chat.lan → open **Voice**.
+2. Confirm model is `jarvis` (router). Headphones if Piper is on (Call mode hears the speakers).
+3. Start **Call** / voice mode (phone icon). Talk; silence ends the turn; TTS replies; mic re-arms.
+4. This is **not** `hey_jarvis`. Open WebUI cannot hear a wake word in a silent tab.
+   Stock **hey_jarvis** is a later laptop listener (`openWakeWord`), not a cluster pod.
+
+Idempotent create/pin: `./scripts/ensure-voice-chat.sh`

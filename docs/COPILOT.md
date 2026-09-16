@@ -158,3 +158,5 @@ Do not keep iterating persona/router/HUD. Working split:
 - REASONING: write yaml / flux / patch → jarvis-grok-code.
 - SYSTEM file: `cluster/clusters/jarvis/apps/jarvis-system-prompt.txt` (real M920x names).
 - Next work if asked: OpenClaw writes, wake-word, Tailscale — not glass retune.
+
+Wake-word v0: `./scripts/ensure-voice-chat.sh` pins OWUI chat **Voice**. Call mode is Chrome-only; `hey_jarvis` is not in-cluster.
