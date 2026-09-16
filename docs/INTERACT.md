@@ -21,7 +21,7 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 
 Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Tony's override. Indicator chip = which model ran, not a selector. North star: [PLAN.md](PLAN.md).
 
-Default model is LiteLLM alias **`jarvis`** (router). Inspect prompts get LIVE telemetry via `scripts/owui-telemetry-filter.py` (OWUI global filter). Bottom-right **ROUTED** chip is the resolved LiteLLM child (LOCAL / HANDS / GROK), not the picker. Inspect phrases go Hands; do not retune keywords without a regression. Picker is `jarvis` plus the grok ids (`jarvis-embed` hidden). Native function-calling off in chat.lan so Grok does not `ask_user` on YAML; OpenClaw still has tools on `jarvis-grok-code`.
+Default model is LiteLLM alias **`jarvis`** (router). Inspect prompts get LIVE telemetry via `scripts/owui-telemetry-filter.py` (OWUI global filter). Bottom-right **ROUTED** chip reads the completion body (`ollama/jarvis`, `jarvis-hands` / `openclaw`, grok-code). It does not guess from prompt keywords. Inspect phrases go Hands; do not retune keywords without a regression. Picker is `jarvis` plus the grok ids (`jarvis-embed` hidden). Native function-calling off in chat.lan so Grok does not `ask_user` on YAML; OpenClaw still has tools on `jarvis-grok-code`.
 
 Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
 Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic needs HTTPS.
