@@ -148,3 +148,13 @@ Hands: OpenClaw at http://agent.lan:18789 or `./scripts/openclaw-ask.sh "…"`. 
 Hands locked: dual door. chat.lan talks; OpenClaw (agent.lan / openclaw-ask.sh) has exec; Goose is bastion-only. No chat.lan inbox/auto-kubectl.
 
 Hands in-glass: LiteLLM `jarvis-hands` → OpenClaw shim :4001 (readonly RBAC). agent.lan / openclaw-ask.sh is break-glass. No inbox. Writes = later RBAC.
+
+## Frozen glass (v0.4.30)
+
+Do not keep iterating persona/router/HUD. Working split:
+- Default model `jarvis` (LiteLLM complexity_router). Chip = resolved backend.
+- SIMPLE: hello / who are you / rack inventory → ollama/jarvis (7B).
+- COMPLEX: inspect → jarvis-hands (OpenClaw, ClusterRole openclaw-readonly).
+- REASONING: write yaml / flux / patch → jarvis-grok-code.
+- SYSTEM file: `cluster/clusters/jarvis/apps/jarvis-system-prompt.txt` (real M920x names).
+- Next work if asked: OpenClaw writes, wake-word, Tailscale — not glass retune.

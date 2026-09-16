@@ -51,3 +51,5 @@ SOPS + USB age key is the house-fire path.
 HUD for chat.lan is ConfigMap inject (see INTERACT): collapsed sidebar, no suggestion chips, no follow-ups (sqlite). Model picker is stock type.
 
 After Open WebUI restore: `./scripts/seed-webui-ui.sh` then `./scripts/seed-open-webui-model.sh`.
+
+**Frozen glass (v0.4.30):** do not retune chat.lan persona/router/HUD unless it regresses. Writes / wake-word / Tailscale are later PLAN items.

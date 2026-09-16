@@ -24,20 +24,16 @@ Git tag and image tag are independent. Pins live in `VERSION`.
 
 ## Remaining (locked order)
 
-1. **Now — `jarvis-hands` read-only:** sidecar OpenAI shim in the OpenClaw pod; LiteLLM model; OWUI filter list; router sends *inspect-with-shell* (get/describe/logs/Ready) to `jarvis-hands`. Do **not** widen RBAC. apply/delete/restart still *talk* via grok-code until step 2.
-2. **Later — OpenClaw can do anything:** widen ClusterRole + OpenClaw approvals. Same shim. Router may send mutate verbs to `jarvis-hands`. Not this PR.
+1. **DONE — glass freeze (v0.4.30).** chat.lan alias `jarvis`. SIMPLE = talk/inventory (7B). COMPLEX = inspect (`are nodes ready/up`, `get pods`, `kubectl get`) → `jarvis-hands` (OpenClaw readonly). REASONING = YAML/Flux → grok-code. Do **not** retune SYSTEM, LIVE_RE, HUD CSS, or keyword_tier_rules unless chat.lan regresses.
+2. **Later — OpenClaw writes:** widen ClusterRole + approvals. Same shim. Not this tag.
 3. **Later — wake-word / always-on listen.**
 4. **Later — Tailscale / off-LAN.**
 
-Parked: inbox.md, WS-from-OWUI-filter, nested Goose, daily Grok cap, replacing Open WebUI.
+Parked: inbox.md, nested Goose, daily Grok cap, replacing Open WebUI, Qwen swap.
 
-## Status 2026-09-16
+## Freeze (do not break)
 
-- **jarvis-hands in-glass:** works (picker). OpenClaw `cluster-health` listed 6 Ready nodes. No bastion.
-- **Not auto-routed:** extra complexity_router tier `HANDS` made model `jarvis` unhealthy. Leave picker-only until an OWUI inlet (not a 5th tier).
-- **Shim:** threaded SSE, headers before `openclaw agent`, memory **2Gi**.
-- **Later:** full RBAC writes; wake-word; Tailscale; inlet auto-pick.
-
-- Default glass **jarvis**: inspect phrases → **jarvis-hands** (COMPLEX); mutate/yaml → grok-code; small talk → local.
-
-- Chip v10: HANDS phrases + stream model; in-chat jarvis wordmark.
+- Pins: `VERSION` only. Image still `docker.io/library/jarvis-home:v0.4.9`.
+- OpenClaw `agents.defaults.timeoutSeconds` 180. Shim ASK_TIMEOUT 180. LiteLLM hands timeout 240.
+- Canary **blue-banana-42** (briefing). silver-orbit-3 is learned.md, not the secret phrase.
+- New chat after overlay/SYSTEM/filter changes. Keywords are matched literally (include “the”, “up”, “pods”).
