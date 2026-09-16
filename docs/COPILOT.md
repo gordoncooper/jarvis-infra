@@ -144,3 +144,5 @@ Do not copy `GIT_TAG` / `IMAGE` into REBUILD.md. Do not bump the homepage image
 for chat.lan CSS.
 
 Hands: OpenClaw at http://agent.lan:18789 or `./scripts/openclaw-ask.sh "…"`. Do not nest Goose. chat.lan does not auto-run kubectl.
+
+Hands locked: dual door. chat.lan talks; OpenClaw (agent.lan / openclaw-ask.sh) has exec; Goose is bastion-only. No chat.lan inbox/auto-kubectl.

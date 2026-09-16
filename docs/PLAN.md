@@ -15,7 +15,7 @@ Done:
 Stop polishing: 7B will still narrate deletes; near-duplicate learned lines. seed-learned is idempotent.
 
 Left (in order):
-1. Hands v1 DONE: `scripts/openclaw-ask.sh` + http://agent.lan:18789. chat.lan does not auto-invoke. Next (later): optional WS `chat.send` from chat.lan with a confirm step — not nested Goose.
+1. Hands LOCKED (dual door): chat.lan = talk/RAG/voice; OpenClaw = actuator (http://agent.lan:18789 or `./scripts/openclaw-ask.sh`). No inbox/drain, no chat.lan auto-invoke, no nested Goose. WS chat.send from OWUI is later/optional, not the plan.
 2. Tag v0.4.26 when this chunk lands (image stays v0.4.9).
 3. seed-learned.sh DONE — wait for embed; duplicate content = success (idempotent).
 Later: wake-word, Tailscale, spend cap, Qwen3.

@@ -79,3 +79,5 @@ Promote from bastion: `~/jarvis-infra/scripts/remember.sh the fact here`
 OpenClaw: append a bullet to `learned.md` in the workspace, then seed runs hourly
 (or Goose runs `seed-learned.sh`). Chat.lan 7B **cannot** write — it only reads RAG.
 Never put secrets in learned.md. Dreams / MEMORY.md stay private to OpenClaw.
+
+Hands: OpenClaw at http://agent.lan:18789 (or bastion `./scripts/openclaw-ask.sh`). chat.lan does not run kubectl. Goose is the operator on the bastion only.

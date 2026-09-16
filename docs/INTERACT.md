@@ -62,3 +62,10 @@ Cluster actuator is **OpenClaw**, not the 7B, not nested Goose.
 - chat.lan must not auto-invoke OpenClaw. Point sir at agent.lan or this script when a write/inspect-with-shell is needed.
 - Skills in the pod: `cluster-health`, `cluster-metrics`, `lab-map` (readonly ClusterRole).
 - Default output is assistant text. `OPENCLAW_ASK_JSON=1` dumps the gateway JSON.
+
+## Dual door (locked)
+
+- **chat.lan** — conversation, RAG, voice, router chip. The 7B has no shell.
+- **OpenClaw** — cluster hands: http://agent.lan:18789 or `./scripts/openclaw-ask.sh "using cluster-health, are nodes Ready?"`
+- **Goose** — you on the bastion only. Do not nest Goose inside OpenClaw or chat.lan.
+- If chat.lan is asked to mutate or run kubectl: refuse and point at OpenClaw. Do not invent command output.
