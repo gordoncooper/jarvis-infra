@@ -1,5 +1,25 @@
 # PLAN.md — unified JARVIS (north star)
 
+
+## Status (2026-09-15, live)
+
+Done:
+- LiteLLM alias `jarvis` (complexity_router). Default in chat.lan.
+- Picker remains an escape hatch: jarvis, jarvis-local, jarvis-grok, jarvis-grok-code.
+- ROUTED chip = resolved model. Native tools off. Arena/embed hidden.
+- Piper alloy → en_GB-northern_english_male-medium.
+- gpu-02 embed-only. No Qwen swap. No daily Grok cap.
+- lab-docs + learned.md. Chat remember is append-only (`remember that …` → `/cluster/local/openclaw/learned.md`).
+- LIVE telemetry only on rack-status phrasing.
+
+Stop polishing: 7B will still narrate deletes; near-duplicate learned lines; seed-learned knowledge API 400.
+
+Left (in order):
+1. Hands from chat.lan — OpenClaw is the cluster actuator; Goose is operator-on-bastion. Handoff, do not nest Goose.
+2. Tag v0.4.26 when this chunk lands (image stays v0.4.9).
+3. seed-learned.sh WebUI upload 400 (rebuild RAG).
+Later: wake-word, Tailscale, spend cap, Qwen3.
+
 Living goal. Not live inventory. Live cluster still wins.
 Decisions below are locked 2026-09-15 after operator answers.
 Do not start a new product (Mem0, Graphiti, extra chat UI, wake-word).
