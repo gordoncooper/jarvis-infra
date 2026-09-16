@@ -107,3 +107,7 @@ Stock **hey_jarvis** runs on the laptop, not in the cluster.
 4. Call mode still works if you would rather click.
 
 Do not run `jarvis-wake.py` as `agent` on the bastion (no mic).
+
+Laptop listener is transport only (mic → Voice chat → speaker). It must not special-case questions.
+Wall clock is one labeled `[clock …]` line from the OWUI filter on every chat.lan turn (America/Los_Angeles).
+Cluster LIVE dump stays intent-gated. Do not add per-question injects on the laptop.

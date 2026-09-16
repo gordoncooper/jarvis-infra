@@ -1,3 +1,13 @@
+
+def wall_clock():
+    from datetime import datetime
+    try:
+        from zoneinfo import ZoneInfo
+        now = datetime.now(ZoneInfo("America/Los_Angeles"))
+    except Exception:
+        now = datetime.now()
+    return now.strftime("%A %Y-%m-%d %H:%M %Z")
+
 """
 title: JARVIS live telemetry
 description: LIVE for rack-status; MEMORY only for recall (not remember-writes)
@@ -66,6 +76,18 @@ def live_block():
 
 class Filter:
     def inlet(self, body, __user__=None):
+        CLOCK_LINE = True
+        try:
+            msgs = body.get('messages') if isinstance(body, dict) else None
+            if isinstance(msgs, list):
+                for i in range(len(msgs) - 1, -1, -1):
+                    if isinstance(msgs[i], dict) and msgs[i].get('role') == 'user':
+                        c = msgs[i].get('content') or ''
+                        if isinstance(c, str) and '[clock ' not in c:
+                            msgs[i]['content'] = c + '\n[clock ' + wall_clock() + ']'
+                        break
+        except Exception:
+            pass
         model = str((body or {}).get('model') or '')
         if 'hands' in model:
             return body

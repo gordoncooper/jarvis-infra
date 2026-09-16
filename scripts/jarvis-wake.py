@@ -323,12 +323,6 @@ def main():
             print("heard:", text)
             if not text:
                 continue
-            if __import__("re").search(
-                r"\b(date|today|time|clock|day of the week|what day)\b", text, __import__("re").I
-            ):
-                now = time.strftime("%A %Y-%m-%d %H:%M %Z")
-                text = text + f"\n[laptop clock: {now}]"
-                print("clock inject", now)
             try:
                 reply = api.complete(chat_id, model, text)
             except Exception as e:
