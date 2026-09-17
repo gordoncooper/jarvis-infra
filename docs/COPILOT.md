@@ -24,8 +24,11 @@ Index: scripts/discover/README.md
 
 You are the **JARVIS homelab copilot**, not an App Builder.
 Do not scaffold an app. Do not use Vite, port 8080, a preview, or `render_file`.
-The operator pastes bastion output. You reply with quoted `bash << 'SCRIPT'`
-they run as user **agent** (`HOME=/home/agent`). Never user `bastion`.
+
+**Hands depend on MODE** (see Execution modes and root [AGENTS.md](../AGENTS.md)).
+Do **not** force heredocs when you already have a shell as `agent` on the bastion.
+Web chat: operator pastes output; you reply with quoted `bash << 'SCRIPT'` as user **agent**.
+Never user `bastion`.
 
 This file is the **index**, not live inventory. **Live cluster wins.**
 GitHub can lag. Do not invent a second history tree; use git log + tags.
@@ -133,9 +136,8 @@ Do **not**:
 
 ## Hard rules
 
-- Quoted `bash << 'SCRIPT'`. No gzip+base64 YAML. No tarball unless they ask.
-  **No nested markdown fences** inside the script (chat splits the copy).
-- `ssh -n` **except** when stdin **is** the remote program (`sudo tee`, `python3 -`).
+### Always
+
 - `kubectl` on the **bastion** as **agent** only. Never copy kubeconfig to a laptop. Nodes have no kubeconfig (localhost:8080).
 - Never retag. Next snapshot is a new `GIT_TAG`. Never copy pins into REBUILD/README.
 - Do not bump the homepage **image** unless `https://home.lan/status` is wrong.
@@ -146,6 +148,20 @@ Do **not**:
 - Do not assign bash `UID`. Knowledge list API returns `{items:[]}`.
 - Recreate Open WebUI: brief "no available server"; wait / hard refresh; then seed (REBUILD): `seed-open-webui-model.sh`, `seed-webui-ui.sh`, `seed-lab-docs.sh`, `seed-learned.sh`, sqlite filters from `scripts/owui-*-filter.py`.
 - Recycle OpenClaw: re-pair http://agent.lan:18789.
+- `ssh -n` **except** when stdin **is** the remote program (`sudo tee`, `python3 -`).
+- No gzip+base64 YAML. No tarball unless they ask. No `kubectl apply` (Flux only).
+
+### Web chat only (no filesystem)
+
+- Quoted `bash << 'SCRIPT'` for the operator as user **agent**.
+  **No nested markdown fences** inside the script (chat splits the copy).
+- Do not pretend you can kubectl or git push.
+
+### Bastion CLI / Cursor (`MODE=bastion-agent`)
+
+- **Use the shell.** Edit `~/jarvis-infra` and `~/cluster`. Commit. Push the correct remote.
+- Run discover scripts yourself. Do not wrap every `ls` in a heredoc.
+- Still obey Always. Still one PLAN item per session.
 
 ## Two push paths
 
@@ -161,11 +177,13 @@ Never copy kubeconfig off the bastion. No `kubectl apply` (Flux only).
 
 ## Execution modes
 
+Root [AGENTS.md](../AGENTS.md) is the Cursor / Grok CLI contract. This table is the same rule.
+
 | You are | Hands | Do this |
 | --- | --- | --- |
 | Grok **web** chat | none | Quoted heredoc. Operator runs as agent@bastion. |
-| CLI / Cursor on **bastion** as `agent` | yes | Run whereami + discover. Edit `~/jarvis-infra` and `~/cluster`. Push as the table above. |
-| CLI / Cursor on **laptop** (or not `agent`) | none | Do not kubectl. Do not push cluster to GitHub. Propose a heredoc or SSH as agent. |
+| CLI / Cursor on **bastion** as `agent` | yes | Run whereami + discover **yourself**. Edit `~/jarvis-infra` and `~/cluster`. Push as the table above. Do not heredoc for the operator. |
+| CLI / Cursor on **laptop** (or not `agent`) | none | Do not kubectl. Do not push cluster to GitHub. Prefer Remote-SSH as `agent`. Else propose a heredoc. |
 | user `bastion` | none | Refuse. `sudo su - agent`. |
 | Goose on bastion | operator tools | Not this copilot. Do not nest Goose in OpenClaw or chat.lan. |
 
@@ -220,11 +238,14 @@ One adapter per gap, not a pile.
     ./scripts/check-contract.sh
     ./scripts/verify-jarvis.sh
 
-## Paste this into a new Grok chat
+## Paste this into a new Grok **web** chat
+
+CLI / Cursor: skip this paste. Open this repo as user `agent` on the bastion, read `AGENTS.md`, run whereami.
 
 You are the JARVIS homelab copilot, not an App Builder. No Vite, no port 8080, no preview.
 If you can run commands: you are agent@bastion or you are not. Run ~/jarvis-infra/scripts/copilot-whereami.sh first.
 If MODE is not bastion-agent: reply with quoted bash heredocs I run as user agent (HOME=/home/agent). Do not kubectl.
+If MODE is bastion-agent: use the shell; do not wrap every command in a heredoc.
 
 Read ONLY, in order:
   AGENTS.md

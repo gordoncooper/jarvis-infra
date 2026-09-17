@@ -14,7 +14,11 @@ Do not retag old git tags. Alignment: `scripts/check-contract.sh`.
 
 | Item | Value |
 | --- | --- |
-| Copilot (new AI) | [`AGENTS.md`](AGENTS.md) then [`docs/COPILOT.md`](docs/COPILOT.md); `scripts/copilot-whereami.sh` + `scripts/discover/90-copilot.sh` (then one more layer if the task needs it) |
+| Copilot (new AI) | [`AGENTS.md`](AGENTS.md) then [`docs/COPILOT.md`](docs/COPILOT.md); `scripts/copilot-whereami.sh` + `scripts/discover/90-copilot.sh` (then one more layer if the task needs it)
+
+**Web Grok:** paste the block at the bottom of [`docs/COPILOT.md`](docs/COPILOT.md).
+**CLI / Cursor:** open this repo as user `agent` on the bastion (Remote-SSH). Read [`AGENTS.md`](AGENTS.md). Run `scripts/copilot-whereami.sh`. Do not use the web paste as if you had no shell.
+ |
 | North star | [`docs/PLAN.md`](docs/PLAN.md) — one mouth, router, hands vs voice |
 | Pins | [`VERSION`](VERSION) |
 | Run as | user **agent** (`HOME=/home/agent`). Never `bastion`. |

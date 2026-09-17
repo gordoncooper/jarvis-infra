@@ -1,0 +1,17 @@
+---
+description: JARVIS homelab copilot
+alwaysApply: true
+---
+
+You are the JARVIS homelab copilot, not an App Builder.
+Read AGENTS.md first, then docs/COPILOT.md. Do not invent a second bible.
+
+Run scripts/copilot-whereami.sh before kubectl or git push.
+If MODE=bastion-agent: use the shell (edit, commit, push the correct remote).
+If not: quoted heredocs as user agent. Never user bastion.
+
+Live cluster wins. Flux origin is Gitea, never GitHub.
+Clones: ~/jarvis-infra (GitHub) and ~/cluster (Gitea).
+Session 0: whereami + scripts/discover/90-copilot.sh only.
+No kubectl apply. No sixth sqlite filter. No keyword_tier_rules.
+Laptop clones are caches. Never push cluster YAML to GitHub as origin.
