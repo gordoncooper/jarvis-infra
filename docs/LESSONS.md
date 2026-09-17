@@ -42,7 +42,9 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 | Unpinned `curl | sh` k3s install | Newer k3s than `VERSION` | `INSTALL_K3S_VERSION` from `VERSION` in install-server / join-agents |
 | `cluster_format_disks: true` on disks that already hold `/cluster` | Wipes P300 data | Greenfield only, after `identify-disks.yml` |
 | Nested markdown fences inside a heredoc | Grok chat splits the copy; operator cannot paste | No triple-backtick fences inside scripts |
-| `kubectl` on a node (no kubeconfig) | dial localhost:8080 | kubectl on the bastion only |
+| `kubectl` on a node (no kubeconfig) | dial localhost:8080 | kubectl on the bastion as agent only |
+| Copy kubeconfig to a laptop / Cursor | split-brain; house-fire of the API | Bastion-only. Laptop clones are caches. |
+| `git push` jarvis-cluster to GitHub from a laptop | Flux never sees it (Gitea is origin) | Push from bastion `~/cluster` to git.lan |
 
 ## DNS / hosts
 

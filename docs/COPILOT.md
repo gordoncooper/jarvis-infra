@@ -57,12 +57,13 @@ Stop when the task is clear.
 
 **Session 0 — discover only. No cluster YAML. No chrome.**
 
-1. Operator paste + this file + PLAN remaining list + OPERATING.
+1. Read this file + PLAN remaining + OPERATING. Root [AGENTS.md](../AGENTS.md) is the IDE stub (Cursor / CLI).
 2. Pull GitHub **if they made it readable**. Do not assume it matches the bastion.
-3. Ask them to run, as agent: `~/jarvis-infra/scripts/copilot-discover.sh`
-4. That paste is live. Git vs live: **live wins**. Inventory: recycle Roles, `classifier_type`, the five sqlite filters, persona ConfigMap.
-5. Extra `cat` / `ls` / `kubectl` **names-only** before editing YAML.
-6. **Stop.** Ask which remaining PLAN item to build. Do not mix items. Do not touch HUD/homepage/Piper in session 0.
+3. **Whereami:** if you are `agent` on host `bastion`, run `~/jarvis-infra/scripts/copilot-whereami.sh` yourself. Otherwise ask the operator to run it (and do not kubectl).
+4. Then `~/jarvis-infra/scripts/copilot-discover.sh` (same rule: run it only as agent@bastion).
+5. That paste is live. Git vs live: **live wins**. Inventory: recycle Roles, `classifier_type`, the five sqlite filters, persona ConfigMap.
+6. Extra `cat` / `ls` / `kubectl` **names-only** before editing YAML — kubectl on bastion only.
+7. **Stop.** Ask which remaining PLAN item to build. Do not mix items. Do not touch HUD/homepage/Piper in session 0.
 
 Session 1 = one remaining item + proof. Session 2 = only if session 1 proved (delete keyword rules, or widen recycle by named verbs).
 
@@ -89,7 +90,7 @@ Do **not**:
 - Quoted `bash << 'SCRIPT'`. No gzip+base64 YAML. No tarball unless they ask.
   **No nested markdown fences** inside the script (chat splits the copy).
 - `ssh -n` **except** when stdin **is** the remote program (`sudo tee`, `python3 -`).
-- `kubectl` on the **bastion** only. Nodes have no kubeconfig (localhost:8080).
+- `kubectl` on the **bastion** as **agent** only. Never copy kubeconfig to a laptop. Nodes have no kubeconfig (localhost:8080).
 - Never retag. Next snapshot is a new `GIT_TAG`. Never copy pins into REBUILD/README.
 - Do not bump the homepage **image** unless `https://home.lan/status` is wrong.
 - Homepage: one image, `imagePullPolicy: Never`, apps-01, SA `homepage`.
@@ -108,6 +109,21 @@ Do **not**:
 | Cluster YAML | `~/cluster` | **Gitea** `git.lan/jarvis/cluster.git` then Flux |
 
 Then `scripts/mirror-to-github.sh`. Never point Flux at GitHub.
+
+Laptop clones are **caches**. Never `git push` cluster YAML to GitHub as if it were origin.
+Never copy kubeconfig off the bastion. No `kubectl apply` (Flux only).
+
+## Execution modes
+
+| You are | Hands | Do this |
+| --- | --- | --- |
+| Grok **web** chat | none | Quoted heredoc. Operator runs as agent@bastion. |
+| CLI / Cursor on **bastion** as `agent` | yes | Run whereami + discover. Edit `~/jarvis-infra` and `~/cluster`. Push as the table above. |
+| CLI / Cursor on **laptop** (or not `agent`) | none | Do not kubectl. Do not push cluster to GitHub. Propose a heredoc or SSH as agent. |
+| user `bastion` | none | Refuse. `sudo su - agent`. |
+| Goose on bastion | operator tools | Not this copilot. Do not nest Goose in OpenClaw or chat.lan. |
+
+`scripts/copilot-whereami.sh` prints `MODE=` and `HANDS=`. If unsure, print it and stop.
 
 ## Glass
 
@@ -153,6 +169,7 @@ One adapter per gap, not a pile.
 
 ## Proof
 
+    ./scripts/copilot-whereami.sh
     ./scripts/copilot-discover.sh
     ./scripts/check-contract.sh
     ./scripts/verify-jarvis.sh
@@ -160,20 +177,23 @@ One adapter per gap, not a pile.
 ## Paste this into a new Grok chat
 
 You are the JARVIS homelab copilot, not an App Builder. No Vite, no port 8080, no preview.
-I paste bastion output; you reply with quoted bash heredoc I run as user agent (HOME=/home/agent).
+If you can run commands: you are agent@bastion or you are not. Run ~/jarvis-infra/scripts/copilot-whereami.sh first.
+If MODE is not bastion-agent: reply with quoted bash heredocs I run as user agent (HOME=/home/agent). Do not kubectl.
 
 Read ONLY, in order:
+  AGENTS.md
   docs/COPILOT.md
   docs/PLAN.md (remaining list)
   docs/OPERATING.md
-Then ask me to run: ~/jarvis-infra/scripts/copilot-discover.sh
-That is session 0. Stop after discover. Do not edit YAML until I pick a PLAN remaining item.
+Then session 0: ~/jarvis-infra/scripts/copilot-whereami.sh and ~/jarvis-infra/scripts/copilot-discover.sh
+Stop after discover. Do not edit YAML until I pick a PLAN remaining item.
 Live cluster wins. Flux origin is http://git.lan/jarvis/cluster.git — never GitHub.
 Pins: ~/jarvis-infra/VERSION (GIT_TAG and IMAGE are independent). Never retag.
 Do not add OWUI regex or keyword_tier_rules. Do not add a sixth sqlite filter.
 Prefer native LiteLLM / OpenClaw / k8s RBAC. If unsure, discover — do not invent a filter.
 chat.lan is the glass. Hands are in-glass (jarvis-hands). agent.lan is break-glass.
-No nested markdown fences inside scripts. kubectl on bastion only.
+No nested markdown fences inside scripts. kubectl + kubeconfig on bastion as agent only. Never a laptop.
+Laptop clones are caches. Never git push cluster YAML to GitHub as origin.
 
 Repos (readable): https://github.com/gordoncooper/jarvis-infra
                   https://github.com/gordoncooper/jarvis-cluster  (mirror only)

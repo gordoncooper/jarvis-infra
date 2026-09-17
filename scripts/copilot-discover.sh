@@ -8,11 +8,15 @@ CLUSTER="${JARVIS_CLUSTER:-$HOME/cluster}"
 
 banner() { printf '\n========== %s ==========\n' "$1"; }
 
-banner 'WHO'
-date -Is
-whoami
-echo "HOME=$HOME"
-hostname
+if [ -x "$INFRA/scripts/copilot-whereami.sh" ]; then
+  "$INFRA/scripts/copilot-whereami.sh"
+else
+  banner 'WHO'
+  date -Is
+  whoami
+  echo "HOME=$HOME"
+  hostname
+fi
 
 banner 'PINS (VERSION file, not secret)'
 grep -E '^(GIT_TAG|IMAGE_TAG|IMAGE|K3S)=' "$INFRA/VERSION"
