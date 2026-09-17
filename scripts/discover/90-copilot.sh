@@ -15,6 +15,10 @@ echo "--- layered discover scripts ---"
 ls -1 "$ROOT/scripts/discover"/*.sh | xargs -n1 basename
 
 echo
+echo "--- discover apps ---"
+ls -1 "$ROOT/scripts/discover/apps"/*.sh | xargs -n1 basename | sed "s|^|apps/|"
+
+echo
 echo "--- infra docs (bytes) ---"
 for f in README.md VERSION docs/COPILOT.md docs/PLAN.md docs/INTERACT.md docs/LESSONS.md docs/OPERATING.md docs/REBUILD.md docs/briefing.md AGENTS.md; do
   if [ -f "$ROOT/$f" ]; then
@@ -36,11 +40,10 @@ done
 
 echo
 echo "--- old fat copilot-discover (must not be required) ---"
-if [ -x "$ROOT/scripts/copilot-discover.sh" ]; then
-  echo "absent (removed; use scripts/discover/NN-*.sh)"
-  wc -l "$ROOT/scripts/copilot-discover.sh"
+if [ -e "$ROOT/scripts/copilot-discover.sh" ]; then
+  echo "WARN present — should stay removed"
 else
-  echo "absent"
+  echo "absent (use scripts/discover/NN-*.sh + apps/)"
 fi
 
 echo

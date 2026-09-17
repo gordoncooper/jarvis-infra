@@ -8,7 +8,9 @@ Then [docs/PLAN.md](docs/PLAN.md) remaining list only, then [docs/OPERATING.md](
 
 Session 0 (no YAML): as user **agent** on host **bastion** run
 `~/jarvis-infra/scripts/copilot-whereami.sh` then
-`~/jarvis-infra/scripts/copilot-discover.sh`.
+`~/jarvis-infra/scripts/discover/90-copilot.sh`.
+Do not dump every discover script; see COPILOT task table.
+Source VERSION; GIT_TAG may lag HEAD.
 If you are not that user/host: propose a quoted heredoc. Do not kubectl.
 
 Live cluster wins. Flux origin is Gitea `http://git.lan/jarvis/cluster.git` — never GitHub.

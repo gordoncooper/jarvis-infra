@@ -5,7 +5,7 @@
 
 Use the layered scripts below. The old one-shot copilot-discover.sh was removed.
 
-On the bastion as **agent**, one layer per paste:
+Session 0 is **whereami + 90-copilot only**. Other layers are on-demand (table under Cold start). On the bastion as **agent**, one paste when needed:
 
     ./scripts/discover/00-rack.sh
     ./scripts/discover/10-bastion.sh
@@ -79,13 +79,37 @@ Stop when the task is clear.
 
 **Session 0 — discover only. No cluster YAML. No chrome.**
 
+Do **not** dump every `scripts/discover` script. That is a context binge.
+
 1. Read this file + PLAN remaining + OPERATING. Root [AGENTS.md](../AGENTS.md) is the IDE stub (Cursor / CLI).
-2. Pull GitHub **if they made it readable**. Do not assume it matches the bastion.
+2. Pull GitHub **if they made it readable**. Do not assume it matches the bastion. GitHub is a **cache**; live cluster + Gitea win.
 3. **Whereami:** if you are `agent` on host `bastion`, run `~/jarvis-infra/scripts/copilot-whereami.sh` yourself. Otherwise ask the operator to run it (and do not kubectl).
-4. Then `~/jarvis-infra/scripts/copilot-discover.sh` (same rule: run it only as agent@bastion).
-5. That paste is live. Git vs live: **live wins**. Inventory: recycle Roles, `classifier_type`, the five sqlite filters, persona ConfigMap.
+4. Then `~/jarvis-infra/scripts/discover/90-copilot.sh` (agent@bastion only). Pins, contract, docs present.
+   **Source `~/jarvis-infra/VERSION`.** `GIT_TAG` is the last snapshot pin — HEAD may be several commits ahead. Never treat the tag as HEAD.
+5. Git vs live: **live wins**. Extra inventory only if the task needs it (table below).
 6. Extra `cat` / `ls` / `kubectl` **names-only** before editing YAML — kubectl on bastion only.
 7. **Stop.** Ask which remaining PLAN item to build. Do not mix items. Do not touch HUD/homepage/Piper in session 0.
+
+### Which discover script (after session 0)
+
+Index: [scripts/discover/README.md](../scripts/discover/README.md). Run **one** more, not the whole table.
+
+| If the task is | Run |
+| --- | --- |
+| where am I / dirty git / Flux SHA | `90-copilot` (+ `40-gitops` if SHAs disagree) |
+| nodes / k3s version | `20-k3s` |
+| backups / NFS | `30-storage` |
+| TLS / `*.lan` | `50-ingress` |
+| Hands / recycle / SA verbs | `55-rbac` + `apps/openclaw.sh` |
+| homepage Never / HUD | `apps/homepage.sh` |
+| router / aliases | `apps/litellm.sh` + `70-inference` |
+| RAG / remember / filters | `80-memory` + `apps/open-webui.sh` |
+| voice | `apps/piper.sh` |
+| Gitea origin | `apps/gitea.sh` |
+| Grafana | `apps/monitoring.sh` |
+| metal / a new node | `00-rack` + `10-bastion` |
+
+If unsure, run one more script, not the table. No Secret `.data`, no Helm blobs, no keys.
 
 Session 1 = one remaining item + proof. Session 2 = only if session 1 proved (delete keyword rules, or widen recycle by named verbs).
 
@@ -192,7 +216,7 @@ One adapter per gap, not a pile.
 ## Proof
 
     ./scripts/copilot-whereami.sh
-    ./scripts/copilot-discover.sh
+    ./scripts/discover/90-copilot.sh
     ./scripts/check-contract.sh
     ./scripts/verify-jarvis.sh
 
@@ -207,7 +231,9 @@ Read ONLY, in order:
   docs/COPILOT.md
   docs/PLAN.md (remaining list)
   docs/OPERATING.md
-Then session 0: ~/jarvis-infra/scripts/copilot-whereami.sh and ~/jarvis-infra/scripts/copilot-discover.sh
+Then session 0: ~/jarvis-infra/scripts/copilot-whereami.sh and ~/jarvis-infra/scripts/discover/90-copilot.sh
+Do not run every scripts/discover/*.sh. After 90-copilot, pick at most one more from the COPILOT task table.
+Source ~/jarvis-infra/VERSION. GIT_TAG may lag HEAD.
 Stop after discover. Do not edit YAML until I pick a PLAN remaining item.
 Live cluster wins. Flux origin is http://git.lan/jarvis/cluster.git — never GitHub.
 Pins: ~/jarvis-infra/VERSION (GIT_TAG and IMAGE are independent). Never retag.
