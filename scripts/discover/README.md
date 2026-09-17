@@ -21,9 +21,9 @@ Host lists come from inventory/hosts.yml when present.
 | app | apps/homepage.sh | image, SA, /status keys | live |
 | app | apps/openclaw.sh | shim, skills, RBAC names | live |
 | app | apps/gitea.sh | git.lan | planned |
-| app | apps/ollama.sh | gpu-01 chat + gpu-02 embed | planned |
-| app | apps/litellm.sh | aliases, router (no keys) | planned |
-| app | apps/open-webui.sh | env names, sqlite keys, filters meta | planned |
+| app | apps/ollama.sh | gpu-01 chat + gpu-02 embed | live |
+| app | apps/litellm.sh | aliases, router (no keys) | live |
+| app | apps/open-webui.sh | env names, sqlite keys, filters meta | live |
 | app | apps/piper.sh | voices, voice map | planned |
 | app | apps/monitoring.sh | Grafana/Prometheus/exporters | planned |
 
