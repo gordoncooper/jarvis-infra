@@ -20,12 +20,12 @@ Host lists come from inventory/hosts.yml when present.
 | 90 | 90-copilot.sh | COPILOT docs + check-contract | live |
 | app | apps/homepage.sh | image, SA, /status keys | live |
 | app | apps/openclaw.sh | shim, skills, RBAC names | live |
-| app | apps/gitea.sh | git.lan | planned |
+| app | apps/gitea.sh | git.lan | live |
 | app | apps/ollama.sh | gpu-01 chat + gpu-02 embed | live |
 | app | apps/litellm.sh | aliases, router (no keys) | live |
 | app | apps/open-webui.sh | env names, sqlite keys, filters meta | live |
-| app | apps/piper.sh | voices, voice map | planned |
-| app | apps/monitoring.sh | Grafana/Prometheus/exporters | planned |
+| app | apps/piper.sh | voices, voice map | live |
+| app | apps/monitoring.sh | Grafana/Prometheus/exporters | live |
 
 Do not dump Secret .data, age private keys, or Helm DATAKEYS.
 The old one-shot copilot-discover.sh was removed.
