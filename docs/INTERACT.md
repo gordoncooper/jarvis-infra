@@ -145,3 +145,5 @@ Default `jarvis` auto-routes live rack questions to `jarvis-hands` (OpenClaw rea
 
 OpenClaw may `kubectl delete pod` and `kubectl rollout restart` (patch deployment) in **apps, inference, agents, monitoring** only.
 It cannot touch secrets, kube-system, flux-system, or nodes. Do not ask it to edit git.
+
+Prefix (start of the message only; stripped before the model): `local:` 7B, `hands:` OpenClaw, `code:` grok-code, `grok:` grok-4-fast chat. Slash form `/local` `/hands` `/code` `/grok` too. Overrides the keyword floor.
