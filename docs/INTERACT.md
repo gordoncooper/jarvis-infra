@@ -147,3 +147,4 @@ OpenClaw may `kubectl delete pod` and `kubectl rollout restart` (patch deploymen
 It cannot touch secrets, kube-system, flux-system, or nodes. Do not ask it to edit git.
 
 Prefix (start of the message only; stripped before the model): `local:` 7B, `hands:` OpenClaw, `code:` grok-code, `grok:` grok-4-fast chat. Slash form `/local` `/hands` `/code` `/grok` too. Overrides the keyword floor.
+code: and grok: skip Open WebUI knowledge/RAG. grok: is xAI chat via LiteLLM — no live web/weather.
