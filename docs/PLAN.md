@@ -118,3 +118,4 @@ chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chu
 - Writes slice 1: OpenClaw may delete pods + patch deployments in apps/inference/agents/monitoring only. No secrets, no kube-system, no Flux. Wake-word / Tailscale: later. gpu-02 embed-only.
 - RBAC: Role `openclaw-recycle` (pod delete, deploy patch) in four app namespaces.
 - Prefixes: `local:` 7B, `hands:` OpenClaw, `code:` grok-code, `grok:` grok-4-fast. code/grok skip RAG. grok has no browse.
+- Routing contract: LiteLLM `jarvis` alias = automatic; OWUI prefixes = override only. Do not merge the two lists.

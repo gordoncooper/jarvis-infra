@@ -66,3 +66,4 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 - Do not intent-gate a LIVE telemetry dump into the 7B prompt. Clock is always-on; live numbers are Hands or home.lan.
 
 - chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
+- Do not unify chat.lan prefixes with LiteLLM keyword_tier_rules. Router = automatic; `jarvis_route` = explicit override. `code:` as a LiteLLM substring is a landmine.
