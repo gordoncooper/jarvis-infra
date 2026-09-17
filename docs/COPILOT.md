@@ -13,6 +13,7 @@ On the bastion as **agent**, one layer per paste:
     ./scripts/discover/30-storage.sh
     ./scripts/discover/40-gitops.sh
     ./scripts/discover/50-ingress.sh
+    ./scripts/discover/55-rbac.sh
     ./scripts/discover/60-workloads.sh
     ./scripts/discover/70-inference.sh
     ./scripts/discover/80-memory.sh
