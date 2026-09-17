@@ -25,7 +25,7 @@ Procedure: [REBUILD.md](REBUILD.md). Footguns: [LESSONS.md](LESSONS.md).
 - Homepage SA lists events, Flux CRs, **pods**, **nodes** (dossiers). Click tiles on home.lan.
 - `agent.lan` DNS is **192.168.8.16** (hostPort 18789, HTTP). `git.lan` stays HTTP.
 - Ask for bastion `cat` / `ls` / `kubectl` before changing cluster YAML. Do not assume a laptop clone is canonical.
-- Pastes: wrap in a quoted heredoc. Always `ssh -n`. No gzip+base64 YAML in chat.
+- Pastes: wrap in a quoted heredoc. `ssh -n` except when stdin **is** the remote program. No gzip+base64 YAML in chat.
 - Architecture READMEs stay full mermaid **in git**. Chat may summarize.
 
 ## Proof
@@ -52,6 +52,6 @@ HUD for chat.lan is ConfigMap inject (see INTERACT): collapsed sidebar, no sugge
 
 After Open WebUI restore: `./scripts/seed-webui-ui.sh` then `./scripts/seed-open-webui-model.sh`.
 
-**Frozen glass (v0.4.30):** do not retune chat.lan persona/router/HUD unless it regresses. Writes / wake-word / Tailscale are later PLAN items.
+Persona / router: [`PLAN.md`](PLAN.md). Do not add exact-phrase keyword rules. HUD CSS is chrome, not routing. Copilot contract: [`COPILOT.md`](COPILOT.md).
 
 Laptop wake (hey_jarvis) is not a cluster unit. See [INTERACT.md](INTERACT.md) (venv, Voice chat, local commands).

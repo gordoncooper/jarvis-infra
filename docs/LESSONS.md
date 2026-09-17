@@ -75,3 +75,9 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 - Never omit `SYSTEM` in the `jarvis` Modelfile. `FROM qwen2.5` inherits “You are Qwen…”.
 - Identity changes: **new chat**. Old threads stay poisoned.
 - `open-webui.yaml` volumeMounts are flow-style (`- { name: data, ... }`). New mounts must use the same indent as those items or Flux kustomize dies and the whole cluster YAML stops applying.
+
+## Handover 2026-09-17
+
+- Do not append a third Hands story. Dual-door vs in-glass vs frozen-glass fought; COPILOT/PLAN now have one.
+- Frozen glass v0.4.30 is **lifted**. Structural router/persona/RBAC changes are allowed with discover + proof. Still: no exact-phrase keyword PRs.
+- `DEFAULT_SYSTEM_PROMPT` env is not character. Persona = Ollama SYSTEM + `jarvis_persona` filter.

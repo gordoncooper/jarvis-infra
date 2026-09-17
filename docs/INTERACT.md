@@ -51,30 +51,21 @@ Picker whitelist + arena-off persist via `scripts/seed-webui-ui.sh` (sqlite). Re
 
 Chat memory: say **remember that ...** in chat.lan (alias `jarvis`). It appends `/cluster/local/openclaw/learned.md`; `seed-learned.sh` hourly copies into knowledge.
 
-## Hands (OpenClaw)
+## Hands (in-glass)
 
-Cluster actuator is **OpenClaw**, not the 7B, not nested Goose.
+Cluster actuator is **OpenClaw**, reached from chat.lan as LiteLLM model `jarvis-hands`
+(OpenAI shim in the OpenClaw pod, port 4001). Default alias `jarvis` routes live rack
+questions here. Do not open http://agent.lan:18789 for normal inspect.
 
-- Browser: http://agent.lan:18789 (pair once; HTTP; token on bastion).
-- One turn from bastion: `./scripts/openclaw-ask.sh "using cluster-health, are nodes Ready?"`
-- Goose stays operator-on-bastion (`ssh`/`kubectl` you run). Do not wrap Goose inside OpenClaw.
-- chat.lan must not auto-invoke OpenClaw. Point sir at agent.lan or this script when a write/inspect-with-shell is needed.
-- Skills in the pod: `cluster-health`, `cluster-metrics`, `lab-map` (readonly ClusterRole).
-- Default output is assistant text. `OPENCLAW_ASK_JSON=1` dumps the gateway JSON.
-
-## Dual door (locked)
-
-- **chat.lan** — conversation, RAG, voice, router chip. The 7B has no shell.
-- **OpenClaw** — cluster hands: http://agent.lan:18789 or `./scripts/openclaw-ask.sh "using cluster-health, are nodes Ready?"`
-- **Goose** — you on the bastion only. Do not nest Goose inside OpenClaw or chat.lan.
-- If chat.lan is asked to mutate or run kubectl: refuse and point at OpenClaw. Do not invent command output.
-
-## jarvis-hands (in-glass, read-only)
-
-Same chat.lan, model chip `jarvis-hands`. LiteLLM → OpenClaw `agent --message` via pod sidecar `:4001`.
-ClusterRole is still **readonly**. Mutate later. Break-glass: http://agent.lan:18789
-
-Route chip v10: LOCAL / HANDS / GROK-CODE. In-chat jarvis uses sidebar wordmark; picker stays stock.
+- Break-glass UI: http://agent.lan:18789 (re-pair after pod recycle; HTTP; DNS **192.168.8.16**).
+- Break-glass CLI: `./scripts/openclaw-ask.sh "using cluster-health, are nodes Ready?"`
+- Goose stays operator-on-bastion. Do not nest Goose inside OpenClaw.
+- Skills: `cluster-health`, `cluster-metrics`, `lab-map`.
+- Writes **slice 1** (git): Role `openclaw-recycle` in apps, inference, agents, monitoring
+  — delete pods, patch deployments. No secrets, no kube-system, no Flux, no git edits.
+- Prefixes (start of message; OWUI `jarvis_route` only): `local:` 7B, `hands:` OpenClaw,
+  `code:` grok-code, `grok:` grok-4-fast. Slash form too. `code:`/`grok:` skip RAG.
+  Do not put prefixes in LiteLLM `keyword_tier_rules`.
 
 ## Voice chat (wake-word v0)
 
@@ -129,36 +120,16 @@ Handled on the laptop after STT. **Not sent to chat.lan.** Wake with hey jarvis,
 
 ## Router
 
-Alias `jarvis` is LiteLLM `complexity_router`. **Direction:** replace exact-phrase `keyword_tier_rules` with `classifier_type: llm` (grok-4-fast, heuristic fallback). Chip shows the resolved model. Picker is the escape hatch. See [PLAN.md](PLAN.md).
+Alias `jarvis` is LiteLLM `complexity_router` (today: heuristic + keyword list).
+**Direction:** native `classifier_type: llm` — see [PLAN.md](PLAN.md).
+Picker is Tony's hatch. chat.lan does **not** show a child-model chip (OWUI rewrites
+the stream to `jarvis`). Do not spend cycles on one.
 
-Chat filter injects `[clock …]` + `learned.md` only. Live cluster numbers are Hands, not a regex dump.
-
-## Routed model chip
-
-chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
-
-## Hands (chat.lan)
-
-Default `jarvis` auto-routes live rack questions to `jarvis-hands` (OpenClaw read-only, ~20–40s). Picker hatch still there. Do not open agent.lan for this. Writes are not enabled.
-
-## Hands writes (slice 1)
-
-OpenClaw may `kubectl delete pod` and `kubectl rollout restart` (patch deployment) in **apps, inference, agents, monitoring** only.
-It cannot touch secrets, kube-system, flux-system, or nodes. Do not ask it to edit git.
-
-Prefix (start of the message only; stripped before the model): `local:` 7B, `hands:` OpenClaw, `code:` grok-code, `grok:` grok-4-fast chat. Slash form `/local` `/hands` `/code` `/grok` too. Overrides the keyword floor.
-code: and grok: skip Open WebUI knowledge/RAG. grok: is xAI chat via LiteLLM — no live web/weather.
-
-## Routing (do not unify)
-
-Unprefixed messages stay `model=jarvis`. **LiteLLM** `complexity_router` picks 7B / Hands / grok-code from keywords + heuristic.
-
-Start-of-message **`local:` `hands:` `code:` `grok:`** (or `/local` `/hands` `/code` `/grok`) is **Open WebUI** `jarvis_route`. It rewrites the model and **skips** the router. `code:` and `grok:` also skip OWUI knowledge/RAG. `grok:` is xAI chat — no live web.
-
-Do not copy keyword phrases into the OWUI filter. Do not put prefixes in LiteLLM `keyword_tier_rules` (`code:` as a substring steals “status code:”). Picker remains the manual escape. Chip may still show `jarvis` on prefixed turns (selected alias).
-- Telemetry filter injects `[clock …]` only. learned.md is RAG + `remember that`, not every prompt. Name questions: answer only who was asked.
+Telemetry filter: `[clock ...]` only if present. Live numbers = Hands or home.lan.
+learned.md is RAG + `remember that`, not every prompt.
 
 ## Persona (chat.lan)
 
-Source: `docs/persona.txt` (also ConfigMap `jarvis-persona` / OpenClaw `SOUL.md`).
-7B: Ollama model `jarvis` SYSTEM. Grok: filter `jarvis_persona` inlet. Do not use `DEFAULT_SYSTEM_PROMPT` for this.
+Source: `docs/persona.txt` (ConfigMap `jarvis-persona` / OpenClaw `SOUL.md`).
+7B: Ollama model `jarvis` SYSTEM. Grok/Hands: filter `jarvis_persona`.
+Do not use `DEFAULT_SYSTEM_PROMPT` for this.

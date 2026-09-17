@@ -77,5 +77,34 @@ else
   echo "age keys.txt ABSENT"
 fi
 
+
+banner 'LITELLM ALIASES (names, no keys)'
+kubectl -n inference get cm litellm-config -o jsonpath='{.data.config\.yaml}' 2>/dev/null \
+  | grep -E 'model_name:|classifier_type:|SIMPLE:|MEDIUM:|COMPLEX:|REASONING:' \
+  | head -40 || echo 'no litellm-config'
+
+banner 'HANDS / RBAC (names only)'
+kubectl -n agents get deploy,svc --no-headers 2>/dev/null | awk '{print $1,$2}'
+kubectl get clusterrole,clusterrolebinding -o name 2>/dev/null | grep openclaw || true
+kubectl get role,rolebinding -A --no-headers 2>/dev/null | awk '$2 ~ /openclaw/ {print $1,$2,$3}' || true
+
+banner 'OWUI FILTERS (id type active bytes, no content)'
+ssh -n -o BatchMode=yes apps-01 'sudo python3 - << "PY"
+import sqlite3
+c=sqlite3.connect("/cluster/local/open-webui/webui.db")
+try:
+    rows=c.execute("select id, type, is_active, length(content) from function order by id").fetchall()
+except Exception as e:
+    print("sqlite", e); raise SystemExit
+for r in rows:
+    print(r[0], r[1], "active="+str(r[2]), "bytes="+str(r[3]))
+print("filter_count", len(rows))
+PY' || echo 'no function table'
+
+banner 'PERSONA (meta)'
+kubectl -n apps get cm jarvis-persona -o jsonpath='{.data}' >/tmp/jarvis-persona.keys 2>/dev/null || true
+python3 -c "p=open('/tmp/jarvis-persona.keys').read() if __import__('os').path.exists('/tmp/jarvis-persona.keys') else ''; print('cm_keys', list(__import__('json').loads(p).keys()) if p.startswith('{') else (p[:80] or 'missing'))" 2>/dev/null || echo 'cm meta skip'
+kubectl -n apps exec deploy/open-webui -- head -1 /etc/jarvis/system.txt 2>/dev/null || echo 'no /etc/jarvis/system.txt'
+
 banner 'DONE'
 echo "DISCOVER_OK  no writes  no secret values"
