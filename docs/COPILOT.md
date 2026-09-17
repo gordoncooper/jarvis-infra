@@ -55,11 +55,16 @@ Stop when the task is clear.
 
 ## Cold start (before any cluster YAML change)
 
-1. Operator paste + this file.
+**Session 0 — discover only. No cluster YAML. No chrome.**
+
+1. Operator paste + this file + PLAN remaining list + OPERATING.
 2. Pull GitHub **if they made it readable**. Do not assume it matches the bastion.
 3. Ask them to run, as agent: `~/jarvis-infra/scripts/copilot-discover.sh`
-4. That paste is live. Git vs live: **live wins**.
+4. That paste is live. Git vs live: **live wins**. Inventory: recycle Roles, `classifier_type`, the five sqlite filters, persona ConfigMap.
 5. Extra `cat` / `ls` / `kubectl` **names-only** before editing YAML.
+6. **Stop.** Ask which remaining PLAN item to build. Do not mix items. Do not touch HUD/homepage/Piper in session 0.
+
+Session 1 = one remaining item + proof. Session 2 = only if session 1 proved (delete keyword rules, or widen recycle by named verbs).
 
 ## How you work
 
@@ -82,7 +87,9 @@ Do **not**:
 ## Hard rules
 
 - Quoted `bash << 'SCRIPT'`. No gzip+base64 YAML. No tarball unless they ask.
-- `ssh -n` **except** when stdin **is** the remote program.
+  **No nested markdown fences** inside the script (chat splits the copy).
+- `ssh -n` **except** when stdin **is** the remote program (`sudo tee`, `python3 -`).
+- `kubectl` on the **bastion** only. Nodes have no kubeconfig (localhost:8080).
 - Never retag. Next snapshot is a new `GIT_TAG`. Never copy pins into REBUILD/README.
 - Do not bump the homepage **image** unless `https://home.lan/status` is wrong.
 - Homepage: one image, `imagePullPolicy: Never`, apps-01, SA `homepage`.
@@ -90,7 +97,7 @@ Do **not**:
   `npx srvx` is forbidden as CMD.
 - `agent.lan` DNS is **192.168.8.16**. `git.lan` HTTP. `agent.lan:18789` HTTP.
 - Do not assign bash `UID`. Knowledge list API returns `{items:[]}`.
-- Recreate Open WebUI: brief "no available server"; wait / hard refresh.
+- Recreate Open WebUI: brief "no available server"; wait / hard refresh; then seed (REBUILD): `seed-open-webui-model.sh`, `seed-webui-ui.sh`, `seed-lab-docs.sh`, `seed-learned.sh`, sqlite filters from `scripts/owui-*-filter.py`.
 - Recycle OpenClaw: re-pair http://agent.lan:18789.
 
 ## Two push paths
@@ -132,8 +139,17 @@ Persona: Ollama baked SYSTEM (7B) + filter `jarvis_persona` (Grok/Hands). `DEFAU
 
 ## Pets (do not grow)
 
-OWUI sqlite filters, HUD inject, and `keyword_tier_rules` are adapters or chrome.
-When you touch that area, replace with the vendor feature (LiteLLM `classifier_type: llm`, native env, RBAC). One adapter per gap, not a pile.
+Inventory on discover. **Do not add a sixth filter.** When you touch a pet, replace it with the vendor feature.
+
+| Pet | Where | Replace with |
+| --- | --- | --- |
+| `jarvis_route` `jarvis_persona` `jarvis_remember` `jarvis_no_closer` `jarvis_telemetry` | OWUI sqlite `function` | native OWUI / LiteLLM |
+| `keyword_tier_rules` + `classifier_type: heuristic` | LiteLLM ConfigMap | `classifier_type: llm` |
+| HUD inject | `jarvis-webui-hud.yaml` | chrome only — not routing |
+| openai-shim `:4001` | OpenClaw sidecar | keep (Hands API) |
+| prefixes `local:` `hands:` `code:` `grok:` | sqlite `jarvis_route` | Tony hatch only |
+
+One adapter per gap, not a pile.
 
 ## Proof
 
@@ -151,11 +167,13 @@ Read ONLY, in order:
   docs/PLAN.md (remaining list)
   docs/OPERATING.md
 Then ask me to run: ~/jarvis-infra/scripts/copilot-discover.sh
+That is session 0. Stop after discover. Do not edit YAML until I pick a PLAN remaining item.
 Live cluster wins. Flux origin is http://git.lan/jarvis/cluster.git — never GitHub.
 Pins: ~/jarvis-infra/VERSION (GIT_TAG and IMAGE are independent). Never retag.
-Do not add OWUI regex or keyword_tier_rules.
+Do not add OWUI regex or keyword_tier_rules. Do not add a sixth sqlite filter.
 Prefer native LiteLLM / OpenClaw / k8s RBAC. If unsure, discover — do not invent a filter.
 chat.lan is the glass. Hands are in-glass (jarvis-hands). agent.lan is break-glass.
+No nested markdown fences inside scripts. kubectl on bastion only.
 
 Repos (readable): https://github.com/gordoncooper/jarvis-infra
                   https://github.com/gordoncooper/jarvis-cluster  (mirror only)

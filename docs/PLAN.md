@@ -79,12 +79,11 @@ Keep: live > Gitea > VERSION; independent git/image tags; never retag; agent not
 ## Remaining (locked order)
 
 Do **not** mix these in one session. HUD CSS is not on this list.
+Discover is **session 0** (COPILOT), not a remaining build item. Persona spine is done.
 
-1. **Discover live** — RBAC, filters, LiteLLM `classifier_type`, persona copies. Git vs live: live wins.
-2. **Hands writes (next allow-list)** — Role `openclaw-recycle` is **already in git** (pod delete + deploy patch in apps/inference/agents/monitoring). Do not re-implement slice 1. Widen only with an explicit allow-list from the operator. Same shim. No cluster-admin. No new panel.
-3. **LiteLLM LLM classifier** — `classifier_type: llm` + rubric; prove the five prompts; then delete famous-phrase `keyword_tier_rules`.
-4. **One prompt spine** — `docs/persona.txt` only. Flux copy: ConfigMap `jarvis-persona` (`system.txt`). Ollama bake reads persona.txt (`create-jarvis-ollama.sh`). Filter `jarvis_persona` covers Grok. Goose copy still optional polish. Duplicate `jarvis-system-prompt.txt` removed.
-5. **Parked** — wake-word polish, Tailscale, spend ceiling. gpu-02 stays embed-only.
+1. **Hands writes (next allow-list)** — Role `openclaw-recycle` is **already live** (pod delete + deploy patch in apps/inference/agents/monitoring). Do not re-implement slice 1. Widen only with verbs the operator names. Same shim. No cluster-admin. No new panel.
+2. **LiteLLM LLM classifier** — `classifier_type: llm` + rubric; prove the five prompts; then delete famous-phrase `keyword_tier_rules`.
+3. **Parked** — wake-word polish, Tailscale, spend ceiling. gpu-02 stays embed-only. Goose copy of persona.txt is optional polish.
 
 ## Done (do not redo)
 
@@ -106,4 +105,4 @@ Do **not** mix these in one session. HUD CSS is not on this list.
 ## Status 2026-09-17 (handover)
 
 Docs pack rewritten so a new copilot does not inherit dual-door vs in-glass vs frozen-glass contradictions.
-Next **build** session: discover, then Hands writes allow-list (item 2) — not more chrome.
+Next **build** session: session 0 discover, then operator picks remaining item 1 or 2 — not chrome.

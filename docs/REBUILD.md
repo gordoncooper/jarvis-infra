@@ -144,10 +144,16 @@ git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ./scripts/create-jarvis-ollama.sh
 ./scripts/pull-embed-model.sh
 ./scripts/seed-open-webui-model.sh
+./scripts/seed-webui-ui.sh
+./scripts/seed-lab-docs.sh
+./scripts/seed-learned.sh
 ~~
 
-Knowledge collection **lab-docs**: create empty in Open WebUI, re-upload notes
-(files are NFS-backup only).
+Open WebUI sqlite is a **cache**. After any WebUI recreate, re-run the seed scripts
+and re-insert sqlite filters from `scripts/owui-*-filter.py`
+(persona, route, remember, no-closer, telemetry). Skip that and chat.lan is stock.
+lab-docs is `seed-lab-docs.sh` (briefing.md). jarvis-learned is `seed-learned.sh`.
+Duplicate-content 400 is success.
 
 ## 8. Bastion extras
 

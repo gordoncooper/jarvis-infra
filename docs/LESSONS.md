@@ -30,7 +30,7 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 | Retag a tag that already exists on origin | GitHub + Gitea fork | Next number is new. Never `git tag -f`. |
 | Run JARVIS scripts as user `bastion` | repos missing; silent `set -e` exit | `sudo su - agent`. HOME=/home/agent |
 | `set -euo pipefail` + `exit` at the `agent@` prompt | kills `su - agent`; you are `bastion@` | Wrap in a quoted heredoc |
-| `ssh` inside a quoted heredoc without `-n` | ssh eats the rest of the script; paste stops after first ssh | Always `ssh -n` |
+| `ssh` inside a quoted heredoc without `-n` | ssh eats the rest of the script; paste stops after first ssh | `ssh -n` except when stdin **is** the remote program (`sudo tee`, `python3 -`) |
 | Nested `ssh ...` heredoc inside an outer heredoc | same stdin eat | One-line `ssh -n host "cmd"` |
 | Shrink READMEs/docs to fit chat | GitHub gets a stub | Full file, or two complete pastes. Never a summary version. |
 | Skip SOPS decrypt when the age key is on USB | House-fire rebuild invents new keys | `materialize-bastion-secrets.sh` then `apply-secrets.sh`. chmod 600 files are fallback. |
@@ -41,6 +41,8 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 | Goose `OPENAI_HOST: …/v1` | `/v1/v1/chat/completions` 404 | Host only, Goose adds `/v1` |
 | Unpinned `curl | sh` k3s install | Newer k3s than `VERSION` | `INSTALL_K3S_VERSION` from `VERSION` in install-server / join-agents |
 | `cluster_format_disks: true` on disks that already hold `/cluster` | Wipes P300 data | Greenfield only, after `identify-disks.yml` |
+| Nested markdown fences inside a heredoc | Grok chat splits the copy; operator cannot paste | No triple-backtick fences inside scripts |
+| `kubectl` on a node (no kubeconfig) | dial localhost:8080 | kubectl on the bastion only |
 
 ## DNS / hosts
 
