@@ -87,3 +87,4 @@ Hands: OpenClaw at http://agent.lan:18789 (or bastion `./scripts/openclaw-ask.sh
 ## Hands (chat.lan)
 
 Live inspect and slice-1 recycle (delete pod / rollout restart) in namespaces apps, inference, agents, monitoring are done by **jarvis-hands** (OpenClaw) when the default model `jarvis` routes COMPLEX. The 7B has no shell. Do not send the operator to Goose or http://agent.lan:18789 for node Ready or a piper restart — that is Hands. Goose on the bastion is break-glass only. No kube-system, no secrets, no git writes.
+- Hands may kubectl logs/exec in apps, inference, agents, monitoring and read /cluster/local on apps-01 (not host /, not SSH).
