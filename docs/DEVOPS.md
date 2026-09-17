@@ -11,37 +11,48 @@ Read this once. Then use [OPERATING.md](OPERATING.md) and [INTERACT.md](INTERACT
 
 ---
 
-## 1. Picture
+## How long
 
-The bastion is a jump host. Your daily PC (or phone SSH) is the glass for the **workshop**. The six nodes are the **house**.
+Assume Gordon already issued an SSH key and the engineer is **on the LAN**. Times are clock time, not “years of k8s.”
+
+| Phase | Clock | What you owe at the end |
+| --- | --- | --- |
+| 1. Access | **15–25 min** | `ssh` as `agent`; two clones exist; no kubeconfig on the laptop |
+| 2. Weld | **20–40 min** | Remote-SSH workspace; contract OK in the bastion terminal |
+| 3. Grind + Torch | **20–35 min** | `tmux` session; Aider can commit **locally**; Goose answers a read |
+| 4. Prove | **10–15 min** | Checklist below; **no push** |
+| **Day 0 total** | **~1.5–2 h** | Ready for a real ticket |
+
+Add **30–45 min** if a new SSH key must be minted. Off-LAN is not day 0 (VPN comes later).
+
+After day 0, a first *real* change: **30–60 min** for docs/scripts in `~/jarvis-infra`; **1–2 h** for Flux YAML (glance + Gitea push + reconcile + verify).
 
 ```mermaid
 flowchart LR
-  subgraph you [Your glass]
-    PC[Daily PC or phone]
-  end
-  subgraph jump [Bastion - headless]
-    Agent["user agent"]
-    Infra["~/jarvis-infra"]
-    Cluster["~/cluster"]
-    Kube["~/.kube/config"]
-  end
-  subgraph house [LAN 192.168.8.0/24]
-    Gitea["git.lan Flux origin"]
-    GH[GitHub mirror]
-    K3s[k3s six nodes]
-    Chat["chat.lan product"]
-  end
-  PC -->|SSH User=agent| Agent
-  Agent --> Infra
-  Agent --> Cluster
-  Agent --> Kube
-  Infra -->|push| GH
-  Cluster -->|push origin| Gitea
-  Cluster -.->|mirror only| GH
-  Agent -->|kubectl never apply| K3s
-  Chat -.->|not the builder| Agent
+  A["1 Access<br/>15-25 min"] --> W["2 Weld<br/>20-40 min"]
+  W --> G["3 Grind + Torch<br/>20-35 min"]
+  G --> P["4 Prove<br/>10-15 min"]
+  P --> R["First ticket<br/>30-120 min"]
 ```
+
+---
+
+## 1. Picture
+
+The bastion is a jump host. Your daily PC is the glass for the **workshop**. The six nodes are the **house**.
+
+```mermaid
+flowchart TB
+  You[Your PC] -->|SSH as agent| Bastion
+  Bastion --> Infra["jarvis-infra"]
+  Bastion --> Cl["cluster"]
+  Infra -->|push| GH[GitHub]
+  Cl -->|origin| Gitea[git.lan]
+  Cl -.->|mirror only| GH
+  Bastion -->|kubectl get| K3s[k3s]
+```
+
+chat.lan is the **product**. It is not in this picture on purpose.
 
 **Never:** copy kubeconfig to a laptop. **Never:** log in as user `bastion`. **Never:** put a GUI on the bastion.
 
@@ -53,16 +64,16 @@ One engineer, one change, one remote, then prove.
 
 ```mermaid
 flowchart TB
-  D[0 Discover live] --> C{What changes?}
-  C -->|metal / docs / scripts / image| I[Edit ~/jarvis-infra]
-  C -->|Flux YAML| Y[Edit ~/cluster]
-  I --> G[check-contract.sh]
-  Y --> G
-  G -->|fail| C
-  G -->|infra| P1[git push GitHub]
-  G -->|cluster| P2[git push Gitea]
-  P2 --> F[flux reconcile]
-  P1 --> V[verify-jarvis.sh if the house moved]
+  D[Discover live] --> Q{infra or cluster?}
+  Q -->|docs scripts metal HUD| I[Edit jarvis-infra]
+  Q -->|Flux YAML| Y[Edit cluster]
+  I --> C[check-contract.sh]
+  Y --> C
+  C -->|fail| Q
+  C -->|infra OK| GH[push GitHub]
+  C -->|cluster OK| L[push Gitea]
+  L --> F[flux reconcile]
+  GH --> V[verify if the house moved]
   F --> V
 ```
 
@@ -74,41 +85,40 @@ If you cannot draw that on a whiteboard, you are not ready to push.
 
 You will see people suggest an IDE, a terminal agent, or Goose. Use **lanes**, not three writers.
 
-| Lane | Tool | Where | Allowed to |
-| --- | --- | --- | --- |
-| **Plan** | Grok chat (rare) | Browser / phone | Architecture. No YAML. |
-| **Weld** | VS Code or Cursor **Remote-SSH** | Your PC → bastion | Flux, router, RBAC, homepage image. You glance. **You** push Gitea. |
-| **Grind** | **Aider** + grok-code in `tmux` | SSH / phone | One ticket → **local** commit in `~/jarvis-infra`. Stops before push. |
-| **Torch** | **Goose** + grok-code | tmux other pane | Read: kubectl, logs, discover. **No git commit. No git push.** |
-| **House** | chat.lan / OpenClaw | Product | Live JARVIS. Not a copilot. |
+| Lane | Tool | Where | Allowed to | Day 0 time |
+| --- | --- | --- | --- | --- |
+| **Plan** | Grok chat (rare) | Browser / phone | Architecture. No YAML. | skip on day 0 |
+| **Weld** | VS Code or Cursor **Remote-SSH** | Your PC → bastion | Flux, router, RBAC, homepage image. You glance. **You** push Gitea. | 20–40 min |
+| **Grind** | **Aider** + grok-code in `tmux` | SSH / phone | One ticket → **local** commit in `~/jarvis-infra`. Stops before push. | 15–25 min |
+| **Torch** | **Goose** + grok-code | tmux other pane | Read: kubectl, logs, discover. **No git commit. No git push.** | 5–10 min |
+| **House** | chat.lan / OpenClaw | Product | Live JARVIS. Not a copilot. | not the workshop |
 
 **Preference: shop floor** = Weld + Grind + Torch, with those rules. That is the rest of this guide.
 
 ```mermaid
 flowchart TB
-  Plan[Plan - Grok chat rare]
-  Weld[Weld - Remote-SSH]
-  Grind[Grind - Aider tmux]
-  Torch[Torch - Goose read-only]
-  House[House - chat.lan]
-  Plan -.->|ticket only| Weld
-  Plan -.->|ticket only| Grind
-  Torch -.->|facts| Weld
-  Torch -.->|facts| Grind
-  Weld -->|writes git| Git[Commits]
-  Grind -->|writes git| Git
-  House -.->|never writes git| Git
+  subgraph write [These may commit]
+    Weld[Weld]
+    Grind[Grind]
+  end
+  subgraph read [These must not commit]
+    Plan[Plan]
+    Torch[Torch]
+    House[House]
+  end
+  Plan -.->|ticket| write
+  Torch -.->|facts| write
 ```
 
 Do not run Weld and Grind in the same hour. Goose never authors a commit.
 
 ---
 
-## 4. Day 0 — access (30 minutes)
+## 4. Day 0 — Access (15–25 min)
 
 Do this on **your daily PC**, then once on the bastion.
 
-### 4.1 SSH as `agent`
+### 4.1 SSH as `agent` (~10 min)
 
 On your PC, `~/.ssh/config`:
 
@@ -125,13 +135,13 @@ Wanted: `agent`, host `bastion`, `HOME=/home/agent`. If you are `bastion`, stop:
 
 Off-LAN is a later VPN problem. Day 0 is on the LAN.
 
-### 4.2 Do not steal the cluster
+### 4.2 Do not steal the cluster (~2 min)
 
 - kubeconfig stays `/home/agent/.kube/config` on the bastion.
 - GitHub SSH key for `jarvis-infra` already lives on the bastion (`~/.ssh/id_ed25519_github`). Push **from there**, not from a laptop clone treated as origin.
 - Laptop clones of GitHub are a **cache**. See cluster [AGENTS.md](https://github.com/gordoncooper/jarvis-cluster/blob/main/AGENTS.md).
 
-### 4.3 Two working trees (already on the bastion)
+### 4.3 Two working trees (~5 min — already on the bastion)
 
     ~/jarvis-infra     GitHub origin      metal, scripts, docs, HUD image, SOPS
     ~/cluster          Gitea origin       Flux YAML only
@@ -143,23 +153,23 @@ Gitea is Flux origin. GitHub `jarvis-cluster` is a mirror. After a cluster push:
 
 ---
 
-## 5. Day 0 — Weld (Remote-SSH)
+## 5. Day 0 — Weld (20–40 min)
 
 The bastion has **no desktop**. The GUI runs on your PC. Files and kubectl stay on the bastion.
 
-1. Install [VS Code](https://code.visualstudio.com/) (free) or Cursor on your PC.
-2. Extension: **Remote - SSH**.
-3. Connect to `jarvis-bastion`.
-4. Open folder `/home/agent/jarvis-infra`. File → Add Folder to Workspace → `/home/agent/cluster`. Save the workspace.
-5. Integrated terminal is already `agent@bastion`. Run:
+1. Install [VS Code](https://code.visualstudio.com/) (free) or Cursor on your PC. (~5–10 min)
+2. Extension: **Remote - SSH**. (~2 min)
+3. Connect to `jarvis-bastion`. (~2 min first time)
+4. Open folder `/home/agent/jarvis-infra`. File → Add Folder to Workspace → `/home/agent/cluster`. Save the workspace. (~3 min)
+5. Integrated terminal is already `agent@bastion`. Run (~3 min):
 
        . ~/jarvis-infra/VERSION && echo $GIT_TAG $IMAGE $MATURITY
        ~/jarvis-infra/scripts/copilot-whereami.sh
        ~/jarvis-infra/scripts/check-contract.sh
 
-Wanted: `MODE=bastion-agent`, `HANDS=yes`, `CONTRACT OK`.
+   Wanted: `MODE=bastion-agent`, `HANDS=yes`, `CONTRACT OK`.
 
-6. Agent in the editor (pick one, BYOK, same xAI key the house already uses):
+6. Agent in the editor (pick one, BYOK, same xAI key the house already uses) (~10–20 min first time):
 
    - **Cline** in VS Code, or Cursor’s agent.
    - Model: the grok-code id Goose uses (`examples/goose/config.yaml` — no secrets in git).
@@ -170,13 +180,13 @@ Weld is for anything Flux will apply: `~/cluster/clusters/jarvis/**`, homepage i
 
 ---
 
-## 6. Day 0 — Grind + Torch (tmux)
+## 6. Day 0 — Grind + Torch (20–35 min)
 
 Still no GUI. SSH is enough (phone included).
 
     ssh -t jarvis-bastion tmux new -A -s jarvis
 
-Suggested panes:
+Suggested panes (~5 min to split once):
 
 | Pane | Cwd | Command | Writes git? |
 | --- | --- | --- | --- |
@@ -184,7 +194,7 @@ Suggested panes:
 | 1 Torch | `~/jarvis-infra` | Goose | no |
 | 2 Logs | `~` | only when something is on fire | no |
 
-### 6.1 Aider (Grind)
+### 6.1 Aider — Grind (15–25 min)
 
     sudo apt-get install -y pipx
     pipx install aider-chat
@@ -215,35 +225,33 @@ Ticket shape (paste into Aider, then delete it):
     Do not: cluster YAML | retag | kubectl apply | widen RBAC
     Done when: check-contract.sh prints CONTRACT OK
 
-### 6.2 Goose (Torch)
+### 6.2 Goose — Torch (5–10 min)
 
 Already on this bastion (`scripts/configure-goose.sh`). Use grok-code. **Never** `jarvis-local` — it invents hardware.
 
-Goose may `ssh` / `kubectl get` / read logs. If it offers `git commit`, `git push`, or `kubectl apply`, refuse.
+Prove with a **read** (`kubectl get nodes` via Goose). If it offers `git commit`, `git push`, or `kubectl apply`, refuse.
 
 ---
 
 ## 7. The cycle (every change)
 
+Walk this once on day 0 **without pushing** (~10 min). Real changes after that: 30–60 min infra, 1–2 h cluster YAML.
+
 ```mermaid
 sequenceDiagram
-  participant E as Engineer
-  participant B as Bastion agent
-  participant C as Contract
-  participant G as GitHub
-  participant L as Gitea
-  participant F as Flux
-  E->>B: copilot-whereami / 90-copilot if cold
-  E->>B: one change in the right clone
-  B->>C: check-contract.sh
+  participant You
+  participant Bastion
+  participant Git
+  You->>Bastion: whereami if cold
+  You->>Bastion: one change
+  Bastion->>Bastion: check-contract
   alt infra
-    E->>G: git push origin main
-  else cluster YAML
-    E->>L: git push origin main
-    E->>B: mirror-to-github.sh
-    E->>F: flux reconcile -n flux-system kustomization flux-system
+    You->>Git: push GitHub
+  else cluster
+    You->>Git: push Gitea
+    You->>Bastion: mirror then flux
   end
-  E->>B: verify-jarvis.sh if pods/images moved
+  You->>Bastion: verify if pods moved
 ```
 
 Session 0 for an AI (or a human who just sat down): [COPILOT.md](COPILOT.md) — whereami + `90-copilot.sh`, **one** extra discover if needed, then stop and change one thing.
@@ -263,7 +271,7 @@ Then mirror. Never `kubectl apply -f`. Never `git push` cluster YAML to GitHub a
 
 ---
 
-## 9. Prove day 0 (checklist)
+## 9. Prove day 0 (10–15 min)
 
 On the bastion as `agent`:
 
