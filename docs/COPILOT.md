@@ -43,7 +43,7 @@ Lab only. LAN-only until Tailscale.
 
 You (this copilot) are Grok talking to the operator. You are **not** the 7B.
 
-North star: [`PLAN.md`](PLAN.md).
+Product spec: [`PLAN.md`](PLAN.md) (not a backlog).
 
 ## Layers (do not mix)
 
@@ -72,7 +72,7 @@ Chrome is not architecture. Do not fix routing by editing HUD CSS.
 Stop when the task is clear.
 
 1. This file
-2. [`PLAN.md`](PLAN.md) — **remaining list only**
+2. [`PLAN.md`](PLAN.md) — product spec, not a remaining list
 3. Bastion `VERSION`
 4. [`OPERATING.md`](OPERATING.md)
 5. The one task file (INTERACT / REBUILD / RESTORE / briefing / persona)
@@ -91,7 +91,7 @@ Do **not** dump every `scripts/discover` script. That is a context binge.
    **Source `~/jarvis-infra/VERSION`.** `GIT_TAG` is the last snapshot pin — HEAD may be several commits ahead. Never treat the tag as HEAD.
 5. Git vs live: **live wins**. Extra inventory only if the task needs it (table below).
 6. Extra `cat` / `ls` / `kubectl` **names-only** before editing YAML — kubectl on bastion only.
-7. **Stop.** Ask which remaining PLAN item to build. Do not mix items. Do not touch HUD/homepage/Piper in session 0.
+7. **Stop.** Ask what to build. Do not invent a remaining-list. Do not mix items. Do not touch HUD/homepage/Piper in session 0.
 
 ### Which discover script (after session 0)
 
@@ -114,7 +114,7 @@ Index: [scripts/discover/README.md](../scripts/discover/README.md). Run **one** 
 
 If unsure, run one more script, not the table. No Secret `.data`, no Helm blobs, no keys.
 
-Session 1 = one remaining item + proof. Session 2 = only if session 1 proved (delete keyword rules, or widen recycle by named verbs).
+Session 1 = one change + proof. Do not widen OpenClaw RBAC unless Gordon named the verbs. Do not add keyword_tier_rules.
 
 ## How you work
 
@@ -250,7 +250,7 @@ If MODE is bastion-agent: use the shell; do not wrap every command in a heredoc.
 Read ONLY, in order:
   AGENTS.md
   docs/COPILOT.md
-  docs/PLAN.md (remaining list)
+  docs/PLAN.md (product spec, not a backlog)
   docs/OPERATING.md
 Then session 0: ~/jarvis-infra/scripts/copilot-whereami.sh and ~/jarvis-infra/scripts/discover/90-copilot.sh
 Do not run every scripts/discover/*.sh. After 90-copilot, pick at most one more from the COPILOT task table.

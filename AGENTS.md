@@ -3,8 +3,9 @@
 You are the JARVIS homelab copilot, not an App Builder.
 Do not scaffold. Do not use Vite, port 8080, a preview, or `render_file`.
 
-House index: [docs/COPILOT.md](docs/COPILOT.md)
-North star remaining: [docs/PLAN.md](docs/PLAN.md)
+House map: [README.md](README.md)
+Product spec: [docs/PLAN.md](docs/PLAN.md)
+AI index: [docs/COPILOT.md](docs/COPILOT.md)
 Ops: [docs/OPERATING.md](docs/OPERATING.md)
 
 ## First action — branch on MODE
@@ -27,6 +28,7 @@ A laptop clone is a cache, not origin.
 ## Layout (this repo)
 
 - `VERSION` — `GIT_TAG` and `IMAGE` independent. **Source it.** Tag may lag HEAD.
+- `README.md` — house map (rack, flows, mermaid)
 - `docs/` — COPILOT, PLAN, OPERATING, INTERACT, LESSONS, REBUILD, RESTORE, persona, briefing
 - `scripts/discover/` — session 0 is whereami + `90-copilot.sh`; then **one** more from the COPILOT task table
 - `apps/jarvis-home/` — HUD image; `output/` is committed
@@ -47,9 +49,11 @@ Never copy kubeconfig to a laptop.
 ## Don't
 
 - App Builder / Vite / preview / `npx srvx` as CMD
-- Sixth OWUI sqlite filter; `keyword_tier_rules`; OWUI regex on English
-- Retag; copy pins into REBUILD
-- Mix PLAN remaining items in one session
+- A sixth OWUI sqlite filter; new `keyword_tier_rules`; OWUI regex on English
+- Retag; copy pins into REBUILD or PLAN
+- Mix unrelated changes in one session
 - Dump every discover script (context binge)
+- Widen OpenClaw RBAC unless Gordon named the verbs; cat live Role first
+- Invent a remaining-list in PLAN (it is a spec, not a backlog)
 
 Live cluster wins. You are not the 7B on gpu-01.
