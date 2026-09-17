@@ -164,3 +164,7 @@ Wake-word v1 is **laptop-only** (`scripts/jarvis-wake.py`). Env is `~/.config/ja
 
 - chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
 - Dual route: LiteLLM complexity_router on alias `jarvis` (automatic). OWUI filter `jarvis_route` is prefix override only. Never fold keywords into the filter or prefixes into keyword_tier_rules.
+
+## Persona
+
+`docs/persona.txt` only. 7B = Ollama SYSTEM. Grok = `jarvis_persona` filter. Env `DEFAULT_SYSTEM_PROMPT` is not the spine.

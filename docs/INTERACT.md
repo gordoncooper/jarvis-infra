@@ -157,3 +157,8 @@ Start-of-message **`local:` `hands:` `code:` `grok:`** (or `/local` `/hands` `/c
 
 Do not copy keyword phrases into the OWUI filter. Do not put prefixes in LiteLLM `keyword_tier_rules` (`code:` as a substring steals “status code:”). Picker remains the manual escape. Chip may still show `jarvis` on prefixed turns (selected alias).
 - Telemetry filter injects `[clock …]` only. learned.md is RAG + `remember that`, not every prompt. Name questions: answer only who was asked.
+
+## Persona (chat.lan)
+
+Source: `docs/persona.txt` (also ConfigMap `jarvis-persona` / OpenClaw `SOUL.md`).
+7B: Ollama model `jarvis` SYSTEM. Grok: filter `jarvis_persona` inlet. Do not use `DEFAULT_SYSTEM_PROMPT` for this.

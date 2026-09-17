@@ -120,3 +120,8 @@ chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chu
 - Prefixes: `local:` 7B, `hands:` OpenClaw, `code:` grok-code, `grok:` grok-4-fast. code/grok skip RAG. grok has no browse.
 - Routing contract: LiteLLM `jarvis` alias = automatic; OWUI prefixes = override only. Do not merge the two lists.
 - Telemetry clock-only (no learned.md attach in inlet). Identity: answer only the name asked.
+
+## Status 2026-09-17 (pause)
+
+Done: router + chip, Piper alloy, remember/learned, Hands **read-only** in-glass (`jarvis-hands`), persona spine on 7B **and** Grok (bake + inlet). OpenClaw SOUL matches persona.txt.
+Tomorrow: Hands **writes** (RBAC; not a new panel). Still parked: Goose copy of persona, wake-word, Tailscale, spend ceiling. gpu-02 stays embed-only.

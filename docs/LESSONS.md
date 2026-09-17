@@ -67,3 +67,11 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 
 - chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
 - Do not unify chat.lan prefixes with LiteLLM keyword_tier_rules. Router = automatic; `jarvis_route` = explicit override. `code:` as a LiteLLM substring is a landmine.
+
+## Persona spine (2026-09-17)
+
+- `docs/persona.txt` is the character file. Do not put rack novels in it.
+- Open WebUI `DEFAULT_SYSTEM_PROMPT` env does **not** inject a system message per request. Character on chat.lan is: Ollama baked `SYSTEM` (7B) + sqlite filter `jarvis_persona` (Grok/Hands). Mount is `/etc/jarvis/system.txt` from ConfigMap `jarvis-persona`.
+- Never omit `SYSTEM` in the `jarvis` Modelfile. `FROM qwen2.5` inherits “You are Qwen…”.
+- Identity changes: **new chat**. Old threads stay poisoned.
+- `open-webui.yaml` volumeMounts are flow-style (`- { name: data, ... }`). New mounts must use the same indent as those items or Flux kustomize dies and the whole cluster YAML stops applying.
