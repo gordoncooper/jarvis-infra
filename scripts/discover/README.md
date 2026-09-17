@@ -15,8 +15,8 @@ later should show up here without editing the probe.
 | 10 | `10-bastion.sh` | Jump host: tools, clones, pins, key meta | live |
 | 20 | `20-k3s.sh` | k3s version, nodes, labels, runtime | live |
 | 30 | `30-storage.sh` | NFS, hostPaths, backup stamps (names) | live |
-| 40 | `40-gitops.sh` | Gitea origin, Flux, remotes | next |
-| 50 | `50-ingress.sh` | Traefik, TLS, Ingress hosts | planned |
+| 40 | `40-gitops.sh` | Gitea origin, Flux, remotes | live |
+| 50 | `50-ingress.sh` | Traefik, TLS, Ingress hosts | next |
 | 60 | `60-rbac.sh` | SAs, Roles, recycle | planned |
 | 70 | `70-workloads.sh` | Deploy/DS images + digests (no env values) | planned |
 | app | `apps/gitea.sh` | git.lan | planned |
