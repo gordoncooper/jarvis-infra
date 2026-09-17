@@ -37,7 +37,7 @@ done
 echo
 echo "--- old fat copilot-discover (must not be required) ---"
 if [ -x "$ROOT/scripts/copilot-discover.sh" ]; then
-  echo "present (legacy; use scripts/discover/NN-*.sh instead)"
+  echo "absent (removed; use scripts/discover/NN-*.sh)"
   wc -l "$ROOT/scripts/copilot-discover.sh"
 else
   echo "absent"

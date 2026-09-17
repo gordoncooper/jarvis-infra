@@ -3,7 +3,7 @@
 
 ## Layered live discovery
 
-Do **not** start with scripts/copilot-discover.sh (legacy one-shot).
+Use the layered scripts below. The old one-shot copilot-discover.sh was removed.
 
 On the bastion as **agent**, one layer per paste:
 

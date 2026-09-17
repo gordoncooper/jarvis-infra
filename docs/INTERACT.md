@@ -136,4 +136,4 @@ Do not use `DEFAULT_SYSTEM_PROMPT` for this.
 
 ## Copilot
 
-Layered live dump: ./scripts/discover/00-rack.sh through 90-copilot.sh (see docs/COPILOT.md). Do not run the old one-shot copilot-discover.sh.
+Layered live dump: ./scripts/discover/00-rack.sh through 90-copilot.sh (see docs/COPILOT.md). The old one-shot copilot-discover.sh was removed.
