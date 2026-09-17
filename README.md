@@ -159,7 +159,7 @@ LAN only. mkcert TLS. Never internet-exposed.
 - `scripts/check-contract.sh` / `verify-jarvis.sh` — pin + live proof
 - `scripts/backup-jarvis.sh` / `restore-bastion-secrets.sh` / `materialize-bastion-secrets.sh`
 - `scripts/mirror-to-github.sh` — Gitea → GitHub cluster mirror (also the 03:30 timer)
-- `docs/` — OPERATING, INTERACT, REBUILD, RESTORE, LESSONS; `docs/history/` is frozen
+- `docs/` — COPILOT, PLAN, OPERATING, INTERACT, REBUILD, RESTORE, LESSONS
 - `secrets/` — SOPS+age (`secrets.sops.yaml` in git; age key is not)
 - `systemd/` — nightly NFS backup timer (unit path is this repo)
 

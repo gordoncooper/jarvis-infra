@@ -26,7 +26,7 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 | Dockerfile `COPY package.json` / `node src/server.mjs` | `install-jarvis-home.sh` only tars `Dockerfile`+`output/` → docker `COPY failed` | `COPY output/` + in-image `srvx --prod`. HUD `src/` is for later rebuild (`BUILD.md`), not the cluster build context. |
 | Same tag + `imagePullPolicy: Never` | kubelet keeps old layers | Bump **image** tag in `VERSION` **and** both `homepage.yaml` files |
 | Treat git tag and image tag as one number | Docs and cluster argue | `VERSION` has both. They may differ. `check-contract.sh` |
-| Copy pins into REBUILD / README / PHASE | Greenfield checks out the wrong tag | Edit `VERSION` + yaml only. History stays frozen. |
+| Copy pins into REBUILD / README | Greenfield checks out the wrong tag | Edit `VERSION` + yaml only. Git tags are the history. |
 | Retag a tag that already exists on origin | GitHub + Gitea fork | Next number is new. Never `git tag -f`. |
 | Run JARVIS scripts as user `bastion` | repos missing; silent `set -e` exit | `sudo su - agent`. HOME=/home/agent |
 | `set -euo pipefail` + `exit` at the `agent@` prompt | kills `su - agent`; you are `bastion@` | Wrap in a quoted heredoc |
@@ -34,7 +34,7 @@ then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSIO
 | Nested `ssh ...` heredoc inside an outer heredoc | same stdin eat | One-line `ssh -n host "cmd"` |
 | Shrink READMEs/docs to fit chat | GitHub gets a stub | Full file, or two complete pastes. Never a summary version. |
 | Skip SOPS decrypt when the age key is on USB | House-fire rebuild invents new keys | `materialize-bastion-secrets.sh` then `apply-secrets.sh`. chmod 600 files are fallback. |
-| Follow `GITHUB-CUTOVER.md` as current | old v0.1 / v0.4.4 commands | `docs/REBUILD.md`. Cutover is history. |
+| Follow deleted cutover notes as current | old v0.1 / v0.4.4 commands | `docs/REBUILD.md` only. |
 | Tarball dumps of `output/` into `public/` | junk `.tgz` on home.lan | Never copy archives into `public/` or `output/static/` |
 | OpenClaw image has no curl/kubectl | exec fails | `node …/prom.js` and `node …/k8s.js` |
 | Goose `OPENAI_HOST: http://llm.lan` after TLS | Traefik 404 | `OPENAI_HOST: https://llm.lan` (no trailing `/v1`) |

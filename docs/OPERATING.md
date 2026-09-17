@@ -10,15 +10,14 @@ Procedure: [REBUILD.md](REBUILD.md). Footguns: [LESSONS.md](LESSONS.md).
 3. **`VERSION`** in this repo — living `GIT_TAG`, `IMAGE` / `IMAGE_TAG`, `K3S`. Independent numbers.
 4. This file + REBUILD (procedure, no pins).
 5. LESSONS (rack landmines still true).
-6. `docs/history/` and `PHASE*` — frozen snapshots. Do not rewrite when VERSION moves.
-7. GitHub `gordoncooper/jarvis-infra` (origin for this repo) and `jarvis-cluster` (**mirror only**).
+6. GitHub `gordoncooper/jarvis-infra` (origin for this repo) and `jarvis-cluster` (**mirror only**).
    No third repo. SOPS lives here (`secrets/secrets.sops.yaml`).
 
 ## Hard rules
 
 - Run as user **agent** (`HOME=/home/agent`). Never `bastion`.
 - Do not retag. Do not `git tag -f`. Next snapshot is a **new** `GIT_TAG`.
-- Do not copy pin numbers into REBUILD / README / PHASE. Edit `VERSION` and both `homepage.yaml` files.
+- Do not copy pin numbers into REBUILD / README. Edit `VERSION` and both `homepage.yaml` files.
 - Do not bump the homepage **image** unless `https://home.lan/status` is wrong.
 - Homepage: one image, `imagePullPolicy: Never`, `nodeSelector: jarvis.role=apps`, SA `homepage`. Import with `install-jarvis-home.sh` **before** Flux.
 - `npx srvx` is forbidden as the image CMD. Dockerfile `COPY output/` + srvx `--prod`. `install-jarvis-home.sh` tars **only** `Dockerfile` + `output/`.

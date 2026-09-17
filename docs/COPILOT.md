@@ -6,7 +6,7 @@ The operator pastes bastion output. You reply with quoted `bash << 'SCRIPT'`
 they run as user **agent** (`HOME=/home/agent`). Never user `bastion`.
 
 This file is the **index**, not live inventory. **Live cluster wins.**
-GitHub can lag. `docs/history/` and `PHASE*` are frozen — do not binge them.
+GitHub can lag. Do not invent a second history tree; use git log + tags.
 
 ## Intent
 
@@ -40,8 +40,7 @@ Chrome is not architecture. Do not fix routing by editing HUD CSS.
 3. `~/jarvis-infra/VERSION` — `GIT_TAG`, `IMAGE`/`IMAGE_TAG`, `K3S` (independent).
 4. [`OPERATING.md`](OPERATING.md) + [`REBUILD.md`](REBUILD.md) (procedure, **no pins**).
 5. [`LESSONS.md`](LESSONS.md).
-6. `docs/history/` — snapshots only.
-7. GitHub `gordoncooper/jarvis-infra` (origin) and `jarvis-cluster` (**mirror**).
+6. GitHub `gordoncooper/jarvis-infra` (origin) and `jarvis-cluster` (**mirror**).
 
 ## Reading order
 
@@ -53,8 +52,6 @@ Stop when the task is clear.
 4. [`OPERATING.md`](OPERATING.md)
 5. The one task file (INTERACT / REBUILD / RESTORE / briefing / persona)
 6. Cluster README — YAML only; scripts live **here**
-
-Do not read `PHASE*` unless rebuilding from ash.
 
 ## Cold start (before any cluster YAML change)
 
@@ -156,7 +153,7 @@ Read ONLY, in order:
 Then ask me to run: ~/jarvis-infra/scripts/copilot-discover.sh
 Live cluster wins. Flux origin is http://git.lan/jarvis/cluster.git — never GitHub.
 Pins: ~/jarvis-infra/VERSION (GIT_TAG and IMAGE are independent). Never retag.
-Do not binge docs/history or PHASE*. Do not add OWUI regex or keyword_tier_rules.
+Do not add OWUI regex or keyword_tier_rules.
 Prefer native LiteLLM / OpenClaw / k8s RBAC. If unsure, discover — do not invent a filter.
 chat.lan is the glass. Hands are in-glass (jarvis-hands). agent.lan is break-glass.
 

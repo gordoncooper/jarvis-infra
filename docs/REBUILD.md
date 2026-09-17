@@ -4,8 +4,7 @@ Pins live in [`VERSION`](../VERSION). This file is the **procedure**.
 If a number here disagrees with `VERSION`, **`VERSION` wins**.
 Operator contract: [OPERATING.md](OPERATING.md).
 
-`PHASE*.md`, old changelog entries, and `docs/history/GITHUB-CUTOVER.md` are **history**.
-Do not rewrite them to match the living pin. Do not retag old git tags.
+Old PHASE notes lived in git history (`git log`). Do not recreate a `docs/history/` tree. Do not retag old git tags.
 
 ~~
 . ~/jarvis-infra/VERSION
