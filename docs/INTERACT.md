@@ -136,3 +136,7 @@ Chat filter injects `[clock …]` + `learned.md` only. Live cluster numbers are 
 ## Routed model chip
 
 chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
+
+## Hands (chat.lan)
+
+Default `jarvis` auto-routes live rack questions to `jarvis-hands` (OpenClaw read-only, ~20–40s). Picker hatch still there. Do not open agent.lan for this. Writes are not enabled.

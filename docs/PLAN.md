@@ -108,3 +108,11 @@ Keep: live > Gitea > VERSION; independent git/image tags; never retag; agent not
 ### Dropped: chat.lan route chip
 
 chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
+
+## Status (2026-09-16)
+
+- Glass: chat.lan. Default model `jarvis` (LiteLLM complexity_router).
+- SIMPLE → `jarvis-local` (Qwen 7B). COMPLEX live rack → `jarvis-hands` (OpenClaw, read-only). REASONING mutate/code → `jarvis-grok-code`.
+- Hands in-glass: OpenClaw sidecar openai-shim :4001. Proven: default `jarvis` + picker `jarvis-hands` both return 6 Ready nodes. No extra panel. No inbox.
+- Route chip: abandoned (OWUI rewrites stream model to `jarvis`).
+- Writes / ClusterRole expansion: later. Wake-word / Tailscale: later. gpu-02 embed-only.
