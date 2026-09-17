@@ -1,10 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 if [ "$(whoami)" != agent ]; then echo FATAL: run as agent >&2; exit 1; fi
-# Default: do NOT bake SYSTEM. chat.lan DEFAULT_SYSTEM_PROMPT is the spine.
-# Pass the prompt file as $1 and BAKE_SYSTEM=1 to bake (legacy).
-PROMPT_FILE="${1:-$HOME/cluster/clusters/jarvis/apps/jarvis-system-prompt.txt}"
-BAKE_SYSTEM="${BAKE_SYSTEM:-0}"
+# Spine is docs/persona.txt. Bake SYSTEM so Qwen does not inherit You are Qwen.
+# Override: PROMPT_FILE=... BAKE_SYSTEM=0 ./scripts/create-jarvis-ollama.sh
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+PROMPT_FILE="${1:-$ROOT/docs/persona.txt}"
+BAKE_SYSTEM="${BAKE_SYSTEM:-1}"
 BASE=qwen2.5:7b-instruct-q6_K
 SYS=""
 if [ "$BAKE_SYSTEM" = 1 ]; then SYS=$(cat "$PROMPT_FILE"); fi

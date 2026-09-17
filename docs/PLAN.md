@@ -83,7 +83,7 @@ Do **not** mix these in one session. HUD CSS is not on this list.
 1. **Discover live** — RBAC, filters, LiteLLM `classifier_type`, persona copies. Git vs live: live wins.
 2. **Hands writes (next allow-list)** — Role `openclaw-recycle` is **already in git** (pod delete + deploy patch in apps/inference/agents/monitoring). Do not re-implement slice 1. Widen only with an explicit allow-list from the operator. Same shim. No cluster-admin. No new panel.
 3. **LiteLLM LLM classifier** — `classifier_type: llm` + rubric; prove the five prompts; then delete famous-phrase `keyword_tier_rules`.
-4. **One prompt spine** — `persona.txt` only. Today: Ollama SYSTEM (7B) + `jarvis_persona` filter (Grok). Do not add a third copy. Goose copy is optional polish. `jarvis-system-prompt.txt` should match or go away.
+4. **One prompt spine** — `docs/persona.txt` only. Flux copy: ConfigMap `jarvis-persona` (`system.txt`). Ollama bake reads persona.txt (`create-jarvis-ollama.sh`). Filter `jarvis_persona` covers Grok. Goose copy still optional polish. Duplicate `jarvis-system-prompt.txt` removed.
 5. **Parked** — wake-word polish, Tailscale, spend ceiling. gpu-02 stays embed-only.
 
 ## Done (do not redo)
