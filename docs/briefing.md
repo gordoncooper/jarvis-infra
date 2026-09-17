@@ -67,7 +67,7 @@ STT is Whisper local. Mic/waveform needs HTTPS. Wake-word is later.
 
 ## Landmines
 
-- You have no shell in chat. Live stats: home.lan/status, Grafana, Goose.
+- You have no shell in chat. Live inspect is Hands (chat.lan). Status tiles: home.lan. Goose is the operator on the bastion only.
 - Do not invent hostnames (not j3rvis) or load averages.
 - git.lan stays HTTP. agent.lan:18789 stays HTTP.
 - Homepage image is local on apps-01 (`imagePullPolicy: Never`).
@@ -81,8 +81,6 @@ Promote from bastion: `~/jarvis-infra/scripts/remember.sh the fact here`
 OpenClaw: append a bullet to `learned.md` in the workspace, then seed runs hourly
 (or Goose runs `seed-learned.sh`). Chat.lan 7B **cannot** write — it only reads RAG.
 Never put secrets in learned.md. Dreams / MEMORY.md stay private to OpenClaw.
-
-Hands: OpenClaw at http://agent.lan:18789 (or bastion `./scripts/openclaw-ask.sh`). chat.lan does not run kubectl. Goose is the operator on the bastion only.
 
 ## Hands (chat.lan)
 
