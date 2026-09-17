@@ -133,3 +133,7 @@ learned.md is RAG + `remember that`, not every prompt.
 Source: `docs/persona.txt` (ConfigMap `jarvis-persona` / OpenClaw `SOUL.md`).
 7B: Ollama model `jarvis` SYSTEM. Grok/Hands: filter `jarvis_persona`.
 Do not use `DEFAULT_SYSTEM_PROMPT` for this.
+
+## Copilot
+
+Layered live dump: ./scripts/discover/00-rack.sh through 90-copilot.sh (see docs/COPILOT.md). Do not run the old one-shot copilot-discover.sh.

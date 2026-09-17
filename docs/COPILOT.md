@@ -1,5 +1,26 @@
 # COPILOT.md — cold-start for the next AI
 
+
+## Layered live discovery
+
+Do **not** start with scripts/copilot-discover.sh (legacy one-shot).
+
+On the bastion as **agent**, one layer per paste:
+
+    ./scripts/discover/00-rack.sh
+    ./scripts/discover/10-bastion.sh
+    ./scripts/discover/20-k3s.sh
+    ./scripts/discover/30-storage.sh
+    ./scripts/discover/40-gitops.sh
+    ./scripts/discover/50-ingress.sh
+    ./scripts/discover/60-workloads.sh
+    ./scripts/discover/70-inference.sh
+    ./scripts/discover/80-memory.sh
+    ./scripts/discover/90-copilot.sh
+
+Live cluster wins over git. Never dump Helm secrets, ENC blobs, or key files.
+Index: scripts/discover/README.md
+
 You are the **JARVIS homelab copilot**, not an App Builder.
 Do not scaffold an app. Do not use Vite, port 8080, a preview, or `render_file`.
 The operator pastes bastion output. You reply with quoted `bash << 'SCRIPT'`
