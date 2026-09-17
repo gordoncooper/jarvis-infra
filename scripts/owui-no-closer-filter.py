@@ -16,9 +16,27 @@ CLOSER = re.compile(
     r")\??\s*$",
     re.I | re.S,
 )
+ASK_HIS = re.compile(
+    r"\b(my name|who am i|who i am|what(?:'s| is) my name)\b",
+    re.I,
+)
+PAIR_GORDON = re.compile(
+    r"(?:\s*I am JARVIS\.)?\s*You are Gordon\.?",
+    re.I,
+)
 
 class Filter:
-    def _strip(self, text):
+    def _last_user(self, body):
+        msgs = body.get("messages") if isinstance(body, dict) else None
+        if not isinstance(msgs, list):
+            return ""
+        for m in reversed(msgs):
+            if isinstance(m, dict) and m.get("role") == "user":
+                c = m.get("content") or ""
+                return c if isinstance(c, str) else ""
+        return ""
+
+    def _strip(self, text, user):
         if not isinstance(text, str) or not text:
             return text
         t = text.rstrip()
@@ -26,13 +44,18 @@ class Filter:
         while prev != t:
             prev = t
             t = CLOSER.sub("", t).rstrip()
+        if not ASK_HIS.search(user or ""):
+            t = PAIR_GORDON.sub("", t)
+            t = re.sub(r"  +", " ", t)
+            t = re.sub(r"\n{3,}", "\n\n", t).strip()
         return t
 
     def outlet(self, body, __user__=None):
+        user = self._last_user(body)
         def walk(obj):
             if isinstance(obj, dict):
                 if obj.get("role") == "assistant" and isinstance(obj.get("content"), str):
-                    obj["content"] = self._strip(obj["content"])
+                    obj["content"] = self._strip(obj["content"], user)
                 for v in obj.values():
                     walk(v)
             elif isinstance(obj, list):

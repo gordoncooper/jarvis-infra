@@ -156,3 +156,4 @@ Unprefixed messages stay `model=jarvis`. **LiteLLM** `complexity_router` picks 7
 Start-of-message **`local:` `hands:` `code:` `grok:`** (or `/local` `/hands` `/code` `/grok`) is **Open WebUI** `jarvis_route`. It rewrites the model and **skips** the router. `code:` and `grok:` also skip OWUI knowledge/RAG. `grok:` is xAI chat — no live web.
 
 Do not copy keyword phrases into the OWUI filter. Do not put prefixes in LiteLLM `keyword_tier_rules` (`code:` as a substring steals “status code:”). Picker remains the manual escape. Chip may still show `jarvis` on prefixed turns (selected alias).
+- Telemetry filter injects `[clock …]` only. learned.md is RAG + `remember that`, not every prompt. Name questions: answer only who was asked.

@@ -119,3 +119,4 @@ chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chu
 - RBAC: Role `openclaw-recycle` (pod delete, deploy patch) in four app namespaces.
 - Prefixes: `local:` 7B, `hands:` OpenClaw, `code:` grok-code, `grok:` grok-4-fast. code/grok skip RAG. grok has no browse.
 - Routing contract: LiteLLM `jarvis` alias = automatic; OWUI prefixes = override only. Do not merge the two lists.
+- Telemetry clock-only (no learned.md attach in inlet). Identity: answer only the name asked.
