@@ -4,7 +4,7 @@
 #   . "$ROOT/VERSION"
 #   echo "$GIT_TAG" "$IMAGE"
 #
-GIT_TAG=v0.4.32
+GIT_TAG=v0.4.33
 IMAGE_TAG=v0.4.9
 IMAGE=docker.io/library/jarvis-home:v0.4.9
 K3S=v1.36.4+k3s1
