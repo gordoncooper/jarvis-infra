@@ -1,9 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 if [ "$(whoami)" != agent ]; then echo FATAL: run as agent >&2; exit 1; fi
+# Default: do NOT bake SYSTEM. chat.lan DEFAULT_SYSTEM_PROMPT is the spine.
+# Pass the prompt file as $1 and BAKE_SYSTEM=1 to bake (legacy).
 PROMPT_FILE="${1:-$HOME/cluster/clusters/jarvis/apps/jarvis-system-prompt.txt}"
+BAKE_SYSTEM="${BAKE_SYSTEM:-0}"
 BASE=qwen2.5:7b-instruct-q6_K
-SYS=$(cat "$PROMPT_FILE")
+SYS=""
+if [ "$BAKE_SYSTEM" = 1 ]; then SYS=$(cat "$PROMPT_FILE"); fi
 MF=$(mktemp)
 trap 'rm -f "$MF"' EXIT
 python3 - "$MF" "$BASE" "$SYS" << 'INNER'
@@ -13,17 +17,18 @@ mf, base, sys_txt = sys.argv[1], sys.argv[2], sys.argv[3]
 if '"""' in sys_txt:
     raise SystemExit("SYSTEM contains triple-quote")
 tmpl = "{{ if .System }}<|im_start|>system\n{{ .System }}<|im_end|>\n{{ end }}{{ range .Messages }}<|im_start|>{{ .Role }}\n{{ .Content }}<|im_end|>\n{{ end }}<|im_start|>assistant\n"
-Path(mf).write_text(
-    "FROM " + base + "\n"
-    + 'TEMPLATE """' + tmpl + '"""\n'
-    + 'SYSTEM """' + sys_txt + '"""\n'
-    + 'PARAMETER stop "How can I assist"\n'
-    + 'PARAMETER stop "How can I help you"\n'
-    + 'PARAMETER stop "What can I help you with"\n'
-    + 'PARAMETER stop "Is there anything else"\n'
-    + 'PARAMETER stop "Would you like"\n'
-)
-print("Modelfile bytes", Path(mf).stat().st_size)
+parts = ["FROM " + base + "\n", 'TEMPLATE """' + tmpl + '"""\n']
+if sys_txt.strip():
+    parts.append('SYSTEM """' + sys_txt + '"""\n')
+parts += [
+    'PARAMETER stop "How can I assist"\n',
+    'PARAMETER stop "How can I help you"\n',
+    'PARAMETER stop "What can I help you with"\n',
+    'PARAMETER stop "Is there anything else"\n',
+    'PARAMETER stop "Would you like"\n',
+]
+Path(mf).write_text("".join(parts))
+print("Modelfile bytes", Path(mf).stat().st_size, "bake_system", bool(sys_txt.strip()))
 INNER
 kubectl -n inference rollout status deploy/ollama --timeout=180s
 kubectl -n inference exec deploy/ollama -- ollama pull "$BASE"
