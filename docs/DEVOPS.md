@@ -7,7 +7,7 @@ You are setting up to **build** JARVIS. You are not chatting with JARVIS.
 - Pins: `VERSION` (`GIT_TAG`, `IMAGE`, `K3S`, `MATURITY`). Do not copy numbers into this file.
 - License: [MIT](../LICENSE).
 
-Read this once. Then use [OPERATING.md](OPERATING.md) and [INTERACT.md](INTERACT.md) for daily ops. AIs use [COPILOT.md](COPILOT.md) and [AGENTS.md](../AGENTS.md). Product spec: [PLAN.md](PLAN.md).
+Read this once. Then use [OPERATING.md](OPERATING.md) and [INTERACT.md](INTERACT.md) for daily ops. AIs use [COPILOT.md](COPILOT.md) and [AGENTS.md](../AGENTS.md). Product spec: [PLAN.md](PLAN.md). Repo hygiene: [BACKLOG.md](BACKLOG.md).
 
 ---
 

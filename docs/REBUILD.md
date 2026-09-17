@@ -6,10 +6,10 @@ Operator contract: [OPERATING.md](OPERATING.md).
 
 Old PHASE notes lived in git history (`git log`). Do not recreate a `docs/history/` tree. Do not retag old git tags.
 
-~~
+```
 . ~/jarvis-infra/VERSION
 echo "checkout $GIT_TAG   image $IMAGE   k3s $K3S"
-~~
+```
 
 `GIT_TAG` and `IMAGE_TAG` are allowed to differ (docs cut vs image cut).
 
@@ -55,7 +55,7 @@ for nodes **and** `git.lan chat.lan jarvis.lan llm.lan grafana.lan home.lan`
 Ubuntu 26.04 on all seven boxes. Create `agent` with passwordless sudo + SSH
 from bastion. Clone this repo on the bastion **as agent**:
 
-~~bash
+```bash
 sudo su - agent
 git clone git@github.com:gordoncooper/jarvis-infra.git ~/jarvis-infra
 cd ~/jarvis-infra
@@ -73,49 +73,49 @@ ansible-playbook playbooks/identify-disks.yml
 # site.yml formats P300s when cluster_format_disks is true — greenfield empty disks only
 ansible-playbook playbooks/site.yml
 ansible-playbook playbooks/verify.yml
-~~
+```
 
 ## 2. k3s + command-center image
 
 Install scripts source `VERSION` and pass `INSTALL_K3S_VERSION="$K3S"`.
 Do not run unpinned `curl | sh`.
 
-~~bash
+```bash
 ./k3s/install-server.sh
 ./k3s/join-agents.sh
 ansible-playbook playbooks/nvidia-runtime.yml --limit gpu-01,gpu-02
 ./scripts/install-jarvis-home.sh
-~~
+```
 
 ## 3. Gitea (chicken-egg)
 
 Gitea is **not** in Flux. Apply once from this repo.
 
-~~bash
+```bash
 ssh -n ctrl-01 'sudo mkdir -p /cluster/local/gitea && sudo chown -R 1000:1000 /cluster/local/gitea'
 kubectl apply -f bootstrap/gitea.yaml
 kubectl -n gitea rollout status deploy/gitea
-~~
+```
 
 Repair: restore `gitea.tgz` first ([RESTORE.md](RESTORE.md)), skip empty repo.
 
 ## 4. Load cluster YAML into Gitea
 
-~~bash
+```bash
 git clone --mirror git@github.com:gordoncooper/jarvis-cluster.git /tmp/jarvis-cluster.git
 git --git-dir=/tmp/jarvis-cluster.git push --mirror http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git
-~~
+```
 
 ## 5. Secrets then Flux (git.lan only)
 
 Age private key from USB → `~/.config/sops/age/keys.txt` (mode 600).
 
-~~bash
+```bash
 chmod 600 ~/.config/sops/age/keys.txt
 ./scripts/materialize-bastion-secrets.sh
 ./bootstrap/apply-secrets.sh
 ./bootstrap/flux-bootstrap.sh
-~~
+```
 
 If the age key is missing but NFS survived: `./scripts/restore-bastion-secrets.sh YYYYMMDD-HHMM`
 then `apply-secrets.sh`.
@@ -127,10 +127,10 @@ then delete the pod.
 
 USB: mkcert `rootCA-key.pem`. Then:
 
-~~bash
+```bash
 ./scripts/lan-https.sh
 ./scripts/install-lan-ca.sh
-~~
+```
 
 git.lan stays **HTTP**. agent.lan:**18789** stays HTTP.
 
@@ -139,7 +139,7 @@ git.lan stays **HTTP**. agent.lan:**18789** stays HTTP.
 `create-jarvis-ollama.sh` builds the chat model on gpu-01.
 `pull-embed-model.sh` pulls the embed model on gpu-02.
 
-~~bash
+```bash
 git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ./scripts/create-jarvis-ollama.sh
 ./scripts/pull-embed-model.sh
@@ -147,7 +147,7 @@ git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ./scripts/seed-webui-ui.sh
 ./scripts/seed-lab-docs.sh
 ./scripts/seed-learned.sh
-~~
+```
 
 Open WebUI sqlite is a **cache**. After any WebUI recreate, re-run the seed scripts
 and re-insert sqlite filters from `scripts/owui-*-filter.py`
@@ -157,14 +157,14 @@ Duplicate-content 400 is success.
 
 ## 8. Bastion extras
 
-~~bash
+```bash
 ./scripts/configure-goose.sh
 sudo cp systemd/jarvis-backup.* /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now jarvis-backup.timer
 ./scripts/check-contract.sh
 ./scripts/verify-jarvis.sh
-~~
+```
 
 The unit `ExecStart` is `/home/agent/jarvis-infra/scripts/backup-jarvis.sh`.
 

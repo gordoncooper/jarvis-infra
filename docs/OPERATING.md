@@ -29,20 +29,28 @@ Procedure: [REBUILD.md](REBUILD.md). Footguns: [LESSONS.md](LESSONS.md).
 
 ## Proof
 
-~~bash
+```bash
 ./scripts/check-contract.sh
 ./scripts/verify-jarvis.sh
-~~
+```
+
+## Node updates / smoke
+
+Rolling apt + reboot (dry-run unless `CONFIRM=yes`): `./scripts/cluster-update-reboot.sh`.
+After a real run: `./scripts/smoke-operator.sh` (nodes, HTTPS, GPU, one LiteLLM ping).
+Flux/image contract is still `./scripts/verify-jarvis.sh`. There is no `docs/SMOKE-OPERATOR.md`.
+
+Repo hygiene (not the product spec): [`BACKLOG.md`](BACKLOG.md).
 
 ## Secrets
 
 Encrypted file: `secrets/secrets.sops.yaml`. Age private key is **not** in git:
 bastion `~/.config/sops/age/keys.txt` (mode 600) + USB copy.
 
-~~bash
+```bash
 ./scripts/materialize-bastion-secrets.sh
 ./bootstrap/apply-secrets.sh
-~~
+```
 
 chmod 600 bastion files + NFS `bastion-secrets.tgz` are the rack-reboot path.
 SOPS + USB age key is the house-fire path.

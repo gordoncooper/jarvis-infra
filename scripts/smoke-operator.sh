@@ -33,4 +33,4 @@ kubectl -n inference exec deploy/ollama-embed -- ollama list
 kubectl -n flux-system get kustomization flux-system
 git -C ~/cluster describe --tags --always
 ssh data-01 'sudo bash -c "ls -1dt /cluster/nfs/backups/*/ 2>/dev/null | head -2; ls /cluster/nfs/snapshots | tail -2"'
-echo "======== CLI HALF DONE — browser steps: docs/SMOKE-OPERATOR.md ========"
+echo "======== CLI HALF DONE — then ./scripts/verify-jarvis.sh; browser: docs/INTERACT.md ========"

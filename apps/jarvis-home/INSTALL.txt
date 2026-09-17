@@ -1,6 +1,0 @@
-Historical drop note (2026-09-15 HUD tarball).
-
-Live contract: README.md in this directory.
-Import: ~/jarvis-infra/scripts/install-jarvis-home.sh (Dockerfile + output/ only).
-Rebuild output/: BUILD.md.
-Pins: ~/jarvis-infra/VERSION. Do not copy numbers here.

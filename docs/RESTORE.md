@@ -17,7 +17,7 @@ Run every command as **agent**. Always `ssh -n`.
 
 Pick `STAMP` (newest successful `OK` from `journalctl -u jarvis-backup.service`).
 
-~~bash
+```bash
 STAMP=YYYYMMDD-HHMM   # example: 20260915-0331
 ssh -n data-01 "sudo ls -lh /cluster/nfs/backups/$STAMP"
 ssh -n data-01 "sudo sh -c 'for f in /cluster/nfs/backups/'$STAMP'/*.tgz; do gzip -t \"$f\" && echo gzip_ok \"$f\"; done'"
@@ -26,7 +26,7 @@ ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/apps-local.tgz | grep 
 ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/grafana.tgz | head"
 ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/bastion-secrets.tgz"
 ssh -n ctrl-01 "sudo k3s etcd-snapshot ls --config /etc/rancher/k3s/snapshot.yaml | tail"
-~~
+```
 
 Expect four tgz: `gitea.tgz`, `grafana.tgz`, `apps-local.tgz`, `bastion-secrets.tgz` (mode 600).
 
@@ -41,7 +41,7 @@ NFS clients use `/mnt/nfs/backups/$STAMP/...`. On data-01 itself use `/cluster/n
 | `grafana.tgz` | data-02 | `/cluster/local` | `grafana/` |
 | `apps-local.tgz` | apps-01 | `/cluster/local` | `open-webui/` + `openclaw/` |
 
-~~bash
+```bash
 # Gitea
 kubectl -n gitea scale deploy/gitea --replicas=0
 ssh -n ctrl-01 "sudo tar -C /cluster/local -xzf /mnt/nfs/backups/$STAMP/gitea.tgz"
@@ -59,7 +59,7 @@ kubectl -n agents scale deploy/openclaw --replicas=0
 ssh -n apps-01 "sudo tar -C /cluster/local -xzf /mnt/nfs/backups/$STAMP/apps-local.tgz"
 kubectl -n apps scale deploy/open-webui --replicas=1
 kubectl -n agents scale deploy/openclaw --replicas=1
-~~
+```
 
 `WEBUI_SECRET_KEY` lives in the apps secret / `apps-local.tgz`, not in SOPS.
 
@@ -67,20 +67,20 @@ kubectl -n agents scale deploy/openclaw --replicas=1
 
 If NFS survived and this is a **new or wiped** `$HOME`:
 
-~~bash
+```bash
 ./scripts/restore-bastion-secrets.sh "$STAMP"
 # default is tar -k (skip files that already exist)
 # FORCE=1 ./scripts/restore-bastion-secrets.sh "$STAMP"   # overwrite, wiped HOME only
 ./bootstrap/apply-secrets.sh
-~~
+```
 
 If NFS is gone but the age private key is on USB:
 
-~~bash
+```bash
 chmod 600 ~/.config/sops/age/keys.txt
 ./scripts/materialize-bastion-secrets.sh
 ./bootstrap/apply-secrets.sh
-~~
+```
 
 Do not unpack `bastion-secrets.tgz` onto a healthy bastion whose hashes already MATCH (dry-run 11/11). That is a no-op with `tar -k`.
 
@@ -89,23 +89,23 @@ Do not unpack `bastion-secrets.tgz` onto a healthy bastion whose hashes already 
 Image lives in k3s containerd on **apps-01** only (`imagePullPolicy: Never`).
 After an apps-01 wipe or greenfield k3s:
 
-~~bash
+```bash
 ./scripts/install-jarvis-home.sh
 kubectl -n apps delete pod -l app=homepage
 # expect https://home.lan/ and https://home.lan/status both 200
-~~
+```
 
 ## 5. etcd (ctrl-01 only, cluster actually down)
 
 This is a **reset**. Do not run it to "refresh" a healthy cluster.
 Agents may need `k3s-agent` restarted after.
 
-~~bash
+```bash
 # SNAPSHOTFILE = a name from: ssh -n ctrl-01 'sudo ls /mnt/nfs/snapshots'
 ssh -n ctrl-01 'sudo systemctl stop k3s'
 ssh -n ctrl-01 'sudo k3s server --cluster-reset --cluster-reset-restore-path=/mnt/nfs/snapshots/SNAPSHOTFILE'
 # then start k3s; restart k3s-agent on workers if they do not rejoin
-~~
+```
 
 Scheduled files are `etcd-snapshot-ctrl-01-*`. Nightly backup also writes `on-demand-ctrl-01-*`.
 

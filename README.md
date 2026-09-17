@@ -27,6 +27,7 @@ Alignment: `scripts/check-contract.sh`.
 | Operator | [docs/OPERATING.md](docs/OPERATING.md) |
 | Rebuild / restore | [docs/REBUILD.md](docs/REBUILD.md) · [docs/RESTORE.md](docs/RESTORE.md) |
 | Lessons | [docs/LESSONS.md](docs/LESSONS.md) |
+| Backlog | [docs/BACKLOG.md](docs/BACKLOG.md) |
 | Run as | user **agent** (`HOME=/home/agent`). Never `bastion`. |
 
 **Web Grok:** paste the block at the bottom of [docs/COPILOT.md](docs/COPILOT.md).
