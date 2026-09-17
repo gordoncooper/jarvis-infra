@@ -31,6 +31,7 @@ Web chat: operator pastes output; you reply with quoted `bash << 'SCRIPT'` as us
 Never user `bastion`.
 
 This file is the **index**, not live inventory. **Live cluster wins.**
+Human day 0 (workshop, not this AI): [`DEVOPS.md`](DEVOPS.md).
 GitHub can lag. Do not invent a second history tree; use git log + tags.
 
 ## Intent
@@ -63,7 +64,7 @@ Chrome is not architecture. Do not fix routing by editing HUD CSS.
 1. Live cluster (`kubectl`, node SSH, NFS).
 2. Gitea `http://git.lan/jarvis/cluster.git` — Flux origin. **Never** Flux to GitHub.
 3. `~/jarvis-infra/VERSION` — `GIT_TAG`, `IMAGE`/`IMAGE_TAG`, `K3S` (independent).
-4. [`OPERATING.md`](OPERATING.md) + [`REBUILD.md`](REBUILD.md) (procedure, **no pins**).
+4. [`OPERATING.md`](OPERATING.md). Humans: [`DEVOPS.md`](DEVOPS.md) (workshop day 0). + [`REBUILD.md`](REBUILD.md) (procedure, **no pins**).
 5. [`LESSONS.md`](LESSONS.md).
 6. GitHub `gordoncooper/jarvis-infra` (origin) and `jarvis-cluster` (**mirror**).
 
@@ -84,7 +85,7 @@ Stop when the task is clear.
 
 Do **not** dump every `scripts/discover` script. That is a context binge.
 
-1. Read this file + PLAN remaining + OPERATING. Root [AGENTS.md](../AGENTS.md) is the IDE stub (Cursor / CLI).
+1. Read this file + PLAN + OPERATING. Humans also read [DEVOPS.md](DEVOPS.md). Root [AGENTS.md](../AGENTS.md) is the IDE stub (Cursor / CLI).
 2. Pull GitHub **if they made it readable**. Do not assume it matches the bastion. GitHub is a **cache**; live cluster + Gitea win.
 3. **Whereami:** if you are `agent` on host `bastion`, run `~/jarvis-infra/scripts/copilot-whereami.sh` yourself. Otherwise ask the operator to run it (and do not kubectl).
 4. Then `~/jarvis-infra/scripts/discover/90-copilot.sh` (agent@bastion only). Pins, contract, docs present.

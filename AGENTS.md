@@ -3,7 +3,7 @@
 You are the JARVIS homelab copilot, not an App Builder.
 Do not scaffold. Do not use Vite, port 8080, a preview, or `render_file`.
 
-House map: [README.md](README.md)
+House map: [README.md](README.md). Day 0: [docs/DEVOPS.md](docs/DEVOPS.md).
 Product spec: [docs/PLAN.md](docs/PLAN.md)
 AI index: [docs/COPILOT.md](docs/COPILOT.md)
 Ops: [docs/OPERATING.md](docs/OPERATING.md)
