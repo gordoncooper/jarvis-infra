@@ -3,6 +3,8 @@
 Metal, bootstrap, secrets, scripts, and the **command-center image** for JARVIS —
 a six-node k3s homelab (ThinkCentre M920x) plus a bastion jump host.
 
+Maturity is `MATURITY` in [VERSION](VERSION). License: [MIT](LICENSE).
+
 The rack **is** JARVIS. Gordon talks at [https://chat.lan](https://chat.lan).
 He should not pick models or open a second console for normal use.
 Local-first (electricity), Grok when the job needs a bigger brain,

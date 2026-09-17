@@ -4,7 +4,10 @@
 #   . "$ROOT/VERSION"
 #   echo "$GIT_TAG" "$IMAGE"
 #
-GIT_TAG=v0.4.36
+GIT_TAG=v0.4.37
 IMAGE_TAG=v0.4.9
 IMAGE=docker.io/library/jarvis-home:v0.4.9
 K3S=v1.36.4+k3s1
+
+# Product maturity: alpha | beta. Independent of IMAGE_TAG.
+MATURITY=alpha
