@@ -13,8 +13,8 @@ later should show up here without editing the probe.
 | --- | --- | --- | --- |
 | 00 | `00-rack.sh` | Metal: OS, CPU, RAM, disk, NIC, GPU, ssh | live |
 | 10 | `10-bastion.sh` | Jump host: tools, clones, pins, key meta | live |
-| 20 | `20-k3s.sh` | k3s version, nodes, labels, runtime | next |
-| 30 | `30-storage.sh` | NFS, hostPaths, backup stamps (names) | planned |
+| 20 | `20-k3s.sh` | k3s version, nodes, labels, runtime | live |
+| 30 | `30-storage.sh` | NFS, hostPaths, backup stamps (names) | next |
 | 40 | `40-gitops.sh` | Gitea origin, Flux, remotes | planned |
 | 50 | `50-ingress.sh` | Traefik, TLS, Ingress hosts | planned |
 | 60 | `60-rbac.sh` | SAs, Roles, recycle | planned |
