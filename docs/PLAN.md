@@ -5,6 +5,7 @@ Live cluster is truth. Flux origin is Gitea (`http://git.lan/jarvis/cluster.git`
 
 This file is the **product spec**. It is not a backlog. Do not append
 parked / someday / remaining lists here.
+Engineering tickets: [`BACKLOG.md`](BACKLOG.md).
 
 ## Product
 
