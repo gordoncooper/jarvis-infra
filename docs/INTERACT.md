@@ -140,3 +140,8 @@ chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chu
 ## Hands (chat.lan)
 
 Default `jarvis` auto-routes live rack questions to `jarvis-hands` (OpenClaw read-only, ~20–40s). Picker hatch still there. Do not open agent.lan for this. Writes are not enabled.
+
+## Hands writes (slice 1)
+
+OpenClaw may `kubectl delete pod` and `kubectl rollout restart` (patch deployment) in **apps, inference, agents, monitoring** only.
+It cannot touch secrets, kube-system, flux-system, or nodes. Do not ask it to edit git.

@@ -115,4 +115,5 @@ chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chu
 - SIMPLE → `jarvis-local` (Qwen 7B). COMPLEX live rack → `jarvis-hands` (OpenClaw, read-only). REASONING mutate/code → `jarvis-grok-code`.
 - Hands in-glass: OpenClaw sidecar openai-shim :4001. Proven: default `jarvis` + picker `jarvis-hands` both return 6 Ready nodes. No extra panel. No inbox.
 - Route chip: abandoned (OWUI rewrites stream model to `jarvis`).
-- Writes / ClusterRole expansion: later. Wake-word / Tailscale: later. gpu-02 embed-only.
+- Writes slice 1: OpenClaw may delete pods + patch deployments in apps/inference/agents/monitoring only. No secrets, no kube-system, no Flux. Wake-word / Tailscale: later. gpu-02 embed-only.
+- RBAC: Role `openclaw-recycle` (pod delete, deploy patch) in four app namespaces.
