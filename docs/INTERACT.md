@@ -3,23 +3,31 @@
 Operator/copilot contract: [OPERATING.md](OPERATING.md). Pins: `~/jarvis-infra/VERSION`.
 Proof: `~/jarvis-infra/scripts/verify-jarvis.sh`.
 
+Product surface is **jarvis.lan** and the operator surface is **noc.lan** (D-0002).
+Everything else below is break-glass or vendor UI. `home.lan` is being retired
+into `noc.lan`; it still serves today, so it is listed as legacy, not as the board.
+
 | Surface | URL / cmd | Best for | Model / cost |
 | --- | --- | --- | --- |
-| Command board | https://home.lan | Services + rack + events. **Click tiles** for dossiers (pods on that node). **LIVE** = Prometheus; **SIM** = fallback. | — |
-| Status floor | https://home.lan/status | GPU temp/VRAM, event stream, nodes/workloads. Same click-dossiers. | — |
-| Telemetry | https://home.lan/api/telemetry | JSON: source, GPUs, events, `podsByNode` | — |
-| Chat | https://chat.lan | Q&A, RAG, voice | `jarvis-local` free; `jarvis-grok*` SuperGrok |
-| Agent | http://agent.lan:18789 | Cluster ops, files, live metrics | `jarvis-grok-code` (API) |
-| Goose | `goose session` on bastion | Terminal agent on the git repo | Live default **jarvis-local** via **https://llm.lan**; grok-code when you need tools |
+| **Product** | https://jarvis.lan | Talking to JARVIS. The glass. | — |
+| **NOC** | https://noc.lan | Nodes, workloads, alerts. Renders when the brain is down. | — |
+| Legacy board | https://home.lan | Services + rack + events, click-tile dossiers. Retiring into noc.lan. | — |
+| Legacy telemetry | https://home.lan/api/telemetry | JSON: source, GPUs, events, `podsByNode` | — |
+| Chat (break-glass) | https://chat.lan | Q&A, RAG, voice when the glass is down | `jarvis-local` free; `jarvis-grok*` SuperGrok |
+| Agent (break-glass) | http://agent.lan:18789 | Cluster ops, files, live metrics | `jarvis-grok-code` (API) |
+| Goose | `goose session` on bastion | Terminal agent on the git repos | Profile-switched: `llm-lan` (jarvis-grok-code, free) or `xai` (grok-build-0.1, metered). **Never jarvis-local** — the 7B invents shell output. |
 | Grafana | https://grafana.lan | Graphs (NVIDIA 14574) | — |
 | API | https://llm.lan/v1 | Anything OpenAI-shaped | LiteLLM |
 | GitOps | http://git.lan | YAML in `~/cluster` as **agent** | — |
-| SSH | `ssh bastion` -> nodes | Break-glass | — |
+| SSH | `ssh bastion` -> nodes | Normal operator access; last glass if k3s is gone | — |
 
 **git.lan stays HTTP** (Flux). **agent.lan:18789** is HTTP on purpose (hostPort).
 Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 
-Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Tony's override. Indicator chip = which model ran, not a selector. North star: [PLAN.md](PLAN.md).
+Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Gordon's
+override. chat.lan does **not** show a model chip — Open WebUI rewrites the stream to
+`jarvis`, so the child model never reaches the browser. Do not build one.
+North star: [VISION.md](VISION.md).
 
 
 Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
@@ -120,9 +128,10 @@ Handled on the laptop after STT. **Not sent to chat.lan.** Wake with hey jarvis,
 
 ## Router
 
-Alias `jarvis` is LiteLLM `complexity_router` (today: heuristic + keyword list).
-**Direction:** native `classifier_type: llm` — see [PLAN.md](PLAN.md).
-Picker is Tony's hatch. chat.lan does **not** show a child-model chip (OWUI rewrites
+Alias `jarvis` is LiteLLM `complexity_router`. For its current configuration, ask
+LiteLLM — `scripts/discover/apps/litellm.sh`. Do not trust a doc for router state.
+**Direction:** native `classifier_type: llm` — see [VISION.md](VISION.md) and BACKLOG.
+Picker is Gordon's hatch. chat.lan does **not** show a child-model chip (OWUI rewrites
 the stream to `jarvis`). Do not spend cycles on one.
 
 Telemetry filter: `[clock ...]` only if present. Live numbers = Hands or home.lan.
@@ -136,4 +145,5 @@ Do not use `DEFAULT_SYSTEM_PROMPT` for this.
 
 ## Copilot
 
-Layered live dump: ./scripts/discover/00-rack.sh through 90-copilot.sh (see docs/COPILOT.md). The old one-shot copilot-discover.sh was removed.
+Layered live dump: `./scripts/discover/00-rack.sh` through `90-copilot.sh`; index in
+[`../scripts/discover/README.md`](../scripts/discover/README.md). Contract: [`../AGENTS.md`](../AGENTS.md).

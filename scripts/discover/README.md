@@ -2,7 +2,7 @@
 
 Run as **agent** on the bastion. No secrets. No Helm blobs. No kubeconfig on a laptop.
 
-Session 0 for a new copilot: run these in order, one paste each (see docs/COPILOT.md).
+Session 0 for a new copilot: whereami + `90-copilot.sh` only (see ../../AGENTS.md).
 Host lists come from inventory/hosts.yml when present.
 
 | Order | Script | Layer | Status |

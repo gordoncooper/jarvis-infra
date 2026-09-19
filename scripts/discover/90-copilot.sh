@@ -20,7 +20,7 @@ ls -1 "$ROOT/scripts/discover/apps"/*.sh | xargs -n1 basename | sed "s|^|apps/|"
 
 echo
 echo "--- infra docs (bytes) ---"
-for f in README.md VERSION docs/COPILOT.md docs/PLAN.md docs/INTERACT.md docs/LESSONS.md docs/OPERATING.md docs/REBUILD.md docs/briefing.md AGENTS.md; do
+for f in README.md VERSION AGENTS.md docs/DECISIONS.md docs/VISION.md docs/INTERACT.md docs/LESSONS.md docs/OPERATING.md docs/REBUILD.md docs/briefing.md; do
   if [ -f "$ROOT/$f" ]; then
     wc -c "$ROOT/$f" | awk '{printf "OK %6s %s\n",$1,$2}'
   else

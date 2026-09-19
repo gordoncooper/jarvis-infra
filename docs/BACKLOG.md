@@ -1,6 +1,6 @@
 # Backlog
 
-Engineering tickets. Product spec: [`PLAN.md`](PLAN.md) (do not append lists there).
+Engineering tickets. Product intent: [`VISION.md`](VISION.md) (do not append lists there).
 Workshop: [`DEVOPS.md`](DEVOPS.md). Footguns: [`LESSONS.md`](LESSONS.md).
 Do not copy pin numbers here. Check a box in git when it ships. One change per session.
 
@@ -55,7 +55,17 @@ Do as **one** image bump (`IMAGE` in VERSION + both `homepage.yaml`). Import on 
 
 ---
 
-## E. Contract / copilot gaps
+## E. Doc debt (found in the 2026-09-19 audit)
+
+- [ ] **med** Decide the six open questions in [`VISION.md`](VISION.md) — agent runtime, orchestrator, model roles, memory, voice, off-LAN. One decision entry each, not a passing mention in a session
+- [ ] **low** `docs/openclaw-identity.md` references `USER.md`, which does not exist. Write it or drop the reference
+- [ ] **low** `docs/persona.txt` and `docs/openclaw-soul.md` are byte-identical. Two copies will drift — make one the source and generate or symlink the other
+- [ ] **low** `docs/LESSONS.md` dated sections mix history with instruction. Consider splitting timeless footguns from the handover narrative
+- [ ] **low** `apps/jarvis-home/BUILD.md` still references the Grok App Builder tree, which the contract forbids as a workshop
+
+---
+
+## F. Contract / copilot gaps
 
 - [ ] **med** Extend `check-contract.sh` for Hands, digest pins, MODEL_FILTER (fail on real drift, not comments)
 - [ ] **med** `learned.md` mode 666 on a hostPath. Tighten ownership without breaking remember / OpenClaw
@@ -65,7 +75,7 @@ Do as **one** image bump (`IMAGE` in VERSION + both `homepage.yaml`). Import on 
 
 ---
 
-## F. Do not put back
+## G. Do not put back
 
 - Exact-phrase `keyword_tier_rules` / intent-gated LIVE dumps into the 7B
 - MutationObserver HUD inject on chat.lan

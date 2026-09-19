@@ -21,8 +21,9 @@ Alignment: `scripts/check-contract.sh`.
 
 | | |
 | --- | --- |
-| Copilot | [AGENTS.md](AGENTS.md) then [docs/COPILOT.md](docs/COPILOT.md) |
-| North star | [docs/PLAN.md](docs/PLAN.md) |
+| Agent contract | [AGENTS.md](AGENTS.md) — start here, always |
+| What was decided | [docs/DECISIONS.md](docs/DECISIONS.md) — dated, outranks all prose |
+| North star | [docs/VISION.md](docs/VISION.md) |
 | Day to day | [docs/INTERACT.md](docs/INTERACT.md) |
 | Operator | [docs/OPERATING.md](docs/OPERATING.md) |
 | Rebuild / restore | [docs/REBUILD.md](docs/REBUILD.md) · [docs/RESTORE.md](docs/RESTORE.md) |
@@ -30,8 +31,11 @@ Alignment: `scripts/check-contract.sh`.
 | Backlog | [docs/BACKLOG.md](docs/BACKLOG.md) |
 | Run as | user **agent** (`HOME=/home/agent`). Never `bastion`. |
 
-**Web Grok:** paste the block at the bottom of [docs/COPILOT.md](docs/COPILOT.md).
-**CLI / Cursor:** Remote-SSH as `agent`, open this repo. Read `AGENTS.md`.
+Three repos: **jarvis-infra** (here — metal, scripts, docs), **cluster** (Flux
+YAML, Gitea origin), **jarvis-core** (prior art, read-only — D-0003).
+
+**Any AI, any surface:** read `AGENTS.md`, then `docs/DECISIONS.md`.
+**CLI / Cursor:** Remote-SSH as `agent`, open this repo.
 Run `scripts/copilot-whereami.sh`. If `MODE=bastion-agent`, use the shell.
 
 ## Intent
@@ -40,12 +44,16 @@ JARVIS is a lab HUD for one operator: talk, remember, see the rack, and
 (when asked) act on the cluster. It is LAN-only until Tailscale. It is not
 a public assistant and not an App Builder scaffold.
 
+The product surface is **jarvis.lan** and the operator surface is **noc.lan**
+(D-0002). The table below is how the house works *today*; chat.lan is being
+demoted to break-glass and home.lan is retiring into noc.lan.
+
 | Kind | Where it happens |
 | --- | --- |
 | Talk / RAG / remember | chat.lan → LiteLLM → 7B on gpu-01 + knowledge |
 | Live inspect / recycle | chat.lan → alias `jarvis-hands` → OpenClaw |
-| YAML / design | `jarvis-grok-code` (Tony can still pick the hatch) |
-| See the rack | [https://home.lan](https://home.lan) tiles + Grafana |
+| YAML / design | `jarvis-grok-code` (Gordon can still pick the hatch) |
+| See the rack | [https://noc.lan](https://noc.lan) · home.lan is legacy · Grafana |
 | Change the house | this repo (metal/image) + `~/cluster` (YAML → Gitea → Flux) |
 
 ## Who does what
@@ -77,7 +85,7 @@ flowchart LR
 
 | Role | May |
 | --- | --- |
-| Gordon | Talk at chat.lan. Tony hatch (`local:` `hands:` `code:` `grok:`). Break-glass agent.lan. |
+| Gordon | Talk at chat.lan. Override hatch (`local:` `hands:` `code:` `grok:`). Break-glass agent.lan. |
 | user `agent` on bastion | kubectl, git, Ansible, Goose. The only kubeconfig. |
 | user `bastion` | Nothing JARVIS. `sudo su - agent`. |
 | Flux | Apply `clusters/jarvis` from Gitea. Not GitHub. |
@@ -266,7 +274,7 @@ flowchart TD
 ```
 
 
-Tony override prefixes stay as a hatch. Do not add more keyword lists.
+Override prefixes stay as a hatch. Do not add more keyword lists.
 Router detail lives in cluster YAML (LiteLLM ConfigMap).
 
 ### Remember
@@ -351,7 +359,7 @@ No `kubectl apply` — Flux only.
 ## Copilot
 
 Session 0 is **whereami + `scripts/discover/90-copilot.sh`**. Then at most
-one more layer from the table in [docs/COPILOT.md](docs/COPILOT.md).
+one more layer from the index in [scripts/discover/README.md](scripts/discover/README.md).
 Do not dump every discover script.
 
     ./scripts/copilot-whereami.sh

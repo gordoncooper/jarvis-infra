@@ -1,9 +1,15 @@
 # JARVIS — mistakes we will not repeat
 
-Lived on the cluster 2026-08-30 -> 2026-09-15.
+Append-only. Each row is a thing that actually broke, and the fix.
 
-Authority: live cluster, then `VERSION`, then [OPERATING.md](OPERATING.md),
-then [REBUILD.md](REBUILD.md). **This file is footguns**, not a veto over VERSION.
+Authority: live cluster, then [DECISIONS.md](DECISIONS.md), then `VERSION`, then
+[OPERATING.md](OPERATING.md), then [REBUILD.md](REBUILD.md). **This file is
+footguns**, not a veto over VERSION.
+
+Read the tables as timeless. The dated sections at the bottom are **history, not
+current state** — they record how a past argument was settled, and several refer
+to surfaces or freezes that no longer exist. Do not take an instruction from a
+dated section without checking it against DECISIONS and the live cluster.
 
 ## Never do these
 

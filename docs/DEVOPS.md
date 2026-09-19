@@ -7,7 +7,7 @@ You are setting up to **build** JARVIS. You are not chatting with JARVIS.
 - Pins: `VERSION` (`GIT_TAG`, `IMAGE`, `K3S`, `MATURITY`). Do not copy numbers into this file.
 - License: [MIT](../LICENSE).
 
-Read this once. Then use [OPERATING.md](OPERATING.md) and [INTERACT.md](INTERACT.md) for daily ops. AIs use [COPILOT.md](COPILOT.md) and [AGENTS.md](../AGENTS.md). Product spec: [PLAN.md](PLAN.md). Repo hygiene: [BACKLOG.md](BACKLOG.md).
+Read this once. Then use [OPERATING.md](OPERATING.md) and [INTERACT.md](INTERACT.md) for daily ops. AIs use [AGENTS.md](../AGENTS.md) then [DECISIONS.md](DECISIONS.md). Product intent: [VISION.md](VISION.md). Repo hygiene: [BACKLOG.md](BACKLOG.md).
 
 ---
 
@@ -167,14 +167,14 @@ The bastion has **no desktop**. The GUI runs on your PC. Files and kubectl stay 
        ~/jarvis-infra/scripts/copilot-whereami.sh
        ~/jarvis-infra/scripts/check-contract.sh
 
-   Wanted: `MODE=bastion-agent`, `HANDS=yes`, `CONTRACT OK`.
+   Wanted: `MODE=bastion-agent`, `HANDS=bastion`, `CONTRACT OK`.
 
 6. Agent in the editor (pick one, BYOK, same xAI key the house already uses) (~10–20 min first time):
 
    - **Cline** in VS Code, or Cursor’s agent.
    - Model: the grok-code id Goose uses (`examples/goose/profiles/` — no secrets in git).
    - API key: on the bastion, `~/.xai-api.key` (mode 600). Point the IDE at that **remote** env; do not paste the key into a laptop file if you can avoid it.
-   - System / rules: [AGENTS.md](../AGENTS.md) and [COPILOT.md](COPILOT.md).
+   - System / rules: [AGENTS.md](../AGENTS.md) and [DECISIONS.md](DECISIONS.md).
 
 Weld is for anything Flux will apply: `~/cluster/clusters/jarvis/**`, homepage image, OpenClaw RBAC, LiteLLM.
 
@@ -254,7 +254,7 @@ sequenceDiagram
   You->>Bastion: verify if pods moved
 ```
 
-Session 0 for an AI (or a human who just sat down): [COPILOT.md](COPILOT.md) — whereami + `90-copilot.sh`, **one** extra discover if needed, then stop and change one thing.
+Session 0 for an AI (or a human who just sat down): [AGENTS.md](../AGENTS.md) — whereami + `90-copilot.sh`, **one** extra discover if needed, then stop and change one thing.
 
 Homepage image: import on `apps-01` **before** Flux (`imagePullPolicy: Never`). See [apps/jarvis-home/README.md](../apps/jarvis-home/README.md).
 
