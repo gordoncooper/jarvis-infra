@@ -79,6 +79,10 @@ rebuild, a wiped disk, or a day of confusion.
 | `~/cluster` | Flux YAML only, `clusters/jarvis/**` | Gitea |
 | `~/jarvis-core` | Prior art. Read-only reference — see D-0003. | GitHub |
 
+Each repo has exactly one rules file: `AGENTS.md` at its root, tracked in git
+(D-0005). Cursor, Goose, and CLI agents all read it. Do not add a
+`.cursor/rules/*.mdc` that restates it — that is a second bible.
+
 ## Reading order
 
 Stop as soon as the task is clear. Do not read the whole tree.

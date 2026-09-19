@@ -14,6 +14,32 @@ and the build pulled apart. Decisions are now dated and ranked above prose.
 
 ---
 
+## 2026-09-19 — D-0005 — One rules file per repo: `AGENTS.md`, tracked in git
+
+**Status:** active
+
+Three repos had three conventions: `jarvis-infra` carried both `AGENTS.md` and
+`.cursor/rules/jarvis.mdc` (which restated it), `cluster` had only `AGENTS.md`,
+and `jarvis-core` had only an untracked `.cursor/rules/rules.mdc`.
+
+Decided: **`AGENTS.md` at the repo root is the only rules file, and it is always
+tracked in git.** The `.mdc` files are deleted.
+
+Two reasons, the second being the practical one:
+
+- A `.mdc` that restates `AGENTS.md` is a second bible in miniature, and both
+  were being injected into the same session — the exact duplication D-0004 exists
+  to stop.
+- `.mdc` is Cursor-only. **Goose reads `AGENTS.md`** (it ships in
+  `CONTEXT_FILE_NAMES` by default) and cannot see `.mdc` at all. With Goose
+  holding a shell and passwordless SSH to every node, repo rules it cannot read
+  are worse than useless. One file that every agent reads beats one file per tool.
+
+Untracked rules are also per-clone rules: an agent on another machine silently
+gets no guidance. If it governs behaviour, it is versioned.
+
+---
+
 ## 2026-09-19 — D-0004 — Governance docs restructured around law / spec / state / history
 
 **Status:** active
