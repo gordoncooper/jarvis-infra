@@ -4,7 +4,7 @@
 set -euo pipefail
 
 HOSTS=(
-  "*.lan" chat.lan jarvis.lan git.lan llm.lan grafana.lan home.lan agent.lan
+  "*.lan" chat.lan jarvis.lan noc.lan git.lan llm.lan grafana.lan home.lan agent.lan
   ctrl-01.lan gpu-01.lan gpu-02.lan data-01.lan data-02.lan apps-01.lan
   localhost 127.0.0.1
 )
