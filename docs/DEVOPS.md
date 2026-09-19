@@ -172,7 +172,7 @@ The bastion has **no desktop**. The GUI runs on your PC. Files and kubectl stay 
 6. Agent in the editor (pick one, BYOK, same xAI key the house already uses) (~10–20 min first time):
 
    - **Cline** in VS Code, or Cursor’s agent.
-   - Model: the grok-code id Goose uses (`examples/goose/config.yaml` — no secrets in git).
+   - Model: the grok-code id Goose uses (`examples/goose/profiles/` — no secrets in git).
    - API key: on the bastion, `~/.xai-api.key` (mode 600). Point the IDE at that **remote** env; do not paste the key into a laptop file if you can avoid it.
    - System / rules: [AGENTS.md](../AGENTS.md) and [COPILOT.md](COPILOT.md).
 

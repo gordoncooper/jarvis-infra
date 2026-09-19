@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Switch the active goose backend profile.
+#   goose-backend            show current
+#   goose-backend xai        direct xAI grok-build-0.1 (metered, external)
+#   goose-backend llm-lan    house LiteLLM at llm.lan (free, on-LAN)
+set -euo pipefail
+
+DIR="${XDG_CONFIG_HOME:-$HOME/.config}/goose"
+PROFILES="$DIR/profiles"
+ACTIVE="$DIR/config.yaml"
+
+usage() {
+  echo "usage: goose-backend [$(ls "$PROFILES" | sed 's/\.yaml$//' | paste -sd'|')]" >&2
+  exit 1
+}
+
+if [ $# -eq 0 ]; then
+  echo "active config: $ACTIVE"
+  grep -E '^(GOOSE_PROVIDER|GOOSE_MODEL|OPENAI_HOST):' "$ACTIVE" || true
+  for p in "$PROFILES"/*.yaml; do
+    name=$(basename "$p" .yaml)
+    cmp -s "$p" "$ACTIVE" && echo "matches profile: $name"
+  done
+  exit 0
+fi
+
+[ $# -eq 1 ] || usage
+SRC="$PROFILES/$1.yaml"
+[ -f "$SRC" ] || usage
+
+install -m 600 "$SRC" "$ACTIVE"
+echo "goose backend -> $1"
+grep -E '^(GOOSE_PROVIDER|GOOSE_MODEL|OPENAI_HOST):' "$ACTIVE" || true
+case "$1" in
+  llm-lan) echo "note: needs OPENAI_API_KEY from ~/.litellm-master.key" ;;
+  xai)     echo "note: needs XAI_API_KEY from ~/.xai-api.key -- metered, bills the xAI account" ;;
+esac
+exit 0

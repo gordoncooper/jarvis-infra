@@ -1,8 +1,0 @@
-GOOSE_MOIM_MESSAGE_FILE: /home/agent/jarvis-infra/docs/briefing.md
-# ~/.config/goose/config.yaml  (no secrets)
-GOOSE_PROVIDER: openai
-GOOSE_MODEL: jarvis-grok-code
-OPENAI_HOST: https://llm.lan
-# Goose adds /v1/chat/completions. Do NOT suffix /v1.
-# http://llm.lan 404s after Traefik TLSStore (no HTTP router).
-GOOSE_TELEMETRY_ENABLED: false

@@ -1,26 +1,28 @@
 # Goose on the bastion
 
-Chat (Open WebUI) uses **jarvis-local** ($0). Goose the agent uses
-**jarvis-grok-code** (xAI API $). The 7B invents shell output (fake EPYC);
-do not use `jarvis-local` for Goose.
+Chat (Open WebUI) uses **jarvis-local** ($0). Goose the agent must not: the 7B
+invents shell output (fake EPYC). Two backend profiles ship here, both pinned to
+a capable model.
+
+| Profile | Backend | Model | Cost |
+| --- | --- | --- | --- |
+| `llm-lan` | LiteLLM at https://llm.lan | jarvis-grok-code | free (on-LAN) |
+| `xai` | xAI API direct | grok-build-0.1 | metered, bills the xAI account |
 
 ```bash
-sudo apt install -y bzip2   # Goose tarball is .bz2
-curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh \
-  | CONFIGURE=false bash
-export PATH="$HOME/.local/bin:$PATH"
-
-mkdir -p ~/.config/goose
-cp examples/goose/config.yaml ~/.config/goose/config.yaml
-printf 'OPENAI_API_KEY: %s\n' "$(cat ~/.litellm-master.key)" \
-  > ~/.config/goose/secrets.yaml
-chmod 600 ~/.config/goose/secrets.yaml
-export OPENAI_API_KEY="$(cat ~/.litellm-master.key)"
-export GOOSE_MODEL=jarvis-grok-code
+./scripts/configure-goose.sh        # installs goose + both profiles + goose-backend
+goose-backend                       # which profile is active
+goose-backend xai                   # switch
+goose-backend llm-lan               # switch back
 
 cd ~/cluster
-goose session   # banner MUST say openai jarvis-grok-code
+goose session   # banner MUST show the profile you expect
 ```
+
+Keys are never in git. `llm-lan` reads `OPENAI_API_KEY` from `~/.litellm-master.key`;
+`xai` reads `XAI_API_KEY` from `~/.xai-api.key`. Both are exported in `~/.bashrc`.
+Do not export `GOOSE_MODEL` there -- an env var outranks the profile and would pin
+both backends to one model.
 
 Trust output only when you see `▸ shell` and it matches `kubectl`/`ssh` you'd run yourself.
 Goose's cwd is the **bastion** (Celeron N5105). Cluster nodes: `ssh gpu-01` / `kubectl`.
