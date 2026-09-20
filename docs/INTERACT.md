@@ -158,7 +158,7 @@ Handled after STT. **Not sent to the orchestrator.** Wake, then say one of:
 
 | Command | Example phrases |
 | --- | --- |
-| stop | go away, that's all, jarvis stop, stand down, good night |
+| stop | stop, go away, that's all, jarvis stop, stand down, good night |
 | pause | pause, stand by |
 | resume | resume, I'm back, carry on |
 | repeat | repeat, say that again |

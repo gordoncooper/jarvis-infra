@@ -12,8 +12,8 @@ from io import BytesIO
 from pathlib import Path
 
 # Prefer CPU for openWakeWord / onnxruntime (LESSONS: CUDA warning is noise).
-os.environ.setdefault("ORT_EXECUTION_PROVIDERS", "CPUExecutionProvider")
-os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+os.environ["ORT_EXECUTION_PROVIDERS"] = "CPUExecutionProvider"
 
 ENV_PATH = Path.home() / ".config/jarvis-wake/env"
 SESSION_PATH = Path.home() / ".config/jarvis-wake/session"
@@ -72,8 +72,10 @@ def norm_cmd(s: str) -> str:
 
 
 # Local only. Never sent to the orchestrator.
+# Single-token phrases match the whole utterance only (so "stop the music" stays a turn).
 COMMANDS = {
     "stop": (
+        "stop",
         "go away",
         "go away now",
         "you can go away",
@@ -109,7 +111,10 @@ def match_cmd(text: str) -> str | None:
     padded = f" {n} "
     for kind, phrases in COMMANDS.items():
         for ph in phrases:
-            if n == ph or padded.find(f" {ph} ") >= 0:
+            if " " not in ph:
+                if n == ph:
+                    return kind
+            elif n == ph or padded.find(f" {ph} ") >= 0:
                 return kind
     return None
 
@@ -339,8 +344,16 @@ def resolve_mic(mic_spec: str):
 
 
 def load_wake():
+    import warnings
+
     import requests
     from openwakeword.model import Model
+
+    warnings.filterwarnings(
+        "ignore",
+        message=".*CUDAExecutionProvider.*",
+        category=UserWarning,
+    )
 
     cache = CACHE_DIR / "models"
     cache.mkdir(parents=True, exist_ok=True)
@@ -362,11 +375,13 @@ def load_wake():
     jarvis = str(cache / "hey_jarvis_v0.1.onnx")
     melspec = str(cache / "melspectrogram.onnx")
     embed = str(cache / "embedding_model.onnx")
+    # Prefer onnx + explicit paths; openWakeWord may still probe CUDA — warning filtered above.
     try:
         return Model(
             wakeword_model_paths=[jarvis],
             melspec_onnx_model_path=melspec,
             embedding_onnx_model_path=embed,
+            inference_framework="onnx",
         )
     except TypeError:
         try:
@@ -444,6 +459,7 @@ def run_doctor(cfg: dict[str, str]) -> int:
                 print(f"WARN: {flag} unavailable — listening will be degraded")
         api.ensure_session()
         print(f"session: {api.session_id}")
+        save_session(api.session_id)
     except Exception as e:
         print(f"orchestrator unreachable: {e}")
         return 1
