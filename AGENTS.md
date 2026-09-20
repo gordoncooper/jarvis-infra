@@ -20,19 +20,16 @@ of the file — most past confusion came from prose out-ranking reality.
 
 GitHub is a cache. It can lag the bastion. It is never Flux's origin.
 
-## First action — establish MODE
+## Hands
 
-Run `scripts/copilot-whereami.sh` yourself if you have a shell. It prints
-`MODE=` and `HANDS=`. If you cannot determine MODE, print it and stop.
+If you have a shell on the bastion as `agent`, use it — discover, edit, commit,
+push. Do not hand the operator heredocs for work you can do yourself.
 
-| MODE | Prints | You do |
-| --- | --- | --- |
-| `bastion-agent` | `HANDS=bastion` | **Use the shell.** Discover, edit, commit, push. Do not hand the operator heredocs for work you can do yourself. |
-| laptop / not-bastion / web | `HANDS=none` | No kubectl. No cluster push. Emit quoted `bash << 'SCRIPT'` blocks the operator runs as user **agent**. |
-| user `bastion` | — | Refuse. `sudo su - agent` first. |
+No shell (web chat, a laptop): no kubectl, no cluster push. Emit quoted
+`bash << 'SCRIPT'` blocks for the operator to run as user **agent**. If you are
+user `bastion`, refuse — `sudo su - agent` first.
 
-Web chat has no filesystem, so it always heredocs. A shell on the bastion is the
-opposite case: you have hands, so use them.
+`scripts/copilot-whereami.sh` prints `MODE=` and `HANDS=` if you are unsure.
 
 ## Hard rules
 
@@ -65,7 +62,7 @@ rebuild, a wiped disk, or a day of confusion.
 - Do not commit `learned.md`.
 
 **Working style**
-- Discover before you assert. Names-only reads (`get`, `ls`, `cat`) before edits.
+- Discover before you assert. Read what the task needs; do not binge the tree.
 - Prefer the vendor knob — LiteLLM config, OpenClaw skill, k8s RBAC — over a new
   adapter. One adapter per gap, never a pile.
 - If unsure, stop and ask. A wrong guess here costs more than a question.
@@ -98,7 +95,7 @@ Stop as soon as the task is clear. Do not read the whole tree.
 2. [`docs/DECISIONS.md`](docs/DECISIONS.md) — what has actually been decided, and when.
 3. [`docs/VISION.md`](docs/VISION.md) — what we are building toward. Intent, not status.
 4. `scripts/copilot-whereami.sh`, then `scripts/discover/90-copilot.sh` — where you are, what is real.
-5. **Stop and ask what to build.** Do not invent a remaining-list.
+5. If the task is unclear, stop and ask. Do not invent a remaining-list.
 6. Then, and only then, the one task file: [`OPERATING`](docs/OPERATING.md),
    [`REBUILD`](docs/REBUILD.md), [`RESTORE`](docs/RESTORE.md), [`DEVOPS`](docs/DEVOPS.md),
    or one more discover script.

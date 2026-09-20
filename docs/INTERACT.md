@@ -15,7 +15,10 @@ into `noc.lan`; it still serves today, so it is listed as legacy, not as the boa
 | Legacy telemetry | https://home.lan/api/telemetry | JSON: source, GPUs, events, `podsByNode` | — |
 | Chat (break-glass) | https://chat.lan | Q&A, RAG, voice when the glass is down | `jarvis-local` free; `jarvis-grok*` SuperGrok |
 | Agent (break-glass) | http://agent.lan:18789 | Cluster ops, files, live metrics | `jarvis-grok-code` (API) |
-| Goose | `goose session` on bastion | Terminal agent on the git repos | Profile-switched: `llm-lan` (jarvis-grok-code, free) or `xai` (grok-build-0.1, metered). **Never jarvis-local** — the 7B invents shell output. |
+| Cursor | Remote-SSH as `agent` | Architecture, decisions, cross-repo work | Whatever model this window is | 
+| Claude Code | `claude` on bastion | Bulk implementation in one repo | Subscription; long runs are cheap |
+| Grok CLI | `grok` on bastion | Short edits, headless checks | `grok-4.6` in `~/.grok/config.toml`; metered `XAI_API_KEY` |
+| Goose | `goose session` on bastion | On-node SSH, cheap loops | Profile-switched: `llm-lan` (free) or `xai` (`grok-build-0.1`, metered). **Never jarvis-local** — the 7B invents shell output. |
 | Grafana | https://grafana.lan | Graphs (NVIDIA 14574) | — |
 | API | https://llm.lan/v1 | Anything OpenAI-shaped | LiteLLM |
 | GitOps | http://git.lan | YAML in `~/cluster` as **agent** | — |

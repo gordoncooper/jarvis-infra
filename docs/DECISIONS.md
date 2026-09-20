@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0008 | Claude/Grok deny list is irreversible-only; `kubectl apply` is shell-guarded with a `--dry-run` exception |
 | D-0007 | Hard rules are enforced as deny rules and a shell guard, not prose alone |
 | D-0006 | Claude Code and Grok CLI are sanctioned bastion agents; both read `AGENTS.md` |
 | D-0005 | One rules file per repo: `AGENTS.md`, tracked in git |
@@ -24,6 +25,20 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-19 — D-0008 — Prefix deny rules cannot express “except dry-run”
+
+**Status:** active. Narrows D-0007.
+
+`.claude/settings.json` prefix rules match `kubectl apply --dry-run` the same as
+a real apply, so they blocked a read-only check. `kubectl replace` is
+Flux-recoverable, same as patch.
+
+Claude/Grok deny is now only irreversible ops (PVC/PV/namespace delete,
+force-push, `git tag -f`, key material). `kubectl apply` lives only in
+`~/.agent-guard.sh`, which lets `--dry-run` through.
 
 ---
 
@@ -50,8 +65,10 @@ ordinary deletes are deliberately left alone — Flux reconciles them within a
 minute, and blocking routine debugging is how a guard earns itself a
 `--dangerously-skip-permissions` habit, after which nothing is protected.
 Blocked instead: `kubectl apply`/`replace` (named in law, and how drift starts),
-deleting a PVC, PV or namespace, force-push, `git tag -f`, and reads of key
-material. `learned.md` is gitignored in all three repos rather than merely
+deleting a PVC, PV or namespace, `git push --force`, `git tag -f`, and reads of
+key material. `--force-with-lease` is deliberately left available: it is the
+safe variant, and blocking it was a false positive worth fixing rather than
+tolerating. `learned.md` is gitignored in all three repos rather than merely
 forbidden in prose.
 
 Two hatches, kept separate so running an install script does not also unlock

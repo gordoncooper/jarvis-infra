@@ -32,7 +32,7 @@ Three repos: `jarvis-infra` (here), `cluster` (Flux YAML, Gitea origin), and
 - `agent.lan` DNS is **192.168.8.16** (hostPort 18789, HTTP). `git.lan` stays HTTP.
 - Ask for bastion `cat` / `ls` / `kubectl` before changing cluster YAML. Do not assume a laptop clone is canonical.
 - Pastes **to an operator who must run them** go in a quoted heredoc. On the bastion as
-  `agent` with a shell, run the command yourself instead — see the MODE table in AGENTS.md.
+  `agent` with a shell, run the command yourself instead — see Hands in AGENTS.md.
   `ssh -n` except when stdin **is** the remote program. No gzip+base64 YAML in chat.
 - Architecture READMEs stay full mermaid **in git**. Chat may summarize.
 
