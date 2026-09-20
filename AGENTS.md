@@ -80,8 +80,9 @@ rebuild, a wiped disk, or a day of confusion.
 | `~/jarvis-core` | Prior art. Read-only reference — see D-0003. | GitHub |
 
 Each repo has exactly one rules file: `AGENTS.md` at its root, tracked in git
-(D-0005). Cursor, Goose, and CLI agents all read it. Do not add a
-`.cursor/rules/*.mdc` that restates it — that is a second bible.
+(D-0005). Cursor, Goose, Claude Code, and Grok CLI all read it. Do not add a
+`.cursor/rules/*.mdc` or a `CLAUDE.md` that restates it — that is a second
+bible, and a `CLAUDE.md` silently outranks this file for Claude Code (D-0006).
 
 ## Reading order
 

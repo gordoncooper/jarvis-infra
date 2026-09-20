@@ -14,6 +14,32 @@ and the build pulled apart. Decisions are now dated and ranked above prose.
 
 ---
 
+## 2026-09-19 — D-0006 — Claude Code and Grok CLI are sanctioned bastion agents
+
+**Status:** active
+
+Both are installed on the bastion as user `agent` and both read repo
+`AGENTS.md`, so D-0005 holds across all three agents now in play (Cursor,
+Goose, Claude Code, Grok CLI).
+
+Two conditions make that true, and neither is obvious:
+
+- **Claude Code** reads `AGENTS.md` only as a *fallback*, when a repo has no
+  `CLAUDE.md`. None of the three repos has one. **Do not add a `CLAUDE.md`** —
+  it silently wins over `AGENTS.md` and re-creates the second bible.
+- **Grok CLI** loads project instructions only in a **trusted folder**. All
+  three repos have been granted trust. In an untrusted clone it loads nothing
+  and answers from pretraining *without saying so* — asked cold, it claimed
+  GitHub was Flux's origin. Verify with `grok inspect`, which prints the files
+  actually loaded. Never trust the model's own account of its context.
+
+Grok's default model is pinned to `grok-4.6` in `~/.grok/config.toml`. The
+shipped default was non-reasoning and got the Flux-origin question wrong even
+with the contract loaded. Metered on `XAI_API_KEY`, the same key as Goose's
+`xai` profile (D-0001).
+
+---
+
 ## 2026-09-19 — D-0005 — One rules file per repo: `AGENTS.md`, tracked in git
 
 **Status:** active
