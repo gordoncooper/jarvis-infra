@@ -31,7 +31,8 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 
 - Explicit: **remember that …** / **forget …** — auto-save / tombstone.
 - Non-explicit preference/identity (“I prefer…”, “my name is…”) → Confirm/Cancel
-  (or wake `yes`/`cancel`) before write (D-0024).
+  (or wake `yes`/`cancel`) before write (D-0024). Soft facts heuristics miss may
+  still propose via local LLM extract (D-0025); still confirm-gated.
 - Sessions survive orchestrator restart (`sessions.sqlite` on NFS).
 
 Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Gordon's

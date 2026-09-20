@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0025 | LLM memory candidate extract after heuristic miss (confirm-gated) |
 | D-0024 | Memory confirm heuristics + durable session sqlite on NFS |
 | D-0023 | Hands slice 2: confirm verbs recycle_pod + restart_deploy |
 | D-0022 | Hands slice 1: three trusted verbs via OpenClaw constrained `/v1/verbs` |
@@ -41,6 +42,18 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-20 — D-0025 — LLM memory candidate extract
+
+**Status:** active. Extends D-0024.
+
+After talker turns, if heuristic candidates miss and the utterance is eligible
+(not short, not lab/metrics, not yes/cancel), the orchestrator calls
+`jarvis-local` non-stream JSON extract (`{"fact":…|null}`). Still **confirm-
+gated** — never auto-writes. Timeout/failure → no propose. Heuristics remain
+the fast path.
 
 ---
 
