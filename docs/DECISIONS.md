@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0023 | Hands slice 2: confirm verbs recycle_pod + restart_deploy |
 | D-0022 | Hands slice 1: three trusted verbs via OpenClaw constrained `/v1/verbs` |
 | D-0021 | Product k8s/image names; implementation cuts start at v0.6.0 |
 | D-0020 | Product code in `jarvis-app`; Python orchestrator + themed TS glass; `/v1` + SSE |
@@ -42,9 +43,30 @@ short — this file is authority #2, so every agent pays to read it.
 
 ---
 
+## 2026-09-20 — D-0023 — Hands slice 2: confirm-class recycle verbs
+
+**Status:** active. Extends D-0022 with Gordon-named **confirm** verbs.
+
+| Verb | Class | Args | Backend |
+| --- | --- | --- | --- |
+| `apps.recycle_pod` | confirm | `namespace`, `name` | `k8s.js delete-pod` |
+| `apps.restart_deploy` | confirm | `namespace`, `name` | `k8s.js restart-deploy` |
+
+Namespaces allowlisted only: `apps`, `inference`, `agents`, `monitoring`
+(existing `openclaw-recycle` Roles — **no RBAC widen**).
+
+**Path:** match → session pending (90s) → glass Confirm/Cancel or wake/typed
+`yes`/`cancel` → shim `POST /v1/verbs` with `confirmed:true` → audit.
+Shim refuses write verbs without `confirmed`.
+
+Trusted read verbs from D-0022 unchanged.
+
+---
+
 ## 2026-09-20 — D-0022 — Hands slice 1: three trusted verbs
 
 **Status:** active. Names the first product verbs under D-0009 / D-0010.
+Confirm/recycle verbs: see D-0023.
 
 Gordon confirmed the catalog. **Trusted** (auto-run, no confirm UI):
 
@@ -56,7 +78,7 @@ Gordon confirmed the catalog. **Trusted** (auto-run, no confirm UI):
 
 **Path:** glass/wake → orchestrator heuristic match → OpenClaw shim
 `POST /v1/verbs` with `{verb}` (not free-form agent chat) → audit row → reply.
-No RBAC widen. Recycle/delete verbs remain unnamed.
+No RBAC widen. Confirm-class recycle verbs: D-0023.
 
 **Classifier:** ingress regex on the orchestrator for v1; may add LLM classify
 later without changing the verb boundary.

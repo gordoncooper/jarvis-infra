@@ -35,6 +35,7 @@ RATE = 16000
 CHUNK = 1280
 
 # Drop before /v1/turns (STT noise / truncated wake tail).
+# Affirm/cancel for Hands confirm are NOT junk — see _CONFIRM_FORWARD.
 _JUNK = frozenset(
     {
         "a",
@@ -55,8 +56,23 @@ _JUNK = frozenset(
         "you",
         "yeah",
         "yep",
-        "yes",
         "hey",
+    }
+)
+# Exact tokens always forwarded (orchestrator no-ops if nothing pending).
+_CONFIRM_FORWARD = frozenset(
+    {
+        "yes",
+        "yep",
+        "yeah",
+        "confirm",
+        "cancel",
+        "no",
+        "nope",
+        "ok",
+        "okay",
+        "stop",
+        "abort",
     }
 )
 _WAKE_PREFIX = re.compile(
@@ -175,6 +191,11 @@ def is_junk_transcript(text: str) -> bool:
     if not n:
         return True
     tokens = n.split()
+    # Hands confirm replies must reach the orchestrator (D-0023).
+    if len(tokens) == 1 and tokens[0] in _CONFIRM_FORWARD:
+        return False
+    if n in ("do it", "go ahead", "never mind"):
+        return False
     if len(tokens) == 1 and tokens[0] in _JUNK:
         return True
     if len(n) < 2:

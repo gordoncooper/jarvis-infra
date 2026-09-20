@@ -77,6 +77,10 @@ Skills (must mount on **both** gateway and openai-shim): `cluster-health`,
 `cluster-metrics`, `lab-map`. Recycle OpenClaw with scale 0→1 (or wait until the
 old pod is fully gone) — `hostPort: 18789` races if two pods overlap.
 
+**Confirm verbs (D-0023):** `apps.recycle_pod`, `apps.restart_deploy` — glass shows
+Confirm/Cancel; wake/typed `yes` / `cancel`. Never auto-run. Namespaces:
+apps / inference / agents / monitoring only (existing recycle Role; no widen).
+
 - Goose stays operator-on-bastion. Do not nest Goose inside OpenClaw.
 - Writes **slice 1** (git): Role `openclaw-recycle` in apps, inference, agents, monitoring
   — delete pods, patch deployments. No secrets, no kube-system, no Flux, no git edits.
