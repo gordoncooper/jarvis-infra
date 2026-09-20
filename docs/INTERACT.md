@@ -118,17 +118,36 @@ python3 -m venv ~/.local/jarvis-wake
 ~/.local/jarvis-wake/bin/pip install -r ~/requirements-wake.txt
 ```
 
+### Refresh script / env from bastion
+
+```bash
+scp agent@192.168.8.10:jarvis-infra/scripts/jarvis-wake.py ~/jarvis-wake.py
+scp agent@192.168.8.10:.config/jarvis-wake/env ~/.config/jarvis-wake/env
+```
+
+Optional knobs in `env` (defaults shown in `scripts/jarvis-wake.env.example`):
+`WAKE_THR`, `WAKE_HITS`, `SILENCE_SEC`, `MIN_UTTER`, `MAX_UTTER`, `COOLDOWN_SEC`,
+`VERIFY_TLS`, `MIC_DEVICE`.
+
+### Doctor
+
+```bash
+~/.local/jarvis-wake/bin/python ~/jarvis-wake.py --doctor
+~/.local/jarvis-wake/bin/python ~/jarvis-wake.py --list-devices
+```
+
 ### Run
 
 ```bash
 ~/.local/jarvis-wake/bin/python ~/jarvis-wake.py
 ```
 
-Headphones on (Piper can re-trigger the wake word). Say **hey jarvis**, then the
-question. Glass PTT on https://jarvis.lan still works if you would rather click.
+Headphones on (Piper can re-trigger the wake word; `COOLDOWN_SEC` helps). Say
+**hey jarvis**, then the question. Glass PTT on https://jarvis.lan still works
+if you would rather click.
 
-Expected noise: onnxruntime may warn that `CUDAExecutionProvider` is missing —
-CPU is fine (LESSONS).
+The listener forces CPU for onnxruntime. Short junk transcripts (`you`, `uh`)
+are dropped; leading “hey jarvis” is stripped from STT.
 
 Local UX commands stay on the client after STT. Live numbers are Hands or
 home.lan — do not add per-question injects on the laptop.

@@ -70,7 +70,7 @@ dated section without checking it against DECISIONS and the live cluster.
 - Piped `ssh -n … | ssh -n tee` writes empty tarballs and `pipefail` aborts at hostPaths. `-n` only on the producer.
 - OpenClaw agent timeout 180s (90s timed out cold Hands). Secret phrase is briefing blue-banana-42, not learned.md silver-orbit-3. Do not add exact-phrase keyword_tier_rules.
 
-- Laptop `jarvis-wake.py` is transport only (mic → Voice chat → speaker). Never special-case questions on the laptop.
+- Laptop `jarvis-wake.py` is transport only (mic → jarvis.lan orchestrator → speaker). Local UX commands stay on the client; never special-case questions as verbs.
 - Wall clock is one `[clock …]` line from the OWUI filter (America/Los_Angeles) on every chat.lan turn. Do not inject per-question facts in the listener.
 - Listener commands (stop/pause/resume/repeat/mute/status) run after STT and must not be POSTed to chat.lan.
 - openWakeWord CUDA warning on the laptop is fine (CPUExecutionProvider).
