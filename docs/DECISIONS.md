@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0028 | Orchestrator-owned list memories; broader delete/remove forget phrases |
 | D-0027 | Forget / forget-all are confirm-class (same UI as soft remember) |
 | D-0026 | Memory/Hands UX: prefer-before-verb, scrub, °F, list pods |
 | D-0025 | LLM memory candidate extract after heuristic miss (confirm-gated) |
@@ -44,6 +45,18 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-20 — D-0028 — List memories + natural delete phrasing
+
+**Status:** active. Extends D-0027.
+
+`list memories` / `what do you remember` returns promoted sqlite facts from the
+orchestrator (trusted read) — the talker must not invent a memory inventory.
+`delete/remove the memory about …` and `remove my preference for …` are
+forget-class (confirm-gated). Duplicate explicit/soft remembers reply
+“Already noted” instead of inserting again.
 
 ---
 

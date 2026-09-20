@@ -29,8 +29,11 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 
 ## Product memory (jarvis.lan)
 
-- Explicit: **remember that …** — auto-save. **forget …** / **forget everything**
-  → Confirm/Cancel before tombstone (D-0027); multi-match lists what will go.
+- Explicit: **remember that …** — auto-save (deduped). **forget …** /
+  **delete the memory about …** / **forget everything** → Confirm/Cancel
+  before tombstone (D-0027–D-0028); multi-match lists what will go.
+- **list memories** / **what do you remember** — orchestrator lists promoted
+  facts (not the talker).
 - Non-explicit preference/identity (“I prefer…”, “my name is…”) → Confirm/Cancel
   (or wake `yes`/`cancel`) before write (D-0024). Soft facts heuristics miss may
   still propose via local LLM extract (D-0025); still confirm-gated.
