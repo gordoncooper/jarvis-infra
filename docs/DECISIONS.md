@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0030 | jarvis.lan globe-as-stage (godseye); React+R3F via esbuild; classifier next |
 | D-0029 | jarvis.lan Mark HUD cockpit + theme library; classifier next |
 | D-0028 | Orchestrator-owned list memories; broader delete/remove forget phrases |
 | D-0027 | Forget / forget-all are confirm-class (same UI as soft remember) |
@@ -49,23 +50,47 @@ short — this file is authority #2, so every agent pays to read it.
 
 ---
 
+## 2026-09-20 — D-0030 — jarvis.lan globe-as-stage; React+R3F via esbuild
+
+**Status:** active. Tightens D-0029 look-and-feel. Theme-pack library still
+stands. Does not reopen Vite / App Builder / a glass dev server.
+
+jarvis.lan is a **stage**: a WebGL globe you look through, with docked
+holographic chrome (ribbon, dossier chip, floating channel, arc meters,
+ticker, CMD). Not a three-column form. Empty channel reveals Earth.
+
+Product pack: `godseye`. `mark-hud` is archived (rebuildable 3-column).
+`archive-gold` stays rebuildable. Pin `JARVIS_THEME` as today.
+
+Glass may use **React + three + R3F + drei + motion**, bundled by **esbuild
+to static nginx**. Vite, Tailwind, Recharts, and a port-8080 preview remain
+out. IBM Plex via fontsource (LAN). Tokens: canvas `#07090b`, hair `#1c252e`,
+steel `#8b9aaa`, ink `#e7eef4`, accent `#5eead4`, `--accent-dim` as OKLCH so
+teal does not blow out. Widgets read real `/health` + turn/confirm/PTT — no
+fake telemetry, no noc.lan scrape (D-0012).
+
+**Next product-logic priority:** LiteLLM `classifier_type: llm` (BACKLOG A).
+
+---
+
 ## 2026-09-20 — D-0029 — jarvis.lan Mark HUD cockpit + theme library
 
-**Status:** active. Tightens D-0020 look-and-feel.
+**Status:** look-and-feel SUPERSEDED BY D-0030. Theme library still active.
 
 jarvis.lan is a **cockpit** (rail, stages, meters, console over a dark grid),
 not a centered chat column. Glass `src/` is theme-agnostic. Packs live in
 `jarvis-app/glass/themes/<name>/`. Pin `JARVIS_THEME` in `jarvis-app/VERSION`
-(product pack: `mark-hud`). Rebuild/swap is pack CSS → `npm run build` →
-glass image tag → Flux. `archive-gold` keeps the previous look rebuildable.
+(product pack was `mark-hud`; D-0030 moves product to `godseye`). Rebuild/swap
+is pack CSS → `npm run build` → glass image tag → Flux. `archive-gold` keeps
+the previous look rebuildable.
 
 Mark HUD tokens: canvas `#07090b`, panels `#0c1014` / `#10151b`, hair `#1c252e`,
 steel `#8b9aaa`, text `#e7eef4`, accent `#5eead4` only on LIVE/selected/meters.
 IBM Plex Sans + Mono. Radius 2–4px. Motion 160ms ease-out.
 
 **home.lan** stays until a later deprecation cut (noc.lan after that).
-**Next product priority:** LiteLLM `classifier_type: llm` (BACKLOG A) — no
-keyword-tier PRs meanwhile.
+**Next product priority:** SUPERSEDED BY D-0030 (classifier still next after
+the globe HUD ships).
 
 ---
 

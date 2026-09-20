@@ -3,14 +3,14 @@
 Operator/copilot contract: [OPERATING.md](OPERATING.md). Pins: `~/jarvis-infra/VERSION`.
 Proof: `~/jarvis-infra/scripts/verify-jarvis.sh`.
 
-Product surface is **jarvis.lan** (Mark HUD cockpit, theme packs under
+Product surface is **jarvis.lan** (God’s Eye globe-as-stage, theme packs under
 `jarvis-app/glass/themes/`, pin `JARVIS_THEME`) and the operator surface is
-**noc.lan** (D-0002 / D-0029). Everything else below is break-glass or vendor
+**noc.lan** (D-0002 / D-0030). Everything else below is break-glass or vendor
 UI. `home.lan` is being retired into `noc.lan`; it still serves today.
 
 | Surface | URL / cmd | Best for | Model / cost |
 | --- | --- | --- | --- |
-| **Product** | https://jarvis.lan | Talking to JARVIS. Mark HUD cockpit (D-0029). | — |
+| **Product** | https://jarvis.lan | Talking to JARVIS. Globe-as-stage HUD (D-0030). | — |
 | **NOC** | https://noc.lan | Nodes, workloads, alerts. Renders when the brain is down. | — |
 | Legacy board | https://home.lan | Services + rack + events, click-tile dossiers. Retiring into noc.lan. | — |
 | Legacy telemetry | https://home.lan/api/telemetry | JSON: source, GPUs, events, `podsByNode` | — |
@@ -43,8 +43,8 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 - Sessions survive orchestrator restart (`sessions.sqlite` on NFS).
 
 **Theme swap:** `JARVIS_THEME` in `~/jarvis-app/VERSION`, bump glass image,
-`./scripts/install-images.sh`. Packs: `mark-hud` (product), `archive-gold`.
-See `~/jarvis-app/glass/README.md`.
+`./scripts/install-images.sh`. Packs: `godseye` (product), `mark-hud`
+(archived 3-column), `archive-gold`. See `~/jarvis-app/glass/README.md`.
 
 Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Gordon's
 override. chat.lan does **not** show a model chip — Open WebUI rewrites the stream to

@@ -11,7 +11,7 @@ Not in this file: HUD CSS, mermaid pretty, voice timbre, suggestion chips.
 
 ## A. Product (spec in PLAN)
 
-- [ ] **high** LiteLLM `classifier_type: llm` (grok-fast rubric) then **delete** famous-phrase `keyword_tier_rules`. **Next after D-0029 Mark HUD cockpit.** Done only when PLAN's five pings land. No new keyword PRs while waiting
+- [ ] **high** LiteLLM `classifier_type: llm` (grok-fast rubric) then **delete** famous-phrase `keyword_tier_rules`. **Next after D-0030 God’s Eye glass.** Done only when PLAN's five pings land. No new keyword PRs while waiting
 - [ ] **med** Widen OpenClaw RBAC **only** after Gordon names verbs. Same Hands shim. Cat live Role first. No cluster-admin
 - [ ] **med** Off-LAN: Tailscale (or equivalent). Not a bastion desktop. Not kubeconfig on a laptop. Becomes **high** the day he works off-LAN
 - [ ] **low** gpu-02 stays embed-only until there is a reason for a second chat model (VRAM is free; context switch is not)
@@ -21,7 +21,7 @@ Not in this file: HUD CSS, mermaid pretty, voice timbre, suggestion chips.
 ## B. HUD rebuild (home.lan — deferred)
 
 home.lan image cut is **deferred** until that surface is retired into noc.lan
-(D-0029). Product HUD is jarvis.lan glass (`JARVIS_THEME` packs).
+(D-0030). Product HUD is jarvis.lan glass (`JARVIS_THEME` packs).
 
 Do as **one** image bump (`IMAGE` in VERSION + both `homepage.yaml`). Import on apps-01 **before** Flux. Never retag.
 
