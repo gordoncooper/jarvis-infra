@@ -74,23 +74,34 @@ Hard-won, mostly from [`LESSONS.md`](LESSONS.md):
 
 ## What the third attempt has to answer
 
-These are open. They are the planning agenda, not settled design — see D-0003.
-Do not let an AI session quietly answer one of these in passing; each deserves a
-decision entry.
+Planning agenda for the rebuild (D-0003). Settled items point at a decision;
+the rest stay open until Gordon confirms a dated entry. Do not quietly answer
+an open item in passing.
 
-1. **Agent runtime.** What actually executes verbs? OpenClaw as today, a
-   different framework, or something written here? This is the biggest open
-   question and the one that has churned most.
-2. **Orchestrator.** Where do routing, confirmations, the audit log, and session
-   state live? Today they are smeared across LiteLLM config, OWUI sqlite
-   filters, and an unimplemented `policy.yaml`.
-3. **Which model does what**, and who decides. Classifier, talker, coder, hands.
-4. **Memory.** What JARVIS remembers, where it is written, what is never written,
-   and how it is recalled without a RAG pile.
-5. **Voice.** Wake word, STT, TTS — which parts are cluster units and which are
-   laptop transport.
-6. **Off-LAN.** If the glass is ever reachable from outside, auth stops being
-   optional and this becomes a security design, not a convenience feature.
+1. **Agent runtime.** Partially settled: OpenClaw is break-glass + optional
+   constrained actuator, not the product brain (D-0010). Still open: the exact
+   hands runner shape when verbs land (shim to OpenClaw vs thin in-house).
+2. **Orchestrator.** Settled for shape and impl home: separate Python service;
+   themed TS→static glass in **`jarvis-app`**; Flux in `cluster`; `/v1` API with
+   SSE; theme-swappable look (D-0012, D-0020). v1 glass scope: D-0017.
+3. **Which model does what.** Settled for v1 product pins: talker + classifier
+   `jarvis-local`; one cloud specialist `jarvis-grok`; orchestrator selects ids;
+   no product auto-router; coder deferred; hands not product (D-0019 / D-0011).
+4. **Memory.** Settled for v1 doctrine (D-0013). Glass milestone narrows UI:
+   explicit remember/forget only; confirm cards deferred (D-0017). Still open:
+   schema pin, migrate-off `learned.md`, optional embed projection threshold.
+5. **Voice.** Settled for v1: glass PTT first; laptop `hey jarvis` on the same
+   orchestrator API; cluster Whisper SoT; Piper TTS (second voice allowed
+   later); client-local UX commands; no room mic / custom wake (D-0014).
+   Whisper shape: gpu-02, model `small`, OpenAI transcriptions request/response;
+   orchestrator proxies audio to Whisper (D-0015 pins + D-0016 call path).
+6. **Off-LAN.** Settled for v1: LAN-only product; no auth project until a
+   deliberate off-LAN decision. Dynu / Tailscale noted as future options only
+   (D-0018).
+
+**v1 glass slice (D-0017):** greeting + briefing blurb + thread; new glass +
+orchestrator replace `jarvis-core` on `jarvis.lan`; six-point done bar including
+PTT; confirm cards out until a later decision.
 
 ## Non-goals
 

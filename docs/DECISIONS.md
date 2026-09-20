@@ -17,6 +17,18 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0020 | Product code in `jarvis-app`; Python orchestrator + themed TS glass; `/v1` + SSE |
+| D-0019 | v1 model roles: local talker+classifier; cloud specialist `jarvis-grok`; orchestrator picks |
+| D-0018 | Product stays LAN-only for v1; no auth project until off-LAN is deliberately chosen |
+| D-0017 | v1 glass scope: greeting+briefing blurb+thread; replace stub; PTT in bar; confirm UI deferred |
+| D-0016 | Product STT is orchestrator-proxied (Option Y); supersedes D-0015 call path |
+| D-0015 | Whisper on gpu-02 (`small`); OpenAI transcriptions — call path superseded by D-0016 |
+| D-0014 | v1 voice: glass PTT first; cluster Whisper; Piper TTS; laptop wake on same API |
+| D-0013 | v1 memory: five stores; sqlite promoted on NFS; explicit remember auto-saves |
+| D-0012 | Product path is glass shell + separate orchestrator; anti-smear wiring |
+| D-0011 | v1 glass is LAN-default; one named cloud role allowed, with honest offline fallback |
+| D-0010 | OpenClaw is break-glass + optional constrained actuator; not the product orchestrator |
+| D-0009 | Third attempt builds glass before hands; NL/voice flexible, verb execution rigid |
 | D-0008 | Claude/Grok deny list is irreversible-only; `kubectl apply` is shell-guarded with a `--dry-run` exception |
 | D-0007 | Hard rules are enforced as deny rules and a shell guard, not prose alone |
 | D-0006 | Claude Code and Grok CLI are sanctioned bastion agents; both read `AGENTS.md` |
@@ -25,6 +37,334 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-19 — D-0020 — jarvis-app product repo; orchestrator + themed glass; `/v1` API
+
+**Status:** active. Pins implementation home and v1 API shape under D-0012 / D-0017.
+
+**Repos / layers**
+
+| Layer | Repo | Origin |
+| --- | --- | --- |
+| Metal, law, scripts, SOPS, discover | `jarvis-infra` | GitHub |
+| Flux YAML only | `cluster` | Gitea |
+| Prior art (read-only) | `jarvis-core` | GitHub |
+| **Product: orchestrator, glass, themes** | **`jarvis-app`** (new) | GitHub |
+
+Factory apps JARVIS builds later get **their own repos** (or a products org). Their
+Flux manifests still land in `cluster`. Do not put factory output into
+`jarvis-infra` metal or into `jarvis-app` unless deliberately promoted to product.
+
+**Runtime:** two Deployments — **glass** and **orchestrator** (D-0012). Flux
+YAML in `cluster`; images built from `jarvis-app`.
+
+**Languages:** Python orchestrator (FastAPI/Starlette or equivalent). Glass is
+TypeScript compiled to **static** assets (not a Vite/App Builder greenfield).
+Orchestrator is **theme-agnostic**. Look-and-feel is a **theme pack** in
+`jarvis-app`; swap theme via commit → image/ConfigMap → Flux restart. A theme
+library is allowed; rich dynamic visuals may grow inside themes later without
+moving policy into the glass.
+
+**API (v1):** versioned under `/v1/`. Minimum: `GET /health`, `GET /v1/session`,
+`POST /v1/turns` (text or multipart audio per D-0016), TTS fetch as needed.
+**SSE** for reply streaming is in scope for v1. Further endpoints may be added
+under `/v1/` or a later `/v2/` without breaking clients. Glass sends no model
+ids (D-0019).
+
+**Out:** product source in `cluster`; evolving `jarvis-core` as the app home;
+smearing LiteLLM/OWUI as the product API.
+
+---
+
+## 2026-09-19 — D-0019 — v1 model role pins
+
+**Status:** active. Pins VISION open question 3 / D-0011 for the product path.
+
+The **orchestrator** selects the model id per turn. The glass never shows a
+model picker and never passes LiteLLM aliases. Product traffic does **not** use
+the `jarvis` complexity auto-router or `keyword_tier_rules` as the daily driver.
+
+| Role | LiteLLM id | When |
+| --- | --- | --- |
+| Talker | `jarvis-local` (Ollama 7B) | Default conversation |
+| Classifier | `jarvis-local` | Short classify prompts (remember vs chat, etc.) |
+| Cloud specialist | `jarvis-grok` (`grok-4-fast`) | The one named cloud hop (D-0011) |
+| Embed | `jarvis-embed` | Optional memory projection only |
+| Coder | deferred | Not required for v1 glass; see note below |
+| Hands | not product | `jarvis-hands` / OpenClaw remain break-glass (D-0010) |
+
+**Offline:** if `jarvis-grok` is unreachable, stay on `jarvis-local` and say so.
+If local inference is down, degraded banner (D-0017) — no silent cloud-only
+talker.
+
+**Coder (deferred) means a product role**, not the bastion workshop. When hands
+land, “coder” is an orchestrator-selectable model (likely `jarvis-grok-code`)
+for house tasks spoken through `jarvis.lan` (e.g. draft a Flux diff the verb
+path may apply). It is **not** Claude Code / Grok CLI / Cursor / Goose — those
+stay **operator workshop** agents on the bastion (and guidance in D-0007).
+Building JARVIS and being JARVIS stay separate.
+
+---
+
+## 2026-09-19 — D-0018 — Product is LAN-only for v1; auth waits for off-LAN
+
+**Status:** active. Answers VISION open question 6 for v1.
+
+`jarvis.lan`, the orchestrator, Whisper, and Piper stay **on the LAN**. No
+product off-LAN exposure in v1. No auth/OIDC/SSO project for the glass while
+that is true — LAN trust.
+
+**Before** any product surface is reachable outside the LAN, stop and record a
+new decision for auth and exposure. Silent tunnel / DNS / Traefik tweaks that
+publish the product do not count as “later.”
+
+**Deferred options (known, not chosen):** Gordon has a Dynu domain and a
+personal Tailscale account. Either may be considered when off-LAN is
+deliberately on the table; neither is a v1 dependency or a default. Prefer the
+option that earns its ops cost when that session comes.
+
+Break-glass (`chat.lan`, `agent.lan`, etc.) unchanged and still not the product
+path (D-0002).
+
+---
+
+## 2026-09-19 — D-0017 — v1 glass scope
+
+**Status:** active. Sequences product UI under D-0009 / D-0012.
+
+**Surface:** `jarvis.lan` is a **new** glass shell + **new** orchestrator. They
+**replace** the live `jarvis-core` stub on that Host. Do not evolve the stub in
+place (D-0003). `noc.lan` and break-glass hosts stay independent.
+
+**First viewport:** greeting + short briefing blurb + conversation thread (and
+input / PTT). Not a NOC, not a widget wall, no model picker.
+
+**v1 done bar** (Gordon on `jarvis.lan` only):
+
+1. Feels like JARVIS (not OWUI, not NOC)
+2. Typed conversation with persona; no model picker
+3. Session survives glass restart (D-0013)
+4. Explicit remember / forget per D-0013 auto path
+5. PTT once → orchestrator → Whisper (D-0016) → text reply; Piper when TTS up
+6. Honest degraded state if orchestrator or LLM is down
+
+**Memory UI in this slice:** explicit “remember that…” / “forget…” only
+(auto-save / tombstone). **Confirm cards deferred** — non-explicit candidate
+facts are **not** written in v1 glass (refuse or ignore until confirm UI
+ships). This narrows D-0013’s “confirm non-explicit remembers in glass” for
+the v1 glass milestone only; the doctrine otherwise stands.
+
+**v1 extras kept:** degraded banner that does not depend on the talker; clean
+cutover of `jarvis.lan` ingress to the new glass.
+
+**Out of v1 glass:** hands/verbs, laptop wake as a gate, confirm cards, second
+voice, off-LAN auth, mini-NOC chrome, extending `jarvis-core`.
+
+---
+
+## 2026-09-19 — D-0016 — Product STT is orchestrator-proxied (Option Y)
+
+**Status:** active. SUPERSEDES D-0015’s call-path choice (Option X).
+
+Glass and laptop send **audio to the orchestrator**; the orchestrator calls
+Whisper on gpu-02 and continues the turn with text. Clients do not hold a
+product Whisper URL or STT credential. Whisper remains internal LAN infra
+(Service + NetworkPolicy), OpenAI-compatible, digest-pinned, model `small`,
+request/response — all as in D-0015.
+
+**Why switch:** stronger anti-smear / one front door (D-0012), one product
+credential story, Whisper stays a dumb engine. On this LAN the extra hop is
+not the dominant voice latency (Whisper + talker + TTS are); Option X’s
+responsiveness edge was theoretical for lab scale.
+
+Laptop wake and glass PTT both use this path once they speak to the
+orchestrator API (D-0014).
+
+---
+
+## 2026-09-19 — D-0015 — Whisper service shape (v1)
+
+**Status:** SUPERSEDED BY D-0016 for call path. Placement, model, and API pins
+below still stand.
+
+**Placement:** dedicated Whisper Deployment on **gpu-02** (CUDA). Do not put STT on
+gpu-01 (chat VRAM) or bury it inside OWUI / the orchestrator pod. Embedding on
+gpu-02 stays; STT is not a second chat model (VISION non-goal still holds).
+
+**Model:** pin **`small`** for v1 (better punctuation/accuracy than today’s OWUI
+`base`, still modest next to nomic-embed). Shrink only if measured pressure on
+embed/VRAM demands it.
+
+**API:** OpenAI-compatible `POST /v1/audio/transcriptions`, **request/response
+only** (no streaming partials in v1). Image **digest-pinned** (no `:latest`).
+
+**Product call path:** SUPERSEDED BY D-0016 (Option Y — orchestrator proxies
+audio). Was Option X (clients → Whisper → text → orchestrator).
+
+**Not required for v1:** an explicit concurrency-cap rule (lab scale; GPU-bound
+STT). Add later if abuse or queueing shows up.
+
+**Latency note:** on this LAN the dominant voice delay is Whisper inference +
+talker (+ TTS), not an extra in-cluster hop.
+
+---
+
+## 2026-09-19 — D-0014 — v1 voice stack
+
+**Status:** active. Answers VISION open question 5 for v1.
+
+Voice is **ingress and egress**, not a second brain. Typed and spoken turns both
+become text to the orchestrator (D-0012). Messy STT is expected; verb/memory
+boundaries stay as in D-0009 / D-0013.
+
+**Primary daily path (v1):** push-to-talk / Call-like mic on `jarvis.lan` first.
+**Laptop wake** (`hey jarvis` via openWakeWord / `jarvis-wake.py`) ships as soon
+as it can call the **same orchestrator API** — not a parallel OWUI path. Stock
+wake phrase only; no custom wake model and no always-on cluster room mic in v1.
+
+**STT:** cluster Whisper is the product source of truth. Glass and laptop are
+clients. Browser Web Speech may fallback; OWUI’s embedded Whisper is break-glass
+only, not product SoT.
+
+**TTS:** Piper on-cluster remains the product speaker; keep the GB mapping
+(`alloy` → en_GB-northern_english_male-medium) as the default JARVIS voice. A
+**second** voice may be added later; do not make Kokoro / browser Web API the
+product voice.
+
+**API discipline:** orchestrator returns reply text and may attach or authorize
+a TTS audio reference so clients do not each re-wire Piper. Shared cluster STT
+serves both glass upload and laptop transport.
+
+**Transport rules (keep):** laptop/glass listeners do not special-case questions
+or inject live telemetry. Local UX commands (stop / pause / mute / repeat /
+status) stay on the client after STT and are not chat turns or verbs.
+
+**Degraded:** if Piper or Whisper is down, glass still shows text and says so.
+`chat.lan` voice remains break-glass when the product path is sick.
+
+**v1 extras kept:** shared cluster STT; orchestrator-owned TTS contract; glass
+PTT before chasing perfect wake.
+
+**Out for v1:** always-on room mics, cloud STT/TTS as primary, duplex phone-call
+barge-in as a requirement, custom wake training.
+
+---
+
+## 2026-09-19 — D-0013 — v1 memory doctrine
+
+**Status:** active. Answers VISION open question 4 for v1.
+
+Five kinds of “memory,” one source each. Live cluster truth is **not** a memory
+store — it is queried, never persisted as fact.
+
+| Store | SoT | Writer |
+| --- | --- | --- |
+| Persona | git (`docs/persona.txt`) | Human in git |
+| Briefing (stable world) | git (`docs/briefing.md`) | Human in git |
+| Promoted | sqlite on NFS under `/cluster/nfs/jarvis/` | Orchestrator only |
+| Session | orchestrator-local (survives **glass** restart) | Orchestrator |
+| Live | kubectl / metrics / tools | Nobody as “memory” |
+
+**Promoted:** sqlite rows (id, timestamp, text, source turn, tombstone). Forget is
+first-class (soft-delete + audit line). Embeddings, if used, are a rebuildable
+**projection** of sqlite — not a second source of truth.
+
+**Remember / forget ingress:** clearly marked phrases (“remember that…”,
+“forget…”, and close variants after STT cleanup) may **auto-save** /
+tombstone. Any other candidate fact is shown in the glass and requires
+**confirm** before write. Normalized one-line facts; model inference alone is
+never stored.
+
+**Git boundary:** product “remember” **never** writes git. Promote-to-briefing
+is a later explicit path, not v1. Keep today’s git briefing vs NFS promoted
+split.
+
+**Session durability (v1):** survive glass restart. Surviving orchestrator
+restart (e.g. session sqlite on NFS) is an allowed later enhancement, not
+required for v1.
+
+**Never written:** secrets, tokens, key material, raw vault contents, live
+metric snapshots-as-facts, unconfirmed model inferences, OpenClaw private
+dreams as product memory.
+
+**Product path:** glass reads/writes memory only via the orchestrator (D-0012).
+OWUI filters + hostPath `learned.md` remain break-glass / legacy until migrated;
+they are not the product SoT.
+
+**v1 extras kept on purpose:** confirm UI for non-explicit remembers; forget +
+audit; session that outlives the glass process.
+
+---
+
+## 2026-09-19 — D-0012 — Glass shell + separate orchestrator; no smeared product path
+
+**Status:** active. Answers VISION open question 2 for deployment shape.
+
+The product path is **split**: a glass shell on `jarvis.lan`, and a **separate
+orchestrator** service. The orchestrator owns routing, session state,
+confirmations, the audit log, and (when hands land) verb dispatch.
+
+**Anti-smear:** the glass (and later voice client) talks **only** to the
+orchestrator. No direct product wiring from the glass to LiteLLM, Open WebUI,
+or OpenClaw. Those remain backends the orchestrator may call, or break-glass
+surfaces outside the product path.
+
+`noc.lan` stays independent of the brain (D-0002). `chat.lan` and `agent.lan`
+remain break-glass and are not the product conversation path.
+
+Supersedes: any design that routes `jarvis.lan` through OWUI filters, LiteLLM
+aliases, or OpenClaw as the daily driver (the shape VISION called out as
+smeared).
+
+---
+
+## 2026-09-19 — D-0011 — v1 glass is LAN-default; one named cloud role may hop
+
+**Status:** active. Answers VISION open question 3 for v1.
+
+Classifier and talker for `jarvis.lan` default to on-LAN models (Ollama via
+LiteLLM). One **named** cloud role is allowed from day one (e.g. hard reasoning
+or a later coder path), summoned deliberately — not the married primary brain.
+When that role or the internet is unavailable, the glass degrades honestly and
+keeps serving on LAN. Cloud-only as the primary talker is refused for v1.
+
+Does not settle which exact model fills the cloud role; that is a later pin.
+Operator/break-glass paths (`chat.lan` prefixes, Goose `xai`) stay as they are.
+
+---
+
+## 2026-09-19 — D-0010 — OpenClaw is not the product orchestrator
+
+**Status:** active. Answers VISION open question 1 for the actuator side.
+
+OpenClaw stays on `agent.lan` as **break-glass** and may later execute
+**declared** product verbs as a constrained backend (verb name + args, not
+free-form agent chat). It does **not** own the product glass, routing,
+confirmations, session state, audit log, or verb registry — those live in the
+third-attempt orchestrator.
+
+Do not replace OpenClaw in this planning pass. Do not widen its RBAC unless
+Gordon names the verbs. Revisit replacement only if it keeps fighting verb
+discipline after the glass is real.
+
+---
+
+## 2026-09-19 — D-0009 — Glass before hands; flexible ingress, rigid verbs
+
+**Status:** active. Sequences the third attempt (D-0003).
+
+Build and establish `jarvis.lan` as the calm product surface **before** investing
+in the hands path. When hands land, ship a real verb catalog (`trusted` /
+`confirm` / `refuse`), not a toy read-only stub — flexible enough for daily use,
+including voice (messy STT, missing punctuation).
+
+Split that matters: natural language and voice are flexible at **ingress**;
+execution is rigid at the **boundary** (named verb + args + class + audit). The
+model maps messy speech onto declared verbs; it never invents verbs.
+
+Supersedes: any implication that a thin read-only hands spike precedes glass.
 
 ---
 

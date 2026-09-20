@@ -44,10 +44,11 @@ rebuild, a wiped disk, or a day of confusion.
 **Git and GitOps**
 - Two clones, two remotes. Cluster YAML goes to **Gitea**; everything else to GitHub.
 
-  | Change | Clone | Push to |
-  | --- | --- | --- |
-  | Metal, docs, scripts, images, SOPS | `~/jarvis-infra` | GitHub `jarvis-infra` |
-  | Flux YAML | `~/cluster` | **Gitea** `git.lan/jarvis/cluster.git` |
+| Change | Clone | Push to |
+| --- | --- | --- |
+| Metal, docs, scripts, images, SOPS | `~/jarvis-infra` | GitHub `jarvis-infra` |
+| Product: orchestrator, glass, themes | `~/jarvis-app` | GitHub `jarvis-app` |
+| Flux YAML | `~/cluster` | **Gitea** `git.lan/jarvis/cluster.git` |
 
 - Never point Flux at GitHub. Never push cluster YAML to GitHub as if it were origin.
 - Never `kubectl apply`. Flux owns cluster state. The documented exception is the
@@ -76,6 +77,7 @@ rebuild, a wiped disk, or a day of confusion.
 | --- | --- | --- |
 | `~/jarvis-infra` | Metal, Ansible, scripts, docs, SOPS, this contract | GitHub |
 | `~/cluster` | Flux YAML only, `clusters/jarvis/**` | Gitea |
+| `~/jarvis-app` | Product: orchestrator, glass, themes (D-0020). Create if absent. | GitHub |
 | `~/jarvis-core` | Prior art. Read-only reference — see D-0003. | GitHub |
 
 Each repo has exactly one rules file: `AGENTS.md` at its root, tracked in git
