@@ -78,50 +78,67 @@ questions here. Do not open http://agent.lan:18789 for normal inspect.
   `code:` grok-code, `grok:` grok-4-fast. Slash form too. `code:`/`grok:` skip RAG.
   Do not put prefixes in LiteLLM `keyword_tier_rules`.
 
-## Voice chat (wake-word v0)
+## Voice chat (break-glass on chat.lan)
 
-Pinned sidebar chat **Voice**, model **jarvis**. This is the dedicated voice session
-(not whichever tab you were typing in).
+Pinned sidebar chat **Voice**, model **jarvis**. Dedicated OWUI Call session when
+the product glass is down — **not** the `hey_jarvis` laptop path.
 
-1. https://chat.lan → open **Voice**.
-2. Confirm model is `jarvis` (router). Headphones if Piper is on (Call mode hears the speakers).
-3. Start **Call** / voice mode (phone icon). Talk; silence ends the turn; TTS replies; mic re-arms.
-4. This is **not** `hey_jarvis`. Open WebUI cannot hear a wake word in a silent tab.
-   Stock **hey_jarvis** is a later laptop listener (`openWakeWord`), not a cluster pod.
+1. Open https://chat.lan → **Voice**.
+2. Confirm model is `jarvis` (router). Use headphones if Piper is on.
+3. Start **Call** / voice mode (phone icon). Talk; silence ends the turn; TTS replies.
 
 Idempotent create/pin: `./scripts/ensure-voice-chat.sh`
 
-## Wake word v1 (laptop)
+Open WebUI cannot hear a wake word in a silent tab. For **hey jarvis**, use the
+laptop listener below.
 
-Stock **hey_jarvis** runs on the laptop, not in the cluster. It talks to
-**https://jarvis.lan** (orchestrator via glass) — not `chat.lan` / OWUI (D-0014).
+## Wake word (laptop → jarvis.lan)
 
-1. On bastion: `~/.config/jarvis-wake/env` with `ORCH_URL=https://jarvis.lan`
-   (mode 600, not git). Example: `scripts/jarvis-wake.env.example`.
-2. On the laptop:
-   `mkdir -p ~/.config/jarvis-wake`
-   `scp agent@192.168.8.10:.config/jarvis-wake/env ~/.config/jarvis-wake/env`
-   `scp agent@192.168.8.10:jarvis-infra/scripts/jarvis-wake.py ~/jarvis-wake.py`
-   `scp agent@192.168.8.10:jarvis-infra/scripts/requirements-wake.txt ~/requirements-wake.txt`
-   Ubuntu: `sudo apt-get install -y python3-venv portaudio19-dev ffmpeg`
-   `python3 -m venv ~/.local/jarvis-wake && ~/.local/jarvis-wake/bin/pip install -r ~/requirements-wake.txt`
-   `~/.local/jarvis-wake/bin/python ~/jarvis-wake.py`
-3. Headphones. Say **hey jarvis**, then the question. STT/TTS go through
-   `/v1/stt` and `/v1/tts`; chat turns use `/v1/turns`.
-4. Glass PTT on jarvis.lan still works if you would rather click.
+Stock **hey_jarvis** via openWakeWord on the laptop. Transport only: mic →
+https://jarvis.lan (`/v1/stt`, `/v1/turns`, `/v1/tts`) → speaker (D-0014).
+Not `chat.lan` / OWUI. Do not run this as `agent` on the bastion (no mic).
 
-Do not run `jarvis-wake.py` as `agent` on the bastion (no mic).
+### One-time setup (laptop)
 
-Laptop listener is transport only (mic → orchestrator → speaker). Local UX
-commands stay on the client. Live numbers are Hands or home.lan — do not add
-per-question injects on the laptop.
+Bastion already has `~/.config/jarvis-wake/env` (`ORCH_URL=https://jarvis.lan`,
+mode 600, not git). Example: `scripts/jarvis-wake.env.example`.
+
+```bash
+# packages
+sudo apt-get install -y python3-venv portaudio19-dev ffmpeg
+
+# files from bastion
+mkdir -p ~/.config/jarvis-wake
+scp agent@192.168.8.10:.config/jarvis-wake/env ~/.config/jarvis-wake/env
+scp agent@192.168.8.10:jarvis-infra/scripts/jarvis-wake.py ~/jarvis-wake.py
+scp agent@192.168.8.10:jarvis-infra/scripts/requirements-wake.txt ~/requirements-wake.txt
+
+# venv
+python3 -m venv ~/.local/jarvis-wake
+~/.local/jarvis-wake/bin/pip install -r ~/requirements-wake.txt
+```
+
+### Run
+
+```bash
+~/.local/jarvis-wake/bin/python ~/jarvis-wake.py
+```
+
+Headphones on (Piper can re-trigger the wake word). Say **hey jarvis**, then the
+question. Glass PTT on https://jarvis.lan still works if you would rather click.
+
+Expected noise: onnxruntime may warn that `CUDAExecutionProvider` is missing —
+CPU is fine (LESSONS).
+
+Local UX commands stay on the client after STT. Live numbers are Hands or
+home.lan — do not add per-question injects on the laptop.
 
 ### Laptop listener commands
 
-Handled on the laptop after STT. **Not sent to the orchestrator.** Wake with hey jarvis, then:
+Handled after STT. **Not sent to the orchestrator.** Wake, then say one of:
 
 | Command | Example phrases |
-|---|---|
+| --- | --- |
 | stop | go away, that's all, jarvis stop, stand down, good night |
 | pause | pause, stand by |
 | resume | resume, I'm back, carry on |
@@ -130,7 +147,11 @@ Handled on the laptop after STT. **Not sent to the orchestrator.** Wake with hey
 | unmute TTS | unmute replies, speak again |
 | status | status, are you listening |
 
-`python3 ~/jarvis-wake.py --commands` prints the list. Ctrl-C still works.
+```bash
+~/.local/jarvis-wake/bin/python ~/jarvis-wake.py --commands
+```
+
+Ctrl-C also stops the listener.
 
 ## Router
 
