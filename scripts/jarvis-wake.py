@@ -10,10 +10,6 @@ import wave
 from io import BytesIO
 from pathlib import Path
 
-import numpy as np
-import requests
-import sounddevice as sd
-
 ENV_PATH = Path.home() / ".config/jarvis-wake/env"
 SESSION_PATH = Path.home() / ".config/jarvis-wake/session"
 RATE = 16000
@@ -104,6 +100,8 @@ class Orch:
     """Glass front door → orchestrator /v1 (D-0012 / D-0014 / D-0016)."""
 
     def __init__(self, url: str, session_id: str | None = None):
+        import requests
+
         self.base = url.rstrip("/")
         self.session_id = (session_id or "").strip() or None
         self.s = requests.Session()
@@ -156,7 +154,9 @@ class Orch:
         return r.content
 
 
-def wav_bytes(pcm: np.ndarray) -> bytes:
+def wav_bytes(pcm) -> bytes:
+    import numpy as np
+
     buf = BytesIO()
     with wave.open(buf, "wb") as w:
         w.setnchannels(1)
@@ -167,6 +167,9 @@ def wav_bytes(pcm: np.ndarray) -> bytes:
 
 
 def beep():
+    import numpy as np
+    import sounddevice as sd
+
     t = np.linspace(0, 0.12, int(RATE * 0.12), False)
     tone = (0.18 * np.sin(2 * np.pi * 880 * t) * 32767).astype(np.int16)
     sd.play(tone, RATE)
@@ -174,11 +177,14 @@ def beep():
 
 
 def play_audio(data: bytes):
+    import numpy as np
+    import sounddevice as sd
+    from shutil import which
+    import subprocess
+
     suffix = ".wav" if data[:4] == b"RIFF" else ".mp3"
     path = Path("/tmp/jarvis-wake-reply").with_suffix(suffix)
     path.write_bytes(data)
-    from shutil import which
-    import subprocess
 
     for cmd in (
         ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(path)],
@@ -198,6 +204,7 @@ def play_audio(data: bytes):
 
 
 def load_wake():
+    import requests
     from openwakeword.model import Model
 
     cache = Path.home() / ".cache/jarvis-wake/models"
@@ -245,11 +252,16 @@ def main():
     ap.add_argument("--list-devices", action="store_true")
     ap.add_argument("--commands", action="store_true")
     args = ap.parse_args()
-    if args.list_devices:
-        print(sd.query_devices())
-        return
     if args.commands:
         print(cmd_help())
+        return
+
+    import numpy as np
+    import requests
+    import sounddevice as sd
+
+    if args.list_devices:
+        print(sd.query_devices())
         return
 
     cfg = load_env(Path(args.env))
