@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0027 | Forget / forget-all are confirm-class (same UI as soft remember) |
 | D-0026 | Memory/Hands UX: prefer-before-verb, scrub, °F, list pods |
 | D-0025 | LLM memory candidate extract after heuristic miss (confirm-gated) |
 | D-0024 | Memory confirm heuristics + durable session sqlite on NFS |
@@ -43,6 +44,26 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-20 — D-0027 — Forget is confirm-class
+
+**Status:** active. Tightens D-0013 / D-0024.
+
+Durable **deletes** use the same Confirm/Cancel path as soft remembers and
+Hands confirm verbs. `forget …` / `stop remembering …` preview matching facts
+(and may list several); `forget everything` / `clear my memory` previews all
+active promoted facts. Yes tombstones the previewed set; cancel writes nothing.
+
+Explicit **remember that…** stays auto (named constructive ingress, D-0013).
+Soft preference/identity writes stay confirm (D-0024). Classification:
+
+| Action | Class |
+| --- | --- |
+| Explicit remember | trusted (auto) |
+| Soft remember / LLM extract propose | confirm |
+| Forget / forget-all | confirm |
 
 ---
 
