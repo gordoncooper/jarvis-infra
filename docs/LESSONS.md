@@ -53,6 +53,8 @@ dated section without checking it against DECISIONS and the live cluster.
 | `kubectl` on a node (no kubeconfig) | dial localhost:8080 | kubectl on the bastion as agent only |
 | Copy kubeconfig to a laptop / Cursor | split-brain; house-fire of the API | Bastion-only. Laptop clones are caches. |
 | `git push` jarvis-cluster to GitHub from a laptop | Flux never sees it (Gitea is origin) | Push from bastion `~/cluster` to git.lan |
+| Bounce OpenClaw while hostPort 18789 still held | New pod Pending: “no free ports” | Scale deploy 0→1, or wait until old pod is Gone before recreate |
+| Mount OpenClaw skills only on the gateway container | openai-shim `/v1/verbs` fails (missing k8s.js/prom.js) | Mount the three skill volumes on **both** gateway and openai-shim |
 
 ## DNS / hosts
 

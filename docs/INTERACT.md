@@ -62,19 +62,26 @@ Picker whitelist + arena-off persist via `scripts/seed-webui-ui.sh` (sqlite). Re
 
 Chat memory: say **remember that ...** in chat.lan (alias `jarvis`). It appends `/cluster/local/openclaw/learned.md`; `seed-learned.sh` hourly copies into knowledge.
 
-## Hands (in-glass)
+## Hands (product actuator + break-glass)
 
-Cluster actuator is **OpenClaw**, reached from chat.lan as LiteLLM model `jarvis-hands`
-(OpenAI shim in the OpenClaw pod, port 4001). Default alias `jarvis` routes live rack
-questions here. Do not open http://agent.lan:18789 for normal inspect.
+**Daily path:** https://jarvis.lan — the orchestrator matches declared verbs
+(`cluster.health`, `cluster.gpus`, `lab.map`) and calls OpenClaw’s openai-shim
+`POST /v1/verbs` only. Free-form `/v1/chat/completions` is **not** the product path.
 
-- Break-glass UI: http://agent.lan:18789 (re-pair after pod recycle; HTTP; DNS **192.168.8.16**).
-- Break-glass CLI: `./scripts/openclaw-ask.sh "using cluster-health, are nodes Ready?"`
+**Break-glass (when glass/shim is sick):**
+- UI: http://agent.lan:18789 (re-pair after pod recycle; HTTP; DNS **192.168.8.16**).
+- CLI: `./scripts/openclaw-ask.sh "using cluster-health, are nodes Ready?"`
+- OWUI LiteLLM model `jarvis-hands` on chat.lan still hits the same shim chat API.
+
+Skills (must mount on **both** gateway and openai-shim): `cluster-health`,
+`cluster-metrics`, `lab-map`. Recycle OpenClaw with scale 0→1 (or wait until the
+old pod is fully gone) — `hostPort: 18789` races if two pods overlap.
+
 - Goose stays operator-on-bastion. Do not nest Goose inside OpenClaw.
-- Skills: `cluster-health`, `cluster-metrics`, `lab-map`.
 - Writes **slice 1** (git): Role `openclaw-recycle` in apps, inference, agents, monitoring
   — delete pods, patch deployments. No secrets, no kube-system, no Flux, no git edits.
-- Prefixes (start of message; OWUI `jarvis_route` only): `local:` 7B, `hands:` OpenClaw,
+  Do not widen this Role unless Gordon names new write verbs.
+- OWUI prefixes (start of message; `jarvis_route` only): `local:` 7B, `hands:` OpenClaw,
   `code:` grok-code, `grok:` grok-4-fast. Slash form too. `code:`/`grok:` skip RAG.
   Do not put prefixes in LiteLLM `keyword_tier_rules`.
 

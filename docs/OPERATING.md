@@ -30,6 +30,8 @@ Three repos: `jarvis-infra` (here), `cluster` (Flux YAML, Gitea origin), and
 - `npx srvx` is forbidden as the image CMD. Dockerfile `COPY output/` + srvx `--prod`. `install-jarvis-home.sh` tars **only** `Dockerfile` + `output/`.
 - Homepage SA lists events, Flux CRs, **pods**, **nodes** (dossiers). Click tiles on home.lan.
 - `agent.lan` DNS is **192.168.8.16** (hostPort 18789, HTTP). `git.lan` stays HTTP.
+- Product Hands = jarvis.lan → orchestrator → openai-shim `POST /v1/verbs`. Break-glass =
+  `agent.lan:18789` or `./scripts/openclaw-ask.sh`. Recycle OpenClaw with scale 0→1 (hostPort race).
 - Ask for bastion `cat` / `ls` / `kubectl` before changing cluster YAML. Do not assume a laptop clone is canonical.
 - Pastes **to an operator who must run them** go in a quoted heredoc. On the bastion as
   `agent` with a shell, run the command yourself instead — see Hands in AGENTS.md.
