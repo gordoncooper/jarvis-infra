@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Laptop hey_jarvis → chat.lan Voice chat. Run on the laptop, not bastion."""
+"""Laptop hey_jarvis → jarvis.lan orchestrator (D-0014). Run on the laptop, not bastion."""
 from __future__ import annotations
 
-import argparse, json, os, re, ssl, struct, sys, time, uuid, wave
+import argparse
+import re
+import sys
+import time
+import wave
 from io import BytesIO
 from pathlib import Path
 
@@ -11,17 +15,14 @@ import requests
 import sounddevice as sd
 
 ENV_PATH = Path.home() / ".config/jarvis-wake/env"
-TITLE = "Voice"
+SESSION_PATH = Path.home() / ".config/jarvis-wake/session"
 RATE = 16000
 CHUNK = 1280
-WAKE_KEY = "hey_jarvis"
 WAKE_THR = 0.6
 WAKE_HITS = 3
 SILENCE_SEC = 0.85
 MAX_UTTER = 8.0
 MIN_UTTER = 0.40
-RMS_SILENCE = 0  # adaptive
-
 
 
 def norm_cmd(s: str) -> str:
@@ -29,14 +30,28 @@ def norm_cmd(s: str) -> str:
     s = re.sub(r"[^a-z0-9\s]", " ", s)
     return re.sub(r"\s+", " ", s).strip()
 
-# Local only. Never sent to chat.lan.
+
+# Local only. Never sent to the orchestrator.
 COMMANDS = {
     "stop": (
-        "go away", "go away now", "you can go away", "you can go away now",
-        "that will be all", "that'll be all", "that is all", "thats all", "that's all",
-        "jarvis stop", "stop listening", "good night", "goodnight",
-        "dismissed", "you are dismissed", "youre dismissed",
-        "power down", "stand down",
+        "go away",
+        "go away now",
+        "you can go away",
+        "you can go away now",
+        "that will be all",
+        "that'll be all",
+        "that is all",
+        "thats all",
+        "that's all",
+        "jarvis stop",
+        "stop listening",
+        "good night",
+        "goodnight",
+        "dismissed",
+        "you are dismissed",
+        "youre dismissed",
+        "power down",
+        "stand down",
     ),
     "pause": ("pause", "stand by", "standby", "hold on"),
     "resume": ("resume", "im back", "i m back", "listen up", "carry on", "continue listening"),
@@ -45,6 +60,7 @@ COMMANDS = {
     "unmute_tts": ("unmute replies", "speak again", "you can talk"),
     "status": ("status", "are you listening"),
 }
+
 
 def match_cmd(text: str) -> str | None:
     n = norm_cmd(text)
@@ -57,33 +73,40 @@ def match_cmd(text: str) -> str | None:
                 return kind
     return None
 
+
 def cmd_help() -> str:
     lines = ["listener commands (not sent to JARVIS):"]
     for k, v in COMMANDS.items():
         lines.append(f"  {k:10}  {', '.join(v[:4])}")
     return "\n".join(lines)
 
+
 def load_env(path: Path) -> dict:
-    d = {}
+    d: dict[str, str] = {}
     if not path.is_file():
-        raise SystemExit(f"missing {path} — scp from bastion ~/.config/jarvis-wake/env")
+        raise SystemExit(f"missing {path} — see docs/INTERACT.md (ORCH_URL=https://jarvis.lan)")
     for line in path.read_text().splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
         k, v = line.split("=", 1)
         d[k.strip()] = v.strip().strip('"')
-    for k in ("OWUI_URL", "OWUI_TOKEN"):
-        if not d.get(k):
-            raise SystemExit(f"{path} missing {k}")
+    if d.get("OWUI_URL") and not d.get("ORCH_URL"):
+        raise SystemExit(
+            f"{path} still has OWUI_* — product wake uses ORCH_URL=https://jarvis.lan (D-0014)"
+        )
+    if not d.get("ORCH_URL"):
+        raise SystemExit(f"{path} missing ORCH_URL")
     return d
 
 
-class OWUI:
-    def __init__(self, url: str, token: str):
+class Orch:
+    """Glass front door → orchestrator /v1 (D-0012 / D-0014 / D-0016)."""
+
+    def __init__(self, url: str, session_id: str | None = None):
         self.base = url.rstrip("/")
+        self.session_id = (session_id or "").strip() or None
         self.s = requests.Session()
-        self.s.headers["Authorization"] = "Bearer " + token
         self.s.headers["Accept"] = "application/json"
         self.s.verify = False
         try:
@@ -91,129 +114,44 @@ class OWUI:
         except Exception:
             pass
 
-    def _parse(self, r: requests.Response):
+    def ensure_session(self) -> str:
+        headers = {}
+        if self.session_id:
+            headers["X-Session-Id"] = self.session_id
+        r = self.s.get(self.base + "/v1/session", headers=headers, timeout=30)
         r.raise_for_status()
-        if not r.content:
-            return None
-        try:
-            return r.json()
-        except Exception:
-            return r.content
+        sid = r.json().get("session_id")
+        if not sid:
+            raise RuntimeError("no session_id")
+        self.session_id = sid
+        return sid
 
-    def get(self, path):
-        return self._parse(self.s.get(self.base + path, timeout=30))
-
-    def post(self, path, **kw):
-        return self._parse(self.s.post(self.base + path, timeout=120, **kw))
-
-    def _chats(self, path):
-        body = self.get(path)
-        if isinstance(body, list):
-            return body
-        if isinstance(body, dict):
-            for k in ("items", "chats", "data"):
-                if isinstance(body.get(k), list):
-                    return body[k]
-        return []
-
-    def find_voice(self, chat_id: str | None):
-        cid = (chat_id or "").strip()
-        if cid:
-            return cid
-        items = self._chats("/api/v1/chats/") + self._chats("/api/v1/chats/pinned")
-        titles = []
-        for c in items:
-            if not isinstance(c, dict):
-                continue
-            ch = c.get("chat") if isinstance(c.get("chat"), dict) else c
-            title = str(ch.get("title") or c.get("title") or "")
-            titles.append(title)
-            if title.strip() == TITLE and c.get("id"):
-                return c["id"]
-        print("chat titles:", titles[:20], file=sys.stderr)
-        raise SystemExit("Voice chat not found — run ensure-voice-chat.sh on bastion")
-
-    def transcribe(self, wav: bytes) -> str:
-        files = {"file": ("utt.wav", wav, "audio/wav")}
-        last = None
-        for path in ("/api/v1/audio/transcriptions", "/api/audio/transcriptions"):
-            try:
-                r = self.s.post(self.base + path, files=files, timeout=120)
-                last = r
-                if r.status_code == 200:
-                    j = r.json()
-                    return (j.get("text") or j.get("transcript") or "").strip()
-            except Exception as e:
-                last = e
-        raise SystemExit(f"STT failed: {last}")
-
-    def complete(self, chat_id: str, model: str, text: str) -> str:
-        now = int(time.time())
-        uid = str(uuid.uuid4())
-        aid = str(uuid.uuid4())
-        chat = self.get(f"/api/v1/chats/{chat_id}")
-        blob = chat.get("chat") if isinstance(chat, dict) and isinstance(chat.get("chat"), dict) else (chat or {})
-        hist = blob.get("history") or {"messages": {}, "currentId": None}
-        msgs = hist.get("messages") or {}
-        user = {
-            "id": uid, "role": "user", "content": text, "timestamp": now,
-            "models": [model], "childrenIds": [aid],
-        }
-        asst = {
-            "id": aid, "role": "assistant", "content": "", "parentId": uid,
-            "childrenIds": [], "model": model, "modelName": model,
-            "modelIdx": 0, "done": False, "timestamp": now + 1,
-        }
-        msgs[uid] = user
-        msgs[aid] = asst
-        hist["messages"] = msgs
-        hist["currentId"] = aid
-        blob["history"] = hist
-        blob["models"] = [model]
-        blob["title"] = blob.get("title") or TITLE
-        lin = blob.get("messages")
-        if isinstance(lin, list):
-            lin.append(user)
-            blob["messages"] = lin
-        self.post(f"/api/v1/chats/{chat_id}", json={"chat": blob})
-        body = {
-            "model": model,
-            "chat_id": chat_id,
-            "id": aid,
-            "messages": [{"role": "user", "content": text}],
-            "stream": False,
-            "background_tasks": {"title_generation": False, "follow_up_generation": False, "tags_generation": False},
-        }
-        r = self.s.post(self.base + "/api/chat/completions", json=body, timeout=180)
+    def stt(self, wav: bytes) -> str:
+        files = {"audio": ("utt.wav", wav, "audio/wav")}
+        r = self.s.post(self.base + "/v1/stt", files=files, timeout=120)
         r.raise_for_status()
-        data = r.json()
-        out = ""
-        if isinstance(data, dict):
-            ch0 = (data.get("choices") or [{}])[0]
-            out = ((ch0.get("message") or {}).get("content")) or data.get("content") or ""
-            if not out and isinstance(data.get("response"), str):
-                out = data["response"]
-        out = (out or "").strip()
-        asst["content"] = out
-        asst["done"] = True
-        msgs[aid] = asst
-        hist["currentId"] = aid
-        blob["history"] = hist
-        self.post(f"/api/v1/chats/{chat_id}", json={"chat": blob})
-        return out
+        return (r.json().get("transcript") or "").strip()
+
+    def turn_text(self, text: str) -> str:
+        assert self.session_id
+        headers = {
+            "X-Session-Id": self.session_id,
+            "Content-Type": "application/json",
+        }
+        r = self.s.post(
+            self.base + "/v1/turns",
+            headers=headers,
+            json={"text": text, "session_id": self.session_id},
+            timeout=180,
+        )
+        r.raise_for_status()
+        body = r.json()
+        if body.get("session_id"):
+            self.session_id = body["session_id"]
+        return (body.get("reply_text") or "").strip()
 
     def speak(self, text: str) -> bytes:
-        r = self.s.post(
-            self.base + "/api/v1/audio/speech",
-            json={"input": text, "model": "tts-1", "voice": "alloy"},
-            timeout=60,
-        )
-        if r.status_code != 200:
-            r = self.s.post(
-                self.base + "/api/audio/speech",
-                json={"input": text, "model": "tts-1", "voice": "alloy"},
-                timeout=60,
-            )
+        r = self.s.post(self.base + "/v1/tts", json={"text": text}, timeout=60)
         r.raise_for_status()
         return r.content
 
@@ -235,24 +173,33 @@ def beep():
     sd.wait()
 
 
-def play_mp3(data: bytes):
-    p = Path("/tmp/jarvis-wake-reply.mp3")
-    p.write_bytes(data)
+def play_audio(data: bytes):
+    suffix = ".wav" if data[:4] == b"RIFF" else ".mp3"
+    path = Path("/tmp/jarvis-wake-reply").with_suffix(suffix)
+    path.write_bytes(data)
+    from shutil import which
+    import subprocess
+
     for cmd in (
-        ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(p)],
-        ["mpv", "--really-quiet", str(p)],
-        ["paplay", str(p)],
+        ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(path)],
+        ["mpv", "--really-quiet", str(path)],
+        ["paplay", str(path)],
     ):
-        from shutil import which
         if which(cmd[0]):
-            import subprocess
             subprocess.run(cmd, check=False)
             return
-    print("no ffplay/mpv/paplay — reply is in the Voice chat only", file=sys.stderr)
+    if suffix == ".wav":
+        with wave.open(str(path), "rb") as w:
+            pcm = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16)
+            sd.play(pcm, w.getframerate())
+            sd.wait()
+            return
+    print("no ffplay/mpv/paplay — install ffmpeg", file=sys.stderr)
 
 
 def load_wake():
     from openwakeword.model import Model
+
     cache = Path.home() / ".cache/jarvis-wake/models"
     cache.mkdir(parents=True, exist_ok=True)
     base = "https://github.com/dscripka/openWakeWord/releases/download/v0.5.1/"
@@ -286,8 +233,14 @@ def load_wake():
             return Model(wakeword_model_paths=[jarvis])
 
 
+def save_session(sid: str) -> None:
+    SESSION_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SESSION_PATH.write_text(sid + "\n", encoding="utf-8")
+    SESSION_PATH.chmod(0o600)
+
+
 def main():
-    ap = argparse.ArgumentParser(description="hey_jarvis laptop listener")
+    ap = argparse.ArgumentParser(description="hey_jarvis laptop listener → jarvis.lan")
     ap.add_argument("--env", default=str(ENV_PATH))
     ap.add_argument("--list-devices", action="store_true")
     ap.add_argument("--commands", action="store_true")
@@ -298,20 +251,34 @@ def main():
     if args.commands:
         print(cmd_help())
         return
+
     cfg = load_env(Path(args.env))
-    api = OWUI(cfg["OWUI_URL"], cfg["OWUI_TOKEN"])
-    chat_id = api.find_voice(cfg.get("CHAT_ID") or None)
-    model = cfg.get("MODEL") or "jarvis"
-    print(f"mic default={sd.query_devices(kind='input')['name']!r}  chat={chat_id}  model={model}  env_chat_id={bool((cfg.get('CHAT_ID') or '').strip())}")
+    sid = (cfg.get("SESSION_ID") or "").strip()
+    if not sid and SESSION_PATH.is_file():
+        sid = SESSION_PATH.read_text(encoding="utf-8").strip()
+    api = Orch(cfg["ORCH_URL"], sid or None)
+    try:
+        api.ensure_session()
+    except Exception as e:
+        raise SystemExit(f"cannot reach orchestrator at {cfg['ORCH_URL']}: {e}") from e
+    assert api.session_id
+    save_session(api.session_id)
+
+    print(
+        f"mic default={sd.query_devices(kind='input')['name']!r}  "
+        f"orch={cfg['ORCH_URL']}  session={api.session_id[:8]}…"
+    )
     print("headphones recommended (Piper can retrigger the wake word)")
     print("listening for hey_jarvis  Ctrl-C to stop")
     print(cmd_help())
+
     paused = False
     mute_tts = False
     last_reply = ""
-    last_mp3 = b""
+    last_audio = b""
     oww = load_wake()
     hits = 0
+
     with sd.InputStream(samplerate=RATE, channels=1, dtype="int16", blocksize=CHUNK) as stream:
         while True:
             frame, _ = stream.read(CHUNK)
@@ -365,7 +332,7 @@ def main():
                 continue
             print(f"utt {dur:.1f}s → STT")
             try:
-                text = api.transcribe(wav_bytes(audio))
+                text = api.stt(wav_bytes(audio))
             except Exception as e:
                 print("STT error", e)
                 continue
@@ -374,17 +341,19 @@ def main():
                 continue
             cmd = match_cmd(text)
 
-            def say_local(msg: str):
+            def say_local(msg: str, *, force: bool = False):
+                nonlocal last_audio
                 print("local:", msg)
-                if mute_tts and cmd not in ("unmute_tts", "status", "stop"):
+                if mute_tts and not force and cmd not in ("unmute_tts", "status", "stop"):
                     return
                 try:
-                    play_mp3(api.speak(msg))
+                    last_audio = api.speak(msg)
+                    play_audio(last_audio)
                 except Exception as e:
                     print("TTS error", e)
 
             if cmd == "stop":
-                say_local("Standing down.")
+                say_local("Standing down.", force=True)
                 raise SystemExit(0)
             if cmd == "pause":
                 paused = True
@@ -399,9 +368,9 @@ def main():
                 oww.reset()
                 continue
             if cmd == "repeat":
-                if last_mp3:
+                if last_audio:
                     print("repeat last")
-                    play_mp3(last_mp3)
+                    play_audio(last_audio)
                 elif last_reply:
                     say_local(last_reply)
                 else:
@@ -431,17 +400,19 @@ def main():
                 time.sleep(0.4)
                 oww.reset()
                 continue
+
             try:
-                reply = api.complete(chat_id, model, text)
+                reply = api.turn_text(text)
             except Exception as e:
-                print("chat error", e)
+                print("turn error", e)
                 continue
+            save_session(api.session_id or "")
             last_reply = reply or ""
             print("jarvis:", last_reply[:240])
             if last_reply and not mute_tts:
                 try:
-                    last_mp3 = api.speak(last_reply)
-                    play_mp3(last_mp3)
+                    last_audio = api.speak(last_reply)
+                    play_audio(last_audio)
                 except Exception as e:
                     print("TTS error", e)
             elif mute_tts:

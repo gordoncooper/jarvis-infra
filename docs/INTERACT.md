@@ -93,9 +93,11 @@ Idempotent create/pin: `./scripts/ensure-voice-chat.sh`
 
 ## Wake word v1 (laptop)
 
-Stock **hey_jarvis** runs on the laptop, not in the cluster.
+Stock **hey_jarvis** runs on the laptop, not in the cluster. It talks to
+**https://jarvis.lan** (orchestrator via glass) — not `chat.lan` / OWUI (D-0014).
 
-1. On bastion (already): `~/.config/jarvis-wake/env` (mode 600, JWT, not git).
+1. On bastion: `~/.config/jarvis-wake/env` with `ORCH_URL=https://jarvis.lan`
+   (mode 600, not git). Example: `scripts/jarvis-wake.env.example`.
 2. On the laptop:
    `mkdir -p ~/.config/jarvis-wake`
    `scp agent@192.168.8.10:.config/jarvis-wake/env ~/.config/jarvis-wake/env`
@@ -104,18 +106,19 @@ Stock **hey_jarvis** runs on the laptop, not in the cluster.
    Ubuntu: `sudo apt-get install -y python3-venv portaudio19-dev ffmpeg`
    `python3 -m venv ~/.local/jarvis-wake && ~/.local/jarvis-wake/bin/pip install -r ~/requirements-wake.txt`
    `~/.local/jarvis-wake/bin/python ~/jarvis-wake.py`
-3. Headphones. Say **hey jarvis**, then the question. Transcript + reply land in pinned **Voice**.
-4. Call mode still works if you would rather click.
+3. Headphones. Say **hey jarvis**, then the question. STT/TTS go through
+   `/v1/stt` and `/v1/tts`; chat turns use `/v1/turns`.
+4. Glass PTT on jarvis.lan still works if you would rather click.
 
 Do not run `jarvis-wake.py` as `agent` on the bastion (no mic).
 
-Laptop listener is transport only (mic → Voice chat → speaker). It must not special-case questions.
-Wall clock is one labeled `[clock …]` line from the OWUI filter on every chat.lan turn (America/Los_Angeles).
-Live numbers are Hands or home.lan. Do not add per-question injects on the laptop.
+Laptop listener is transport only (mic → orchestrator → speaker). Local UX
+commands stay on the client. Live numbers are Hands or home.lan — do not add
+per-question injects on the laptop.
 
 ### Laptop listener commands
 
-Handled on the laptop after STT. **Not sent to chat.lan.** Wake with hey jarvis, then:
+Handled on the laptop after STT. **Not sent to the orchestrator.** Wake with hey jarvis, then:
 
 | Command | Example phrases |
 |---|---|
