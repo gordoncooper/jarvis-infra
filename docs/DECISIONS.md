@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0021 | Product k8s/image names; implementation cuts start at v0.6.0 |
 | D-0020 | Product code in `jarvis-app`; Python orchestrator + themed TS glass; `/v1` + SSE |
 | D-0019 | v1 model roles: local talker+classifier; cloud specialist `jarvis-grok`; orchestrator picks |
 | D-0018 | Product stays LAN-only for v1; no auth project until off-LAN is deliberately chosen |
@@ -37,6 +38,47 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-19 — D-0021 — Product names; build cuts start at v0.6.0
+
+**Status:** active.
+
+**Tagging:** `v0.5.2` is the planning-freeze snapshot across `jarvis-infra`,
+`cluster`, `jarvis-app`, and `jarvis-core`. **Implementation / slice work
+starts at `v0.6.0`** — create that tag when slice 1 lands, not before. Never
+retag (law).
+
+**Kubernetes (product path, namespace `apps`):**
+
+| Kind | Name |
+| --- | --- |
+| Deployment + Service | `jarvis-glass` |
+| Deployment + Service | `jarvis-orchestrator` |
+| Ingress Host | `jarvis.lan` → **glass only** |
+| Orchestrator exposure | ClusterIP (and/or mesh-internal); not a public Host |
+
+Glass talks to orchestrator in-cluster (D-0012). Do not put LiteLLM/OWUI/OpenClaw
+on the Ingress for the product path.
+
+**Images** (built from `jarvis-app`, independent of homepage `IMAGE` in infra
+`VERSION`):
+
+| Image | Role |
+| --- | --- |
+| `docker.io/library/jarvis-glass` | Static themed UI |
+| `docker.io/library/jarvis-orchestrator` | Brain / `/v1` API |
+
+Product image tags live in a `VERSION` (or equivalent) **in `jarvis-app`**,
+sourced by build scripts — do not retype pins into prose. Infra `VERSION`
+keeps rack/`jarvis-home` pins.
+
+**Later (not slice 1):** `jarvis-whisper` on gpu-02 (D-0015/D-0016). Themes are
+assets/packs under `jarvis-app`, not separate Deployments.
+
+**Cutover:** new glass+orchestrator replace the `jarvis-core` stub on
+`jarvis.lan` (D-0017). Leave `noc.lan` alone.
 
 ---
 
