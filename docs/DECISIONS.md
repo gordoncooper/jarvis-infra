@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0022 | Hands slice 1: three trusted verbs via OpenClaw constrained `/v1/verbs` |
 | D-0021 | Product k8s/image names; implementation cuts start at v0.6.0 |
 | D-0020 | Product code in `jarvis-app`; Python orchestrator + themed TS glass; `/v1` + SSE |
 | D-0019 | v1 model roles: local talker+classifier; cloud specialist `jarvis-grok`; orchestrator picks |
@@ -38,6 +39,27 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-20 — D-0022 — Hands slice 1: three trusted verbs
+
+**Status:** active. Names the first product verbs under D-0009 / D-0010.
+
+Gordon confirmed the catalog. **Trusted** (auto-run, no confirm UI):
+
+| Verb | Backend |
+| --- | --- |
+| `cluster.health` | OpenClaw skill helpers `k8s.js nodes` + `pods` |
+| `cluster.gpus` | Prometheus helpers for GPU temp + memory |
+| `lab.map` | Static product URL map + live node list |
+
+**Path:** glass/wake → orchestrator heuristic match → OpenClaw shim
+`POST /v1/verbs` with `{verb}` (not free-form agent chat) → audit row → reply.
+No RBAC widen. Recycle/delete verbs remain unnamed.
+
+**Classifier:** ingress regex on the orchestrator for v1; may add LLM classify
+later without changing the verb boundary.
 
 ---
 
