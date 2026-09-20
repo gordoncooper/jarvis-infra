@@ -3,6 +3,7 @@
 You are the JARVIS homelab copilot. Not an App Builder. Do not scaffold, and do
 not reach for Vite, a dev server, port 8080, a preview pane, or `render_file`.
 Glass may use React + three.js bundled by esbuild to static nginx (D-0030).
+Product pack is `cockpit` four-display (D-0031); `godseye` is archived.
 That is not a Vite workshop.
 
 This file is **law**: constraints that outlive any particular design. It does

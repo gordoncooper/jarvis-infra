@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0031 | jarvis.lan four-display cockpit pack; godseye look superseded |
 | D-0030 | jarvis.lan globe-as-stage (godseye); React+R3F via esbuild; classifier next |
 | D-0029 | jarvis.lan Mark HUD cockpit + theme library; classifier next |
 | D-0028 | Orchestrator-owned list memories; broader delete/remove forget phrases |
@@ -50,10 +51,29 @@ short — this file is authority #2, so every agent pays to read it.
 
 ---
 
+## 2026-09-20 — D-0031 — jarvis.lan four-display cockpit
+
+**Status:** active. SUPERSEDES D-0030 look-and-feel. Theme-pack library still
+stands. Does not reopen Vite / App Builder / a glass dev server.
+
+Product pack: `cockpit`. Four horizontal slides: Login (literal splash JPG +
+stub Enter) → Earth Stage (`jarvis.jpg`) → AM Briefing CMD → Topology NOC.
+Arrow keys / drag between panels. Real `/health` + session turns/PTT/confirm
+on Stage/Cmd/Noc cmd bars; missing feeds are prototype chrome only — no
+noc.lan scrape (D-0012).
+
+`godseye`, `mark-hud`, and `archive-gold` stay rebuildable. Pin
+`JARVIS_THEME=cockpit`. React+R3F via esbuild remains allowed; Stage for this
+pack uses a night-Earth backdrop + HTML chrome (not the godseye WebGL stack).
+
+**Next product-logic priority:** LiteLLM `classifier_type: llm` (BACKLOG A).
+
+---
+
 ## 2026-09-20 — D-0030 — jarvis.lan globe-as-stage; React+R3F via esbuild
 
-**Status:** active. Tightens D-0029 look-and-feel. Theme-pack library still
-stands. Does not reopen Vite / App Builder / a glass dev server.
+**Status:** look-and-feel SUPERSEDED BY D-0031. esbuild React+R3F allowance and
+theme-pack library still stand.
 
 jarvis.lan is a **stage**: a WebGL globe you look through, with docked
 holographic chrome (ribbon, dossier chip, floating channel, arc meters,
@@ -75,7 +95,7 @@ fake telemetry, no noc.lan scrape (D-0012).
 
 ## 2026-09-20 — D-0029 — jarvis.lan Mark HUD cockpit + theme library
 
-**Status:** look-and-feel SUPERSEDED BY D-0030. Theme library still active.
+**Status:** look-and-feel SUPERSEDED BY D-0031 (was D-0030). Theme library still active.
 
 jarvis.lan is a **cockpit** (rail, stages, meters, console over a dark grid),
 not a centered chat column. Glass `src/` is theme-agnostic. Packs live in
