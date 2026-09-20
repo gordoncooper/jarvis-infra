@@ -52,8 +52,10 @@ short — this file is authority #2, so every agent pays to read it.
 
 - Heuristic preference candidates run **before** Hands verbs so “I prefer GPU
   temps in Fahrenheit” proposes memory instead of firing `cluster.gpus`.
+  Heuristic hits return the Confirm ask immediately (no talker round-trip).
 - Talker claims of “I will remember” / forged `### User:` lines are scrubbed
-  before the Confirm ask; glass applies final `reply_text` after stream.
+  before the Confirm ask on LLM-extract proposes; glass applies final
+  `reply_text` after stream.
 - GPU formatting honors newest Celsius/Fahrenheit preference in promoted memory.
 - Forget replies name the removed fact(s), not a bare count.
 - `list pods` / smart-apostrophe `how’s the cluster` → `cluster.health`;
