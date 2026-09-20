@@ -18,6 +18,8 @@ dated section without checking it against DECISIONS and the live cluster.
 | Put `agent.lan` on `192.168.8.11` | Port 80 is Traefik on **every** node. OpenClaw returns `proxy_attribution_required`. | DNS **and** `/etc/hosts` -> **192.168.8.16**. Browser **http://agent.lan:18789** (hostPort). |
 | `command:` / `args:` on `openedai-speech-min` | Replaces `startup.sh` -> CrashLoopBackOff | Image default CMD only. Mount `/app/voices` + `/app/config`. |
 | Chat-paste gzip+base64 YAML | Chat mutates the payload -> `zlib error` | Plain heredoc into a file. |
+| Define a `kubectl()` guard function after `alias kubectl=` | Interactive bash expands the alias mid-parse -> syntax error, and **every guard below it is silently undefined** | `unalias kubectl k3s git` first — `~/.agent-guard.sh` does this. |
+| Trust a long-lived Cursor Remote-SSH host for env changes | It keeps the env it started with. A stale `GOOSE_MODEL` survived its removal from `~/.bashrc` and would re-pin every Goose profile (defeats D-0001) | Reload the remote window after editing `~/.bashrc`; check with a fresh `bash -ic`. |
 | `kube-state-metrics:v2.14.2` | registry.k8s.io **404** | **v2.20.0** |
 | `nvidia.com/gpu: 1` on an exporter | Steals the A1000 from Ollama | RuntimeClass + `NVIDIA_VISIBLE_DEVICES=all`, **no** GPU resource |
 | `nvidia_gpu_exporter` AUTO fields, driver 595 | Panic: metric name contains `[us]` | `--query-field-names=uuid,name,...` — never AUTO |

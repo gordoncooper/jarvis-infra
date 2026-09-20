@@ -70,6 +70,9 @@ rebuild, a wiped disk, or a day of confusion.
   adapter. One adapter per gap, never a pile.
 - If unsure, stop and ask. A wrong guess here costs more than a question.
 - Do not binge context. Open the file for this task, not the whole `docs/` tree.
+- One agent at a time per repo. Four agents share these clones (D-0007).
+- Change this file or `DECISIONS.md` only in a session Gordon is watching. Law
+  does not move as a side effect of an implementation loop.
 
 ## Where things live
 
@@ -83,6 +86,10 @@ Each repo has exactly one rules file: `AGENTS.md` at its root, tracked in git
 (D-0005). Cursor, Goose, Claude Code, and Grok CLI all read it. Do not add a
 `.cursor/rules/*.mdc` or a `CLAUDE.md` that restates it — that is a second
 bible, and a `CLAUDE.md` silently outranks this file for Claude Code (D-0006).
+
+`.claude/settings.json` is the exception, because it is not prose: it is the
+deny-rule set that enforces the hard rules above for Claude Code and Grok
+(D-0007). Keep it committed.
 
 ## Reading order
 

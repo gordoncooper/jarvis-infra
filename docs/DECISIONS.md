@@ -14,6 +14,58 @@ and the build pulled apart. Decisions are now dated and ranked above prose.
 
 ---
 
+## 2026-09-19 — D-0007 — Four agents, four lanes, and rules enforced as config
+
+**Status:** active
+
+Four agents now have hands on the bastion. Without lanes they duplicate work,
+edit the same clone concurrently, and quietly run up cost on the metered one.
+
+| Agent | Lane | Why it gets that lane |
+| --- | --- | --- |
+| **Cursor** (Remote-SSH as `agent`) | Architecture, decisions, cross-repo changes, review | Gordon is in the loop and all three repos are open at once |
+| **Claude Code** | Bulk implementation inside one repo: multi-file builds, refactors, test loops | Subscription-billed, so a long run costs the same as a short one |
+| **Grok CLI** | Short targeted edits, and headless scripted checks (`-p --output-format json`) | Metered per token — keep prompts short; best scripting surface of the four |
+| **Goose** | On-node work over SSH, cluster discovery, cheap repetitive loops | The only one with passwordless SSH to all six nodes, and a free `llm-lan` profile |
+
+Two constraints go with the lanes:
+
+- **One agent at a time per repo.** They share one clone on one filesystem;
+  concurrent sessions produce conflicting edits and interleaved commits.
+- **`AGENTS.md` and `DECISIONS.md` change only in a session Gordon is watching.**
+  Law must not drift as a side effect of an implementation loop.
+
+### Hard rules are now enforced, not just written
+
+AGENTS.md is prose, and prose is advisory: asked cold, an agent that had not
+loaded it asserted GitHub was Flux's origin (D-0006). The hard rules are
+therefore enforced in two layers that do not depend on the model cooperating.
+
+**Config —** `.claude/settings.json`, committed at each repo root, plus a
+user-scope copy at `~/.claude/settings.json` so the rules still apply when the
+working directory is outside a repo. Claude Code reads it natively and Grok
+reads it through Claude compatibility, so one file covers both. It denies the
+mutating `kubectl` verbs, force-push, `git tag -f`, and reads of key material.
+`jarvis-core` additionally denies all edits, which makes D-0003's "read-only
+reference" mechanical rather than an honour system.
+
+This file is **enforcement config, not a rules file** — D-0005 does not apply to
+it, and it is not a second bible. Do not delete it as duplication.
+
+**Shell —** `~/.agent-guard.sh`, sourced from `~/.bashrc`, replaces the
+Goose-only guard. It intercepts `kubectl`, `k3s`, and `git` below whatever
+permission system the agent uses, so it still holds when a model talks itself
+past its own config or works in a repo whose rules it never loaded. It fires on
+any of `GOOSE_TERMINAL`, `CLAUDECODE`, `GROK_AGENT`, `CURSOR_AGENT`, and is
+inert in a human shell. The documented `install-*.sh` exception is
+`AGENT_ALLOW_APPLY=1` (the old `GOOSE_ALLOW_APPLY` still works).
+
+Neither layer is a security boundary — `sudo kubectl` and a direct binary path
+both step around the shell guard. They are there to stop a confident agent, not
+a determined attacker.
+
+---
+
 ## 2026-09-19 — D-0006 — Claude Code and Grok CLI are sanctioned bastion agents
 
 **Status:** active
