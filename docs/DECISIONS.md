@@ -56,7 +56,8 @@ short — this file is authority #2, so every agent pays to read it.
 orchestrator (trusted read) — the talker must not invent a memory inventory.
 `delete/remove the memory about …` and `remove my preference for …` are
 forget-class (confirm-gated). Duplicate explicit/soft remembers reply
-“Already noted” instead of inserting again.
+“Already noted” instead of inserting again. Forget/dedup matching is
+stricter so multi-token queries do not half-overlap on a shared word.
 
 ---
 
