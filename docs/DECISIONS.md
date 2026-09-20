@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0026 | Memory/Hands UX: prefer-before-verb, scrub, °F, list pods |
 | D-0025 | LLM memory candidate extract after heuristic miss (confirm-gated) |
 | D-0024 | Memory confirm heuristics + durable session sqlite on NFS |
 | D-0023 | Hands slice 2: confirm verbs recycle_pod + restart_deploy |
@@ -42,6 +43,21 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-20 — D-0026 — Memory / Hands UX fixes
+
+**Status:** active. Tightens D-0024 / D-0025 after jarvis.lan smoke.
+
+- Heuristic preference candidates run **before** Hands verbs so “I prefer GPU
+  temps in Fahrenheit” proposes memory instead of firing `cluster.gpus`.
+- Talker claims of “I will remember” / forged `### User:` lines are scrubbed
+  before the Confirm ask; glass applies final `reply_text` after stream.
+- GPU formatting honors newest Celsius/Fahrenheit preference in promoted memory.
+- Forget replies name the removed fact(s), not a bare count.
+- `list pods` / smart-apostrophe `how’s the cluster` → `cluster.health`;
+  `restart the orchestrator` resolves via short-name alias.
 
 ---
 
