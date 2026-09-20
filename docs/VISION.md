@@ -27,14 +27,22 @@ Per D-0002.
 
 | Surface | Job | Must never |
 | --- | --- | --- |
-| **jarvis.lan** | The product. Conversation, briefings, life, doing things. | Look like a NOC. Show a model picker. |
-| **noc.lan** | Operator truth. Nodes, services, logs, alerts, GPU. | Require the brain to be healthy to render. |
+| **jarvis.lan** | The product four-display cockpit (D-0031 / D-0032). | Show a model picker. Scrape noc.lan / Prometheus from glass. |
+| **noc.lan** | Independent operator truth / break-glass telemetry. | Require the brain to be healthy to render. |
+| home.lan | Older command board until retired. | Be themed as the product chrome. |
 | chat.lan, agent.lan, llm.lan, git.lan, grafana.lan | Break-glass and vendor UIs. | Get themed, or grow features. |
+
+jarvis.lan is the four-display cockpit (login, earth, briefing/channel, rack NOC).
+The NOC display is a view of orchestrator pulse, not a second product.
+A standalone noc.lan / home.lan may still exist so telemetry stays up
+when the talker is down. Do not merge those hosts into the glass bundle.
 
 The independence rule is load-bearing: `noc.lan` needs its own deployment,
 ingress, and telemetry path, so that when the brain, LiteLLM, or Ollama are
 down it still renders — degraded, honest, and readable. If the k3s API itself
 is gone, bastion SSH is the last glass. Say so; do not pretend otherwise.
+Glass on jarvis.lan still must not scrape noc.lan (D-0012); pulse goes through
+the orchestrator.
 
 ## Capability model
 
@@ -83,12 +91,13 @@ an open item in passing.
    hands runner shape when verbs land (shim to OpenClaw vs thin in-house).
 2. **Orchestrator.** Settled for shape and impl home: separate Python service;
    themed TS→static glass in **`jarvis-app`**; Flux in `cluster`; `/v1` API with
-   SSE; theme-swappable look (D-0012, D-0020). v1 glass scope: D-0017.
+   SSE; theme-swappable look (D-0012, D-0020). Product glass: four-display
+   `cockpit` (D-0031 / D-0032); D-0017 first-cut scope superseded for chrome.
 3. **Which model does what.** Settled for v1 product pins: talker + classifier
    `jarvis-local`; one cloud specialist `jarvis-grok`; orchestrator selects ids;
    no product auto-router; coder deferred; hands not product (D-0019 / D-0011).
-4. **Memory.** Settled for v1 doctrine (D-0013). Glass milestone narrows UI:
-   explicit remember/forget only; confirm cards deferred (D-0017). Still open:
+4. **Memory.** Settled for v1 doctrine (D-0013). Confirm UI ships in glass
+   (D-0032); Hands/memory confirms stay orchestrator-owned. Still open:
    schema pin, migrate-off `learned.md`, optional embed projection threshold.
 5. **Voice.** Settled for v1: glass PTT first; laptop `hey jarvis` on the same
    orchestrator API; cluster Whisper SoT; Piper TTS (second voice allowed
@@ -99,9 +108,10 @@ an open item in passing.
    deliberate off-LAN decision. Dynu / Tailscale noted as future options only
    (D-0018).
 
-**v1 glass slice (D-0017):** greeting + briefing blurb + thread; new glass +
-orchestrator replace `jarvis-core` on `jarvis.lan`; six-point done bar including
-PTT; confirm cards out until a later decision.
+**Product glass (D-0031 / D-0032):** four-display cockpit on `jarvis.lan`
+(Login, Earth, CMD, NOC); ConfirmCard on CMD + Earth toast; structured briefing
+with `briefing_blurb` fallback; `/v1/pulse` via orchestrator. D-0017 six-point
+done bar (persona, session, remember/forget, PTT, degraded) still stands.
 
 ## Non-goals
 

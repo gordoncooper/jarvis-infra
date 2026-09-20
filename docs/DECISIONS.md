@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0032 | Cockpit pack is the product glass; confirm UI + pulse; Vite bastion-only |
 | D-0031 | jarvis.lan four-display cockpit pack; godseye look superseded |
 | D-0030 | jarvis.lan globe-as-stage (godseye); React+R3F via esbuild; classifier next |
 | D-0029 | jarvis.lan Mark HUD cockpit + theme library; classifier next |
@@ -31,7 +32,7 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0020 | Product code in `jarvis-app`; Python orchestrator + themed TS glass; `/v1` + SSE |
 | D-0019 | v1 model roles: local talker+classifier; cloud specialist `jarvis-grok`; orchestrator picks |
 | D-0018 | Product stays LAN-only for v1; no auth project until off-LAN is deliberately chosen |
-| D-0017 | v1 glass scope: greeting+briefing blurb+thread; replace stub; PTT in bar; confirm UI deferred |
+| D-0017 | v1 glass scope SUPERSEDED BY D-0032 (confirm deferred / single blurb) |
 | D-0016 | Product STT is orchestrator-proxied (Option Y); supersedes D-0015 call path |
 | D-0015 | Whisper on gpu-02 (`small`); OpenAI transcriptions — call path superseded by D-0016 |
 | D-0014 | v1 voice: glass PTT first; cluster Whisper; Piper TTS; laptop wake on same API |
@@ -51,20 +52,38 @@ short — this file is authority #2, so every agent pays to read it.
 
 ---
 
+## 2026-09-20 — D-0032 — Cockpit pack is the product glass
+
+**Status:** active. Supersedes the *scope* of D-0017 (confirm UI deferred;
+single briefing_blurb) and the *default look* of D-0029 / D-0030.
+
+- Default theme: `cockpit` (four slideable displays: Login, Earth, CMD, NOC).
+- Archived themes: `godseye`, `mark-hud`, `archive-gold` — rebuildable, not served.
+- Confirm UI ships in glass (CMD Channel + Earth toast). Hands/memory confirms stay orchestrator-owned.
+- Briefing on `/v1/session` may be structured (`overnight`, `lab`, `agenda`, `today`, `focus`) with `briefing_blurb` as fallback.
+- `/v1/pulse` is an orchestrator read model for Earth chips + NOC. Glass does not scrape noc.lan, home.lan, or Prometheus.
+- Production bundle remains esbuild → static nginx. Vite is allowed as a bastion-only dev server for glass. motion, SVG topology, and uPlot/canvas are allowed.
+- jarvis.lan may host the NOC *display*. noc.lan / home.lan remain independent operator surfaces and are not the product chrome.
+
+---
+
 ## 2026-09-20 — D-0031 — jarvis.lan four-display cockpit
 
-**Status:** active. SUPERSEDES D-0030 look-and-feel. Theme-pack library still
-stands. Does not reopen Vite / App Builder / a glass dev server.
+**Status:** active for four-display layout. SUPERSEDES D-0030 look-and-feel.
+Default pack and glass chrome scope clarified by D-0032. Theme-pack library
+still stands. Product pack is `cockpit` only; `godseye` and `mark-hud` are
+archived themes, rebuildable, not default.
 
 Product pack: `cockpit`. Four horizontal slides: Login (literal splash JPG +
 stub Enter) → Earth Stage (`jarvis.jpg`) → AM Briefing CMD → Topology NOC.
 Arrow keys / drag between panels. Real `/health` + session turns/PTT/confirm
-on Stage/Cmd/Noc cmd bars; missing feeds are prototype chrome only — no
+on Stage/Cmd/Noc cmd bars; pulse via orchestrator `/v1/pulse` (D-0032) — no
 noc.lan scrape (D-0012).
 
 `godseye`, `mark-hud`, and `archive-gold` stay rebuildable. Pin
-`JARVIS_THEME=cockpit`. React+R3F via esbuild remains allowed; Stage for this
-pack uses a night-Earth backdrop + HTML chrome (not the godseye WebGL stack).
+`JARVIS_THEME=cockpit`. React+R3F via esbuild remains the production packer;
+Vite as bastion-only glass dev server allowed (D-0032). Earth may use WebGL;
+NOC uses SVG.
 
 **Next product-logic priority:** LiteLLM `classifier_type: llm` (BACKLOG A).
 
@@ -367,7 +386,8 @@ path (D-0002).
 
 ## 2026-09-19 — D-0017 — v1 glass scope
 
-**Status:** active. Sequences product UI under D-0009 / D-0012.
+**Status:** scope SUPERSEDED BY D-0032 (confirm UI + structured briefing +
+cockpit chrome). First-cut replace-stub / PTT / no-model-picker still stand.
 
 **Surface:** `jarvis.lan` is a **new** glass shell + **new** orchestrator. They
 **replace** the live `jarvis-core` stub on that Host. Do not evolve the stub in
