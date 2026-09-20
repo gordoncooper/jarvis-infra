@@ -12,57 +12,67 @@ each of which wrote confident prose describing a different product. Nothing
 recorded which vision was current, so every new session picked a different one
 and the build pulled apart. Decisions are now dated and ranked above prose.
 
+Skim this index and open only the entries your task touches. Keep new entries
+short — this file is authority #2, so every agent pays to read it.
+
+| # | Decision |
+| --- | --- |
+| D-0007 | Hard rules are enforced as deny rules and a shell guard, not prose alone |
+| D-0006 | Claude Code and Grok CLI are sanctioned bastion agents; both read `AGENTS.md` |
+| D-0005 | One rules file per repo: `AGENTS.md`, tracked in git |
+| D-0004 | Governance docs split by lifetime: law / decisions / spec / state / history |
+| D-0003 | `jarvis-core` is prior art, not the go-forward build |
+| D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
+| D-0001 | Goose runs on switchable backend profiles |
+
 ---
 
-## 2026-09-19 — D-0007 — Four agents, four lanes, and rules enforced as config
+## 2026-09-19 — D-0007 — Hard rules are enforced, and aimed at what cannot be undone
 
 **Status:** active
 
-Four agents now have hands on the bastion. Without lanes they duplicate work,
-edit the same clone concurrently, and quietly run up cost on the metered one.
+Prose is advisory: asked cold, an agent that had not loaded `AGENTS.md` asserted
+GitHub was Flux's origin (D-0006). The hard rules are therefore enforced in two
+layers that do not need the model to cooperate.
 
-| Agent | Lane | Why it gets that lane |
-| --- | --- | --- |
-| **Cursor** (Remote-SSH as `agent`) | Architecture, decisions, cross-repo changes, review | Gordon is in the loop and all three repos are open at once |
-| **Claude Code** | Bulk implementation inside one repo: multi-file builds, refactors, test loops | Subscription-billed, so a long run costs the same as a short one |
-| **Grok CLI** | Short targeted edits, and headless scripted checks (`-p --output-format json`) | Metered per token — keep prompts short; best scripting surface of the four |
-| **Goose** | On-node work over SSH, cluster discovery, cheap repetitive loops | The only one with passwordless SSH to all six nodes, and a free `llm-lan` profile |
+- **`.claude/settings.json`** — committed at each repo root, plus a user-scope
+  copy so the rules hold outside a repo too. Claude Code reads it natively and
+  Grok through Claude compatibility, so one file covers both. This is
+  *enforcement config, not a rules file*: D-0005 does not apply, and it is not a
+  second bible. Do not delete it as duplication.
+- **`~/.agent-guard.sh`** — sourced from `~/.bashrc`, replaces the Goose-only
+  guard. Wraps `kubectl`, `k3s` and `git` beneath whatever permission system the
+  agent uses. Fires on `GOOSE_TERMINAL`, `CLAUDECODE`, `GROK_AGENT` or
+  `CURSOR_AGENT`; inert in a human shell.
 
-Two constraints go with the lanes:
+**What is guarded is what cannot be undone.** `patch`, `edit`, `scale` and
+ordinary deletes are deliberately left alone — Flux reconciles them within a
+minute, and blocking routine debugging is how a guard earns itself a
+`--dangerously-skip-permissions` habit, after which nothing is protected.
+Blocked instead: `kubectl apply`/`replace` (named in law, and how drift starts),
+deleting a PVC, PV or namespace, force-push, `git tag -f`, and reads of key
+material. `learned.md` is gitignored in all three repos rather than merely
+forbidden in prose.
 
-- **One agent at a time per repo.** They share one clone on one filesystem;
-  concurrent sessions produce conflicting edits and interleaved commits.
-- **`AGENTS.md` and `DECISIONS.md` change only in a session Gordon is watching.**
-  Law must not drift as a side effect of an implementation loop.
-
-### Hard rules are now enforced, not just written
-
-AGENTS.md is prose, and prose is advisory: asked cold, an agent that had not
-loaded it asserted GitHub was Flux's origin (D-0006). The hard rules are
-therefore enforced in two layers that do not depend on the model cooperating.
-
-**Config —** `.claude/settings.json`, committed at each repo root, plus a
-user-scope copy at `~/.claude/settings.json` so the rules still apply when the
-working directory is outside a repo. Claude Code reads it natively and Grok
-reads it through Claude compatibility, so one file covers both. It denies the
-mutating `kubectl` verbs, force-push, `git tag -f`, and reads of key material.
-`jarvis-core` additionally denies all edits, which makes D-0003's "read-only
-reference" mechanical rather than an honour system.
-
-This file is **enforcement config, not a rules file** — D-0005 does not apply to
-it, and it is not a second bible. Do not delete it as duplication.
-
-**Shell —** `~/.agent-guard.sh`, sourced from `~/.bashrc`, replaces the
-Goose-only guard. It intercepts `kubectl`, `k3s`, and `git` below whatever
-permission system the agent uses, so it still holds when a model talks itself
-past its own config or works in a repo whose rules it never loaded. It fires on
-any of `GOOSE_TERMINAL`, `CLAUDECODE`, `GROK_AGENT`, `CURSOR_AGENT`, and is
-inert in a human shell. The documented `install-*.sh` exception is
-`AGENT_ALLOW_APPLY=1` (the old `GOOSE_ALLOW_APPLY` still works).
+Two hatches, kept separate so running an install script does not also unlock
+data deletion: `AGENT_ALLOW_APPLY=1` for the documented `install-*.sh`
+exception, and `AGENT_ALLOW_DESTROY=1` for PVC/PV/namespace deletion.
 
 Neither layer is a security boundary — `sudo kubectl` and a direct binary path
-both step around the shell guard. They are there to stop a confident agent, not
-a determined attacker.
+both step around the shell guard. They stop a confident agent, not an attacker.
+
+### Which agent to use — guidance, not law
+
+Ignore this per task when it does not fit; it is a cost and capability note, not
+a ruling. Cursor for architecture, decisions and cross-repo work, with Gordon in
+the loop. Claude Code for bulk implementation, since it is subscription-billed
+and a long run costs the same as a short one. Grok CLI for short edits and
+headless scripted checks, since it is metered per token. Goose for on-node work
+over SSH and cheap loops, being the only one with passwordless SSH to all six
+nodes and a free `llm-lan` profile.
+
+`AGENTS.md` and `DECISIONS.md` still change only in a session Gordon is
+watching. Law should not drift as a side effect of an implementation loop.
 
 ---
 
@@ -70,25 +80,19 @@ a determined attacker.
 
 **Status:** active
 
-Both are installed on the bastion as user `agent` and both read repo
-`AGENTS.md`, so D-0005 holds across all three agents now in play (Cursor,
-Goose, Claude Code, Grok CLI).
+Both run on the bastion as `agent` and both read repo `AGENTS.md`, so D-0005
+holds across all four agents. Two non-obvious conditions make that true:
 
-Two conditions make that true, and neither is obvious:
+- **Claude Code** reads `AGENTS.md` only when a repo has no `CLAUDE.md`. None
+  has one. **Never add a `CLAUDE.md`** — it silently outranks `AGENTS.md`.
+- **Grok CLI** loads instructions only in a *trusted* folder; all three are
+  granted. Untrusted, it loads nothing and answers from pretraining without
+  saying so — it claimed GitHub was Flux's origin. Check `grok inspect`, never
+  the model's own account of its context.
 
-- **Claude Code** reads `AGENTS.md` only as a *fallback*, when a repo has no
-  `CLAUDE.md`. None of the three repos has one. **Do not add a `CLAUDE.md`** —
-  it silently wins over `AGENTS.md` and re-creates the second bible.
-- **Grok CLI** loads project instructions only in a **trusted folder**. All
-  three repos have been granted trust. In an untrusted clone it loads nothing
-  and answers from pretraining *without saying so* — asked cold, it claimed
-  GitHub was Flux's origin. Verify with `grok inspect`, which prints the files
-  actually loaded. Never trust the model's own account of its context.
-
-Grok's default model is pinned to `grok-4.6` in `~/.grok/config.toml`. The
-shipped default was non-reasoning and got the Flux-origin question wrong even
-with the contract loaded. Metered on `XAI_API_KEY`, the same key as Goose's
-`xai` profile (D-0001).
+Grok is pinned to `grok-4.6` in `~/.grok/config.toml`; the shipped default was
+non-reasoning and failed the same question. Metered on `XAI_API_KEY`, the key
+Goose's `xai` profile also uses (D-0001).
 
 ---
 

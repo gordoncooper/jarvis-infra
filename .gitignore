@@ -27,3 +27,6 @@ __pycache__/
 # apps/jarvis-home/output is the production SSR bundle (Home + /status).
 # It MUST be committed. Do not add output/ here.
 clickops-export*
+
+# AGENTS.md: never commit this.
+learned.md

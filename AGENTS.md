@@ -70,7 +70,6 @@ rebuild, a wiped disk, or a day of confusion.
   adapter. One adapter per gap, never a pile.
 - If unsure, stop and ask. A wrong guess here costs more than a question.
 - Do not binge context. Open the file for this task, not the whole `docs/` tree.
-- One agent at a time per repo. Four agents share these clones (D-0007).
 - Change this file or `DECISIONS.md` only in a session Gordon is watching. Law
   does not move as a side effect of an implementation loop.
 
