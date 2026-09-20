@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0024 | Memory confirm heuristics + durable session sqlite on NFS |
 | D-0023 | Hands slice 2: confirm verbs recycle_pod + restart_deploy |
 | D-0022 | Hands slice 1: three trusted verbs via OpenClaw constrained `/v1/verbs` |
 | D-0021 | Product k8s/image names; implementation cuts start at v0.6.0 |
@@ -40,6 +41,22 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-20 — D-0024 — Memory confirm + session durability
+
+**Status:** active. Completes deferred D-0013 / D-0017 confirm UI for
+non-explicit facts, and the allowed session-on-NFS enhancement.
+
+**Memory confirm:** heuristic candidates (preference / identity phrases without
+“remember that…”) propose a one-line fact; glass Confirm/Cancel or wake
+`yes`/`cancel` writes promoted sqlite. Explicit remember/forget still auto-run.
+Secrets refused. No LLM extractor in this cut.
+
+**Session durability:** `sessions.sqlite` beside `promoted.sqlite` on the
+existing `/mnt/nfs/jarvis` hostPath. Messages + pending (hands|memory) survive
+orchestrator restart. Glass keeps `session_id` in localStorage.
 
 ---
 
@@ -236,11 +253,8 @@ input / PTT). Not a NOC, not a widget wall, no model picker.
 5. PTT once → orchestrator → Whisper (D-0016) → text reply; Piper when TTS up
 6. Honest degraded state if orchestrator or LLM is down
 
-**Memory UI in this slice:** explicit “remember that…” / “forget…” only
-(auto-save / tombstone). **Confirm cards deferred** — non-explicit candidate
-facts are **not** written in v1 glass (refuse or ignore until confirm UI
-ships). This narrows D-0013’s “confirm non-explicit remembers in glass” for
-the v1 glass milestone only; the doctrine otherwise stands.
+**Memory UI:** explicit “remember that…” / “forget…” auto-save; non-explicit
+preference/identity candidates use Confirm/Cancel (D-0024).
 
 **v1 extras kept:** degraded banner that does not depend on the talker; clean
 cutover of `jarvis.lan` ingress to the new glass.
@@ -367,9 +381,8 @@ never stored.
 is a later explicit path, not v1. Keep today’s git briefing vs NFS promoted
 split.
 
-**Session durability (v1):** survive glass restart. Surviving orchestrator
-restart (e.g. session sqlite on NFS) is an allowed later enhancement, not
-required for v1.
+**Session durability (v1+):** survive glass restart. Surviving orchestrator
+restart via session sqlite on NFS is **shipped** (D-0024).
 
 **Never written:** secrets, tokens, key material, raw vault contents, live
 metric snapshots-as-facts, unconfirmed model inferences, OpenClaw private

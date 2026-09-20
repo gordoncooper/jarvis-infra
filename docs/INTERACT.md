@@ -27,6 +27,13 @@ into `noc.lan`; it still serves today, so it is listed as legacy, not as the boa
 **git.lan stays HTTP** (Flux). **agent.lan:18789** is HTTP on purpose (hostPort).
 Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 
+## Product memory (jarvis.lan)
+
+- Explicit: **remember that …** / **forget …** — auto-save / tombstone.
+- Non-explicit preference/identity (“I prefer…”, “my name is…”) → Confirm/Cancel
+  (or wake `yes`/`cancel`) before write (D-0024).
+- Sessions survive orchestrator restart (`sessions.sqlite` on NFS).
+
 Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Gordon's
 override. chat.lan does **not** show a model chip — Open WebUI rewrites the stream to
 `jarvis`, so the child model never reaches the browser. Do not build one.
