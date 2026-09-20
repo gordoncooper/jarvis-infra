@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0029 | jarvis.lan Mark HUD cockpit + theme library; classifier next |
 | D-0028 | Orchestrator-owned list memories; broader delete/remove forget phrases |
 | D-0027 | Forget / forget-all are confirm-class (same UI as soft remember) |
 | D-0026 | Memory/Hands UX: prefer-before-verb, scrub, °F, list pods |
@@ -45,6 +46,26 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-20 — D-0029 — jarvis.lan Mark HUD cockpit + theme library
+
+**Status:** active. Tightens D-0020 look-and-feel.
+
+jarvis.lan is a **cockpit** (rail, stages, meters, console over a dark grid),
+not a centered chat column. Glass `src/` is theme-agnostic. Packs live in
+`jarvis-app/glass/themes/<name>/`. Pin `JARVIS_THEME` in `jarvis-app/VERSION`
+(product pack: `mark-hud`). Rebuild/swap is pack CSS → `npm run build` →
+glass image tag → Flux. `archive-gold` keeps the previous look rebuildable.
+
+Mark HUD tokens: canvas `#07090b`, panels `#0c1014` / `#10151b`, hair `#1c252e`,
+steel `#8b9aaa`, text `#e7eef4`, accent `#5eead4` only on LIVE/selected/meters.
+IBM Plex Sans + Mono. Radius 2–4px. Motion 160ms ease-out.
+
+**home.lan** stays until a later deprecation cut (noc.lan after that).
+**Next product priority:** LiteLLM `classifier_type: llm` (BACKLOG A) — no
+keyword-tier PRs meanwhile.
 
 ---
 

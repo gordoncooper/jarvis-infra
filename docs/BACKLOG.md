@@ -11,21 +11,24 @@ Not in this file: HUD CSS, mermaid pretty, voice timbre, suggestion chips.
 
 ## A. Product (spec in PLAN)
 
-- [ ] **high** LiteLLM `classifier_type: llm` (grok-fast rubric) then **delete** famous-phrase `keyword_tier_rules`. Done only when PLAN's five pings land. No new keyword PRs while waiting
+- [ ] **high** LiteLLM `classifier_type: llm` (grok-fast rubric) then **delete** famous-phrase `keyword_tier_rules`. **Next after D-0029 Mark HUD cockpit.** Done only when PLAN's five pings land. No new keyword PRs while waiting
 - [ ] **med** Widen OpenClaw RBAC **only** after Gordon names verbs. Same Hands shim. Cat live Role first. No cluster-admin
 - [ ] **med** Off-LAN: Tailscale (or equivalent). Not a bastion desktop. Not kubeconfig on a laptop. Becomes **high** the day he works off-LAN
 - [ ] **low** gpu-02 stays embed-only until there is a reason for a second chat model (VRAM is free; context switch is not)
 
 ---
 
-## B. HUD rebuild (next image cut)
+## B. HUD rebuild (home.lan — deferred)
+
+home.lan image cut is **deferred** until that surface is retired into noc.lan
+(D-0029). Product HUD is jarvis.lan glass (`JARVIS_THEME` packs).
 
 Do as **one** image bump (`IMAGE` in VERSION + both `homepage.yaml`). Import on apps-01 **before** Flux. Never retag.
 
-- [ ] **high** Bastion-native `output/` rebuild (`BUILD.md`) so the next cut does not require the Grok preview tab
-- [ ] **med** Strip `PreviewHostBridge`, `preview-host-bridge.ts`, `preview-embedder-origin.ts`
+- [ ] **high** Bastion-native `output/` rebuild (`BUILD.md`) so the next cut does not require the Grok preview tab — **deferred**
+- [x] **med** Strip `PreviewHostBridge`, `preview-host-bridge.ts`, `preview-embedder-origin.ts` (source; live image still v0.4.9 until rebuild)
 - [ ] **low** Strip empty `AuthProvider` unless a real provider exists
-- [ ] **low** Drop `/__grok/*` from `src/routes/__root.tsx` and `output/static/__grok/`
+- [x] **low** Drop `/__grok/*` from `src/routes/__root.tsx` (source). `output/static/__grok/` waits on image rebuild
 - [ ] **med** Prove `/status` + dossiers; then bump `IMAGE` only (same session as the strip)
 
 ---
