@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0034 | Intent classifier is promotion-only: it may name a verb, nothing else |
 | D-0033 | Intent router: declared catalog + local constrained classifier; no tools for the talker |
 | D-0032 | Cockpit pack is the product glass; confirm UI + pulse; Vite bastion-only |
 | D-0031 | jarvis.lan four-display cockpit pack; godseye look superseded |
@@ -50,6 +51,66 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-21 — D-0034 — The intent classifier may name a verb, and nothing else
+
+**Status:** active. Completes D-0033 slice 3 and **amends** the disposition
+D-0033 predicted for the slice 2 refusal rule.
+
+`jarvis-local` now classifies any utterance the deterministic pass could not
+place, and may promote it to a declared verb. `ROUTER_CLASSIFIER=on`.
+
+**Shadow mode earned its keep.** The first run said turning the classifier on
+would be a **wash — 39/64 either way** — and showed precisely why. The 7B is
+good at naming a verb: it got *anything broken?*, *did anything break
+overnight?*, *is everything ok in the rack?*, *what are the lab urls?* and
+*kill the whisper pod, it's wedged*, none of which any regex was going to
+catch. It is bad at the capability/chat boundary when no verb fits: it called
+*take a look at the flux error logs*, *is flux in sync?* and *what's the
+latest backup of the cluster?* ordinary chat, demoting six honest refusals
+back into hallucinations, and answered *everything green?* with
+capability/no-verb, which would have denied a `cluster.health` question
+outright.
+
+**So the classifier is promotion-only.** It may name a verb from the manifest.
+It may not demote a refusal to chat, and it may not invent a refusal. Each
+side keeps what it is good at: `router.is_house_request` owns "nothing serves
+this subject", which is a fact about the manifest rather than a guess, and the
+model owns "which verb did he mean", which no list of patterns was going to
+cover. Re-measured: **39 → 47 of 64**, all three gates at zero, and all eight
+answers it changed were correct.
+
+`memory.remember` / `memory.forget` are not promotable — both need a fact
+extracted from the utterance, which the classifier does not produce, so naming
+one would open a confirm prompt with nothing in it.
+
+**Amendment to D-0033.** That entry said the slice 2 rule would either become
+a prefilter or be deleted, and "does not survive as a parallel router". The
+measurement says otherwise, so the rule **stays**, as the authority on
+unserved subjects and as the entire refusal path when the model is
+unreachable. It is not a parallel router: it cannot name a verb, and the
+classifier cannot overrule it except by naming one. The D-0033 constraint
+that still holds is the one that matters — **do not extend it with patterns.**
+
+**Still no tools for the talker.** `classify.parse_verdict` rejects any name
+outside the manifest, so an invented `cluster.nuke`, or a "verb" of
+`kubectl delete ns apps`, becomes nothing. Writes need a higher confidence
+floor than reads (0.8 vs 0.6) and remain confirm-gated under D-0023.
+
+**Cost.** One extra local call, ~1.0–1.5 s, only on turns the deterministic
+pass could not place; a turn that matches a verb pays nothing. A timeout or a
+malformed reply degrades to exactly slice 2 behaviour. No cloud hop: routing
+is on the critical path of every turn and must survive the house being sick.
+
+**Found on the way, fixed:** `hands.SHORT_NAMES` had drifted from the cluster
+— `piper` listed under `inference` when it runs in `apps`, `whisper` where the
+Deployment is `jarvis-whisper`, and `jarvis-home` / `speaches` /
+`openedai-speech` / `nvidia-gpu-exporter` no longer Deployments at all. These
+are **write** targets, so a wrong row is a confirm prompt offering to restart
+something that is not there. Corrected against the live cluster; verify with
+`for ns in apps inference agents monitoring; do kubectl -n $ns get deploy; done`.
 
 ---
 

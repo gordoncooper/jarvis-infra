@@ -15,7 +15,7 @@ Not in this file: HUD CSS, mermaid pretty, voice timbre, suggestion chips.
   - [x] 0 — live bugs: undefined `ALLOW_NS` (500 on `ns/name`), `remember that` storing the fact "that"
   - [x] 1 — utterance fixture + CI gate; `route()` extracted so the gate scores the real router. Chat false-positives 3 → **0**; capability passes **28**
   - [x] 2 — capability manifest + honest refusal before the talker; `meta.capabilities`. Refusal trigger is a **stopgap that expires at slice 3** — do not extend it with more patterns
-  - [ ] 3 — `jarvis-local` classifier, `ROUTER_CLASSIFIER=off|shadow|on`
+  - [x] 3 — `jarvis-local` classifier, promotion-only (**D-0034**). 39 → 47 of 64; `ROUTER_CLASSIFIER=on`
   - [ ] 4 — conversational referents ("remember that", "delete that last one"), confirm-gated
 - [ ] **high** LiteLLM `classifier_type: llm` (grok-fast rubric) then **delete** famous-phrase `keyword_tier_rules`. **Next after D-0030 God’s Eye glass.** Done only when PLAN's five pings land. No new keyword PRs while waiting. **Not the same thing as D-0033** — this is the break-glass `chat.lan` router; D-0033 is the product path, which does not use the `jarvis` auto-router at all (D-0019)
 - [ ] **med** Widen OpenClaw RBAC **only** after Gordon names verbs. Same Hands shim. Cat live Role first. No cluster-admin
