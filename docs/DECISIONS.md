@@ -91,7 +91,9 @@ rubric → constrained JSON decoding → a second **local** model → drop the
 classifier and keep the honest refusal. Moving the Classifier role to
 `jarvis-grok` is a separate decision, never a fallback.
 
-**Gate.** A committed utterance fixture scored in CI, on two denominators:
+**Gate.** A committed utterance fixture scored by the orchestrator test
+suite, which `scripts/install-images.sh` runs before it builds — a failing
+gate stops the ship. Two denominators:
 plain-chat false-positives **0**, and capability passes not below **28**.
 Both absolute counts, never rates: a rate over the mixed set climbs when you
 add negatives, which lets a gate rot while looking healthier. Shipped in slice
