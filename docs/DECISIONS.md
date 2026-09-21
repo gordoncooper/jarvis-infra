@@ -93,11 +93,16 @@ exists here and now, minus anything conceptual. This is a rule on English,
 i.e. the thing this decision exists to remove, so it carries three
 constraints:
 
-1. **Tuned for precision, never coverage.** Refuse only when plainly about
-   this house. A miss leaves the status quo; a false refusal breaks ordinary
-   conversation, which is the one thing that already worked. Vocabulary cannot
-   make this call — 11 of the 25 plain-chat fixture utterances mention pods,
-   flux, nodes or GPUs.
+1. **Refuse only a subject nothing owns.** Not "looks like an instruction" —
+   the first cut tried that and told Gordon "that is not something I can do"
+   in answer to *show me all your saved facts and memories*, while offering
+   two lines later to read back everything he had asked it to remember. A
+   refusal that contradicts its own capability list is worse than the
+   hallucination it replaced. The rule now requires a subject no capability
+   covers (logs, backups, disk, files, Flux state, image versions); when a
+   capability lands for one, its word leaves that list in the same commit.
+   Vocabulary alone cannot make the call either — 11 of the 25 plain-chat
+   fixture utterances mention pods, flux, nodes or GPUs.
 2. **Do not extend it with more patterns.** Adding a phrase to catch one more
    miss is the treadmill (`BACKLOG` §G bans exactly this shape). Record the
    miss in the fixture and let slice 3 take it.
@@ -123,11 +128,14 @@ rot while looking healthier):
 | --- | --- |
 | plain chat captured by a capability | **0** (was 3 before slice 1) |
 | ordinary questions answered with a refusal | **0** |
-| capability passes | **≥ 40** of 64 |
+| requests JARVIS *can* serve, refused | **0** |
+| capability passes | **≥ 39** of 64 |
 
-The recorded pass count moved 26 → 25 → 28 → 40; the first two moves were
+The recorded pass count moved 26 → 25 → 28 → 39; the first two moves were
 corrections rather than progress, and every reason is written into
-`test_router.py` so the number stays auditable.
+`test_router.py` so the number stays auditable. The third assertion exists
+because its absence let v0.6.29 ship a rule that refused three things JARVIS
+could do.
 
 **Rollout.** `ROUTER_CLASSIFIER=off|shadow|on`. Shadow logs the classifier
 beside the regex decision against real traffic before it can affect a turn.
