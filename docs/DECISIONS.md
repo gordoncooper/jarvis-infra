@@ -92,9 +92,11 @@ classifier and keep the honest refusal. Moving the Classifier role to
 `jarvis-grok` is a separate decision, never a fallback.
 
 **Gate.** A committed utterance fixture scored in CI, on two denominators:
-plain-chat false-positives **0** (absolute count), and capability recall not
-below the 2026-09-21 baseline of **26/64** measured on the capability subset
-alone. Never scored on the mixed set, which moves when negatives are added.
+plain-chat false-positives **0** (absolute count, 3 today), and capability
+recall not below **25/64** on the capability subset alone. Never scored on the
+mixed set, which moves when negatives are added. (Pre-slice-0 the subset read
+26/64, but one of those was `remember that` "passing" by storing the word
+"that" — a bug counted as a pass is how a gate rots.)
 
 **Rollout.** `ROUTER_CLASSIFIER=off|shadow|on`. Shadow logs the classifier
 beside the regex decision against real traffic before it can affect a turn.

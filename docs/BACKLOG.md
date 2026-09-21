@@ -13,7 +13,7 @@ Not in this file: HUD CSS, mermaid pretty, voice timbre, suggestion chips.
 
 - [ ] **high** Product intent router (**D-0033**), `jarvis-app` orchestrator. Slices and the live baseline: `jarvis-app/docs/INTENT-ROUTER.md`. Local classifier only — no cloud model in the routing path
   - [x] 0 — live bugs: undefined `ALLOW_NS` (500 on `ns/name`), `remember that` storing the fact "that"
-  - [ ] 1 — utterance fixture + CI gate (chat false-positives 0; capability recall ≥ 26/64)
+  - [ ] 1 — utterance fixture + CI gate (chat false-positives 0; capability recall ≥ 25/64 on the capability subset)
   - [ ] 2 — capability manifest + honest refusal before the talker; `meta.capabilities`
   - [ ] 3 — `jarvis-local` classifier, `ROUTER_CLASSIFIER=off|shadow|on`
   - [ ] 4 — conversational referents ("remember that", "delete that last one"), confirm-gated
