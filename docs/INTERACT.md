@@ -3,14 +3,14 @@
 Operator/copilot contract: [OPERATING.md](OPERATING.md). Pins: `~/jarvis-infra/VERSION`.
 Proof: `~/jarvis-infra/scripts/verify-jarvis.sh`.
 
-Product surface is **jarvis.lan** (God’s Eye globe-as-stage, theme packs under
-`jarvis-app/glass/themes/`, pin `JARVIS_THEME`) and the operator surface is
-**noc.lan** (D-0002 / D-0030). Everything else below is break-glass or vendor
-UI. `home.lan` is being retired into `noc.lan`; it still serves today.
+Product surface is **jarvis.lan** — the four-display `cockpit` theme: login,
+breath, cmd, noc (D-0031 / D-0032) — and the operator surface is **noc.lan**
+(D-0002). Everything else below is break-glass or vendor UI. `home.lan` is
+being retired into `noc.lan`; it still serves today.
 
 | Surface | URL / cmd | Best for | Model / cost |
 | --- | --- | --- | --- |
-| **Product** | https://jarvis.lan | Talking to JARVIS. Globe-as-stage HUD (D-0030). | — |
+| **Product** | https://jarvis.lan | Talking to JARVIS. Four-display cockpit (D-0032). | — |
 | **NOC** | https://noc.lan | Nodes, workloads, alerts. Renders when the brain is down. | — |
 | Legacy board | https://home.lan | Services + rack + events, click-tile dossiers. Retiring into noc.lan. | — |
 | Legacy telemetry | https://home.lan/api/telemetry | JSON: source, GPUs, events, `podsByNode` | — |
@@ -40,14 +40,17 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
   still propose via local LLM extract (D-0025); still confirm-gated.
 - Preference lines win over Hands verbs (D-0026); GPU °C/°F follows newest
   promoted unit preference. Forget replies name the removed fact(s).
-- Bare **remember that** / **forget that** carry no fact — JARVIS asks which
-  part you mean rather than storing the word "that" (D-0033 slice 0).
-  Resolving the referent from the previous turn is slice 4.
+- **remember that** / **scratch that** / **delete that last one** resolve
+  against the previous turn and still ask Confirm/Cancel (D-0035). Saying
+  **remember that** while a remember confirm is open counts as yes.
+- **what can you do** lists the declared capabilities. Anything outside them
+  is refused by name rather than guessed at.
 - Sessions survive orchestrator restart (`sessions.sqlite` on NFS).
 
-**Theme swap:** `JARVIS_THEME` in `~/jarvis-app/VERSION`, bump glass image,
-`./scripts/install-images.sh`. Packs: `godseye` (product), `mark-hud`
-(archived 3-column), `archive-gold`. See `~/jarvis-app/glass/README.md`.
+**Theme swap:** `JARVIS_THEME` in `~/jarvis-app/VERSION`, bump the glass image,
+`./scripts/install-images.sh`. The only theme is **`cockpit`** — `godseye`,
+`mark-hud` and `archive-gold` were deleted in glass v0.6.44. See
+`~/jarvis-app/docs/THEMES.md`.
 
 Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Gordon's
 override. chat.lan does **not** show a model chip — Open WebUI rewrites the stream to
@@ -86,9 +89,12 @@ Chat memory: say **remember that ...** in chat.lan (alias `jarvis`). It appends 
 
 ## Hands (product actuator + break-glass)
 
-**Daily path:** https://jarvis.lan — the orchestrator matches declared verbs
-(`cluster.health`, `cluster.gpus`, `lab.map`) and calls OpenClaw’s openai-shim
-`POST /v1/verbs` only. Free-form `/v1/chat/completions` is **not** the product path.
+**Daily path:** https://jarvis.lan — the orchestrator resolves the utterance
+to a declared capability (`orchestrator/app/capabilities.py`) and calls
+OpenClaw’s openai-shim `POST /v1/verbs` for the hands-backed ones only.
+Free-form `/v1/chat/completions` is **not** the product path. A name the
+manifest does not contain is refused before it reaches the shim, and the shim
+re-validates.
 
 **Break-glass (when glass/shim is sick):**
 - UI: http://agent.lan:18789 (re-pair after pod recycle; HTTP; DNS **192.168.8.16**).
@@ -205,11 +211,19 @@ Handled after STT. **Not sent to the orchestrator.** Wake, then say one of:
 
 Ctrl-C also stops the listener.
 
-## Router
+## Routers — there are two, do not confuse them
 
-Alias `jarvis` is LiteLLM `complexity_router`. For its current configuration, ask
-LiteLLM — `scripts/discover/apps/litellm.sh`. Do not trust a doc for router state.
-**Direction:** native `classifier_type: llm` — see [VISION.md](VISION.md) and BACKLOG.
+**Product (jarvis.lan).** The orchestrator routes every turn itself: declared
+capability manifest, then a local `jarvis-local` classifier that may only name
+a verb, then an honest refusal, then the talker (D-0033 / D-0034 / D-0035).
+It does **not** use the LiteLLM `jarvis` alias or `keyword_tier_rules` at all
+(D-0019). How it works: `jarvis-app/docs/ARCHITECTURE.md`.
+
+**Break-glass (chat.lan).** Alias `jarvis` is LiteLLM `complexity_router`. For
+its current configuration ask LiteLLM — `scripts/discover/apps/litellm.sh`;
+do not trust a doc for router state. **Direction:** native
+`classifier_type: llm` — see [VISION.md](VISION.md) and BACKLOG. Changing this
+has no effect on jarvis.lan.
 Picker is Gordon's hatch. chat.lan does **not** show a child-model chip (OWUI rewrites
 the stream to `jarvis`). Do not spend cycles on one.
 

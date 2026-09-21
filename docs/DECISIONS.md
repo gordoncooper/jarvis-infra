@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0035 | Conversational referents: "remember that" resolves, and stays confirm-gated |
 | D-0034 | Intent classifier is promotion-only: it may name a verb, nothing else |
 | D-0033 | Intent router: declared catalog + local constrained classifier; no tools for the talker |
 | D-0032 | Cockpit pack is the product glass; confirm UI + pulse; Vite bastion-only |
@@ -51,6 +52,46 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-21 — D-0035 — "that" resolves against the previous turn
+
+**Status:** active. Completes D-0033 slice 4; the intent-router work is done.
+
+`remember that`, `scratch that`, `delete that last one` and `that's wrong,
+remove it` carry no fact of their own. Slice 0 stopped them storing the
+literal word `"that"`; this resolves them.
+
+**Referent store.** A per-session dict beside pending, on the same NFS sqlite
+(D-0024), holding `last_user_text`, `last_candidate`, `last_fact_text` and
+`last_verb`. Durable because a session outlives the pod and "remember that"
+after a restart must not quietly mean something else. `last_candidate` is
+cleared by any turn that found nothing, so the phrase cannot reach back
+several exchanges.
+
+**Still confirm-gated.** Resolving a referent is an inference about what
+Gordon meant, and D-0013 says an inference is never written on its own. Every
+resolution produces the ordinary Confirm/Cancel, never a silent write.
+
+**"remember that" answers a pending remember.** While a remember confirm is
+open it counts as yes. Without it the turn fell through to *"Still waiting:
+… say yes or cancel"* — JARVIS offering to remember something and then
+refusing to accept the answer, which is most of what "clumsy" meant.
+
+**Extractor fix, required for the above.** The D-0025 prompt ended "Refuse …
+questions", which swallowed the phrasing actually used: *"did you know I like
+black coffee?"* is a question in form and a disclosure in content, so nothing
+was extracted and "remember that" had nothing to point at. It now separates
+"asks for information" (still refused) from "states a fact" (extracted). The
+same change stopped it returning bare fragments like `{"fact":"Sarah"}` for
+*"my wife's name is Sarah"*.
+
+**Referent phrases are matched, not classified.** A closed set of four
+phrasings, none of which means anything else. The classifier cannot serve them
+— it names verbs and does not extract the target (D-0034).
+
+**Deterministic floor 39 → 42 of 64.**
 
 ---
 
@@ -215,7 +256,10 @@ untouched. `meta.capabilities` reads the manifest and nothing else.
 LiteLLM `keyword_tier_rules` and the `classifier_type: llm` BACKLOG ticket,
 which are the **break-glass chat.lan** path and not this.
 
-Slice plan and the full measurement: `jarvis-app` `docs/INTENT-ROUTER.md`.
+How it ended up working: `jarvis-app` `docs/ARCHITECTURE.md` — *How a turn
+is routed*. The slice tracker this entry originally pointed at was deleted
+when the last slice landed, as it said it would be; D-0034 and D-0035 carry
+what it measured.
 
 ---
 
