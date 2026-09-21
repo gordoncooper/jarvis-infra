@@ -44,5 +44,39 @@ echo "== prune hostPath > ${KEEP_DAYS}d =="
 ssh -n -o BatchMode=yes "$REMOTE" "sudo find $ROOT -mindepth 1 -maxdepth 1 -type d -mtime +$KEEP_DAYS -exec rm -rf {} +"
 
 echo "== listing =="
+# Publish a status document where JARVIS can read it (D-0037).
+#
+# The backups directory stays 0750 root. Rather than loosen that so a service
+# can stat it, the producer writes what it already knows onto the NFS share
+# the orchestrator already mounts. `backup.latest` reads this and nothing
+# else, so answering "when did the last backup run?" costs no access to the
+# archives themselves.
+#
+# stdin IS the remote program here, so no -n (see LESSONS on ssh and stdin).
+ssh -o BatchMode=yes "$REMOTE" "sudo STAMP=$STAMP ROOT=$ROOT python3 -" <<'PUBLISH' || echo "WARN: could not publish backup-status.json"
+import json, os, pathlib, time
+stamp = os.environ["STAMP"]
+root = pathlib.Path(os.environ["ROOT"]) / stamp
+files = (
+    sorted(
+        ({"name": f.name, "bytes": f.stat().st_size} for f in root.glob("*.tgz")),
+        key=lambda x: x["name"],
+    )
+    if root.is_dir()
+    else []
+)
+out = {
+    "stamp": stamp,
+    "finished_at": time.time(),
+    "total_bytes": sum(f["bytes"] for f in files),
+    "ok": bool(files),
+    "files": files,
+}
+dest = pathlib.Path("/cluster/nfs/jarvis/backup-status.json")
+dest.write_text(json.dumps(out, indent=2) + "\n")
+dest.chmod(0o644)
+print("published", dest, out["stamp"], out["total_bytes"], "bytes")
+PUBLISH
+
 ssh -n -o BatchMode=yes "$REMOTE" "sudo du -sh $ROOT $ROOT/$STAMP; sudo ls -lh $ROOT/$STAMP"
 echo "OK $STAMP"
