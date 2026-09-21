@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0036 | Five capabilities the orchestrator serves itself; no RBAC widen |
 | D-0035 | Conversational referents: "remember that" resolves, and stays confirm-gated |
 | D-0034 | Intent classifier is promotion-only: it may name a verb, nothing else |
 | D-0033 | Intent router: declared catalog + local constrained classifier; no tools for the talker |
@@ -52,6 +53,72 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-21 — D-0036 — Five capabilities the orchestrator serves itself
+
+**Status:** active. First capabilities added since D-0022 / D-0023. Gordon
+delegated the naming on 2026-09-21 ("create a reasonable suite of verbs you
+think would be appropriate"); the BACKLOG rule that RBAC widens only after he
+names verbs is **unchanged and untouched** — none of these widen anything.
+
+| Verb | Class | Backend | Answers |
+| --- | --- | --- | --- |
+| `pods.list` | trusted | Prometheus (kube-state-metrics) | where the pods are, what is unhappy |
+| `storage.free` | trusted | Prometheus (node-exporter) | disk headroom per node |
+| `weather.now` | trusted | open-meteo, already wired | the weather where the house is |
+| `time.now` | trusted | orchestrator clock | the time and date |
+| `deploy.version` | trusted | own version + glass `build.json` | which build is running |
+
+**No shim verb, no RBAC change, nothing to recycle.** The obvious route was new
+OpenClaw verbs, which means editing the shim ConfigMap and recycling OpenClaw
+around the `hostPort` race. It was not needed: kube-state-metrics and
+node-exporter are already in Prometheus, which the orchestrator already reads
+for `/v1/pulse` (D-0012 permits exactly that), and open-meteo and the glass
+build manifest were already wired.
+
+That is not only convenience. **These keep answering when Hands is down** —
+the half of the rack most likely to be sick when Gordon asks whether anything
+is broken. VISION's third property, earned rather than asserted.
+
+**All five are reads, and all trusted.** Nothing here has a blast radius. A
+capability that needs a confirm belongs behind Hands with a Role, and
+`test_capabilities.py` asserts no self-served capability is confirm-class.
+
+**`pods.list` does not read out 41 pod names** — unreadable on the wall and
+unlistenable over Piper. Counts per namespace, the names of anything not
+Running, and the worst restart count.
+
+**Deterministic rules shipped with them**, narrow ones. Without a rule, *"how
+much disk is left?"* would reach the talker whenever the classifier is off or
+unreachable, where before D-0036 it got an honest refusal. **The degraded path
+is not allowed to get less honest.** The classifier covers the phrasings the
+rules miss with no router change, because it reads the manifest (D-0034).
+
+**Consequence, enforced by test:** `disk`, `storage`, `space`, `version` and
+`deployed` left `router._UNSERVED_SUBJECT`, because a subject a capability now
+owns must not also be refused. *"did the last deploy succeed?"* stays
+unsupported — that is Flux reconcile state, which nothing serves.
+
+**Measured:** deterministic floor 42 → **52**; with the classifier 47/64 →
+**61 of 74**; all four gates at zero.
+
+### Named but not built, and why
+
+- **`logs.tail`** — `openclaw-recycle` *already* grants `pods/log` in the four
+  namespaces, so this needs no RBAC change either. It is deferred anyway:
+  permission is not the same as wisdom. Logs carry env dumps and tokens, and a
+  verb that reads them aloud on a wall display is a secret-exposure surface
+  that deserves its own decision, with redaction and a line cap designed in.
+- **`flux.status`** — needs read access into `flux-system`, which the Roles
+  deliberately exclude. A genuine RBAC decision, not a patch.
+- **`backup.latest`** — the backend is unconfirmed; nobody has checked what
+  filesystem the orchestrator can actually see. Do not name a verb whose
+  backend has not been proven.
+- **`files.list`** — has no defined subject. *"What files are in the
+  directory?"* does not say which directory, and an allowlisted root has to be
+  named before this can be a capability at all.
 
 ---
 

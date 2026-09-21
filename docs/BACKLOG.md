@@ -13,7 +13,11 @@ Not in this file: HUD CSS, mermaid pretty, voice timbre, suggestion chips.
 
 - [x] **high** Product intent router — **D-0033 / D-0034 / D-0035, shipped 2026-09-21**. Declared capability manifest; deterministic match → local classifier → honest refusal → talker; referents; fixture gate in `jarvis-app/orchestrator/tests`, run by `install-images.sh` before it builds. Capability routing 26 → 47 of 64 with zero plain-chat regressions. How it works: `jarvis-app/docs/ARCHITECTURE.md`
 - [ ] **high** LiteLLM `classifier_type: llm` (grok-fast rubric) then **delete** famous-phrase `keyword_tier_rules`. **Next after D-0030 God’s Eye glass.** Done only when PLAN's five pings land. No new keyword PRs while waiting. **Not the same thing as D-0033** — this is the break-glass `chat.lan` router; D-0033 is the product path, which does not use the `jarvis` auto-router at all (D-0019)
-- [ ] **med** Widen OpenClaw RBAC **only** after Gordon names verbs. Same Hands shim. Cat live Role first. No cluster-admin
+- [ ] **med** Widen OpenClaw RBAC **only** after Gordon names verbs. Same Hands shim. Cat live Role first. No cluster-admin. D-0036 added five capabilities without touching it, by reading Prometheus from the orchestrator — try that first
+- [ ] **med** `logs.tail` — **RBAC already allows it** (`pods/log` is in `openclaw-recycle`), which is exactly why it needs a decision rather than a commit: logs carry env dumps and tokens, and a verb that reads them onto a wall display is a secret-exposure surface. Design redaction and a line cap first (D-0036)
+- [ ] **low** `flux.status` — real RBAC widen into `flux-system`, which the Roles deliberately exclude. Read-only status only; not `flux.logs`
+- [ ] **low** `backup.latest` — confirm what filesystem the orchestrator can actually see **before** naming the verb
+- [ ] **low** `files.list` — needs a named, allowlisted root. "The directory" is not a subject
 - [ ] **med** Off-LAN: Tailscale (or equivalent). Not a bastion desktop. Not kubeconfig on a laptop. Becomes **high** the day he works off-LAN
 - [ ] **low** gpu-02 stays embed-only until there is a reason for a second chat model (VRAM is free; context switch is not)
 
