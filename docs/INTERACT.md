@@ -40,6 +40,9 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
   still propose via local LLM extract (D-0025); still confirm-gated.
 - Preference lines win over Hands verbs (D-0026); GPU °C/°F follows newest
   promoted unit preference. Forget replies name the removed fact(s).
+- Bare **remember that** / **forget that** carry no fact — JARVIS asks which
+  part you mean rather than storing the word "that" (D-0033 slice 0).
+  Resolving the referent from the previous turn is slice 4.
 - Sessions survive orchestrator restart (`sessions.sqlite` on NFS).
 
 **Theme swap:** `JARVIS_THEME` in `~/jarvis-app/VERSION`, bump glass image,

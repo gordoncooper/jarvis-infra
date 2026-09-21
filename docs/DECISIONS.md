@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0033 | Intent router: declared catalog + local constrained classifier; no tools for the talker |
 | D-0032 | Cockpit pack is the product glass; confirm UI + pulse; Vite bastion-only |
 | D-0031 | jarvis.lan four-display cockpit pack; godseye look superseded |
 | D-0030 | jarvis.lan globe-as-stage (godseye); React+R3F via esbuild; classifier next |
@@ -49,6 +50,70 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-21 — D-0033 — Intent router: declared catalog + local constrained classifier
+
+**Status:** active. Executes the escape hatch D-0022 left open — *"ingress
+regex on the orchestrator for v1; may add LLM classify later without changing
+the verb boundary"* — and closes the VISION principle *"intelligence in the
+router, not regex on English."* Changes no verb, no RBAC, no model pin.
+
+**Why now.** Measured on live `jarvis.lan` (v0.6.26) on 2026-09-21 against 89
+utterances: **36 of them were capability requests that reached the toolless
+talker**, which answered anyway — *"the last update I recall was from
+yesterday"* about a cluster it cannot see. The leak runs both ways: `what is a
+GPU?` returned GPU temperatures, because the `cluster.gpus` regex matches the
+bare word. Capability recall 26/64; 3 plain-chat utterances stolen by a verb.
+
+**The talker still gets no tools.** No `tools` array, no tool-call parsing, no
+`supports_function_calling` flip. A separate non-streaming classify call
+returns a JSON **label**; the orchestrator validates it against a declared
+manifest and refuses anything not in it. Execution is unchanged — OpenClaw shim
+`POST /v1/verbs`, same trust classes, same confirm gate, same audit row.
+
+**Manifest** (`orchestrator/app/capabilities.py`) becomes the one source for
+the router prompt, the talker's capability statement, the execute path, and a
+new `meta.capabilities` verb. It covers the memory verbs too — `memory.py` is a
+second regex router and half the failures are there.
+
+**Order of resolution:** deterministic match → classifier → honest refusal →
+talker. A capability-shaped utterance with no matching verb **never reaches the
+talker**; it is answered from the manifest. That rule alone removes every
+hallucination measured above, and it ships before the classifier does.
+
+**Routing decisions stay on local compute.** `jarvis-local` on the rack's own
+GPU — the D-0019 Classifier role, unchanged. Routing is on the critical path of
+every turn and must survive the house being sick (VISION: *"it stays up when it
+is sick"*). Escalation if the 7B is not accurate enough, in order: tighter
+rubric → constrained JSON decoding → a second **local** model → drop the
+classifier and keep the honest refusal. Moving the Classifier role to
+`jarvis-grok` is a separate decision, never a fallback.
+
+**Gate.** A committed utterance fixture scored in CI, on two denominators:
+plain-chat false-positives **0** (absolute count), and capability recall not
+below the 2026-09-21 baseline of **26/64** measured on the capability subset
+alone. Never scored on the mixed set, which moves when negatives are added.
+
+**Rollout.** `ROUTER_CLASSIFIER=off|shadow|on`. Shadow logs the classifier
+beside the regex decision against real traffic before it can affect a turn.
+
+**Referents.** Per-session `last_candidate` / `last_memory_write_id` /
+`last_verb` resolve "remember that" and "delete that last one". Resolving a
+referent is a model inference about what Gordon meant, so it stays
+confirm-gated under D-0013 — it does not become an auto-save.
+
+**No new verbs.** Gordon's examples (Flux logs, backups, directory listings)
+illustrated the class of thing wanted, not a request; he confirmed on
+2026-09-21 that more command skills come later. `openclaw-recycle` RBAC is
+untouched. `meta.capabilities` reads the manifest and nothing else.
+
+**Unchanged:** D-0019 model pins; D-0022 / D-0023 verb catalog and classes;
+LiteLLM `keyword_tier_rules` and the `classifier_type: llm` BACKLOG ticket,
+which are the **break-glass chat.lan** path and not this.
+
+Slice plan and the full measurement: `jarvis-app` `docs/INTENT-ROUTER.md`.
 
 ---
 
