@@ -56,6 +56,7 @@ dated section without checking it against DECISIONS and the live cluster.
 | Bounce OpenClaw while hostPort 18789 still held | New pod Pending: “no free ports” | Scale deploy 0→1, or wait until old pod is Gone before recreate |
 | Mount OpenClaw skills only on the gateway container | openai-shim `/v1/verbs` fails (missing k8s.js/prom.js) | Mount the three skill volumes on **both** gateway and openai-shim |
 | Reference a constant you never defined in a rarely-hit branch | `ALLOW_NS` in `hands.py` was undefined for weeks. Only utterances with an explicit `ns/name` reached it, so every `restart deploy apps/jarvis-glass` was a silent **HTTP 500** | A branch with no test is a branch that does not work. Slice 0 of D-0033 added both |
+| `IMAGE_ORCHESTRATOR_TAG=x ./scripts/install-images.sh` to build one-off | The script sources `VERSION` **after** the environment, so the override is silently discarded and you rebuild the tag already in `VERSION` — a retag, with `imagePullPolicy: Never` meaning the node now holds different bits under a tag that already shipped | There is no override. Bump `VERSION`, which is the source of truth by design. `SKIP_ORCH=1` / `SKIP_GLASS=1` / `SKIP_TESTS=1` are the only knobs |
 | Let a regex capture group swallow a bare pronoun | `remember that` stored the literal fact **"that"** in promoted sqlite, and `forget that` then substring-matched every fact containing the word | A trailing demonstrative is a *referent*, not a fact. Say "which part, sir?" rather than storing it (D-0033) |
 
 ## DNS / hosts
