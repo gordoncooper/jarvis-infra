@@ -73,15 +73,37 @@ returns a JSON **label**; the orchestrator validates it against a declared
 manifest and refuses anything not in it. Execution is unchanged — OpenClaw shim
 `POST /v1/verbs`, same trust classes, same confirm gate, same audit row.
 
-**Manifest** (`orchestrator/app/capabilities.py`) becomes the one source for
-the router prompt, the talker's capability statement, the execute path, and a
-new `meta.capabilities` verb. It covers the memory verbs too — `memory.py` is a
-second regex router and half the failures are there.
+**Manifest** (`orchestrator/app/capabilities.py`) is the one source for the
+router prompt, the talker's capability statement, the execute path, and the
+`meta.capabilities` verb. It covers the memory verbs too — `memory.py` is a
+second regex router and half the failures are there. `hands.CATALOG` is derived
+from it, so the set JARVIS offers cannot drift from the set he can run.
 
 **Order of resolution:** deterministic match → classifier → honest refusal →
 talker. A capability-shaped utterance with no matching verb **never reaches the
 talker**; it is answered from the manifest. That rule alone removes every
-hallucination measured above, and it ships before the classifier does.
+hallucination measured above, and it shipped before the classifier (slice 2,
+v0.6.29).
+
+**The slice 2 refusal trigger is a stopgap, and it expires.** Deciding
+"capability I lack" vs "small talk" needs the classifier's verdict, which does
+not exist until slice 3, so slice 2 does it with a rule on sentence shape
+(`router.is_house_request`) — an imperative or a reference to state that only
+exists here and now, minus anything conceptual. This is a rule on English,
+i.e. the thing this decision exists to remove, so it carries three
+constraints:
+
+1. **Tuned for precision, never coverage.** Refuse only when plainly about
+   this house. A miss leaves the status quo; a false refusal breaks ordinary
+   conversation, which is the one thing that already worked. Vocabulary cannot
+   make this call — 11 of the 25 plain-chat fixture utterances mention pods,
+   flux, nodes or GPUs.
+2. **Do not extend it with more patterns.** Adding a phrase to catch one more
+   miss is the treadmill (`BACKLOG` §G bans exactly this shape). Record the
+   miss in the fixture and let slice 3 take it.
+3. **It dies at slice 3.** It then either becomes the cheap prefilter deciding
+   whether to *spend* a classify call on an utterance, or it is deleted
+   outright. It does not survive as a parallel router.
 
 **Routing decisions stay on local compute.** `jarvis-local` on the rack's own
 GPU — the D-0019 Classifier role, unchanged. Routing is on the critical path of
@@ -93,12 +115,19 @@ classifier and keep the honest refusal. Moving the Classifier role to
 
 **Gate.** A committed utterance fixture scored by the orchestrator test
 suite, which `scripts/install-images.sh` runs before it builds — a failing
-gate stops the ship. Two denominators:
-plain-chat false-positives **0**, and capability passes not below **28**.
-Both absolute counts, never rates: a rate over the mixed set climbs when you
-add negatives, which lets a gate rot while looking healthier. Shipped in slice
-1 (v0.6.28) — false-positives went 3 → 0. The recorded number moved twice for
-honesty (26 → 25 → 28) and the reasons are written into `test_router.py`.
+gate stops the ship. Three assertions, all absolute counts rather than rates
+(a rate over the mixed set climbs when you add negatives, which lets a gate
+rot while looking healthier):
+
+| Assertion | Recorded |
+| --- | --- |
+| plain chat captured by a capability | **0** (was 3 before slice 1) |
+| ordinary questions answered with a refusal | **0** |
+| capability passes | **≥ 40** of 64 |
+
+The recorded pass count moved 26 → 25 → 28 → 40; the first two moves were
+corrections rather than progress, and every reason is written into
+`test_router.py` so the number stays auditable.
 
 **Rollout.** `ROUTER_CLASSIFIER=off|shadow|on`. Shadow logs the classifier
 beside the regex decision against real traffic before it can affect a turn.
