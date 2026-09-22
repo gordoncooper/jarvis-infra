@@ -32,10 +32,11 @@ DEFAULTS = {
     # verification off for everyone.
     "VERIFY_TLS": "1",
     # Speak each sentence as it arrives instead of waiting for the whole reply
-    # (what glass does since v0.6.52). OFF by default: it is the one path that
-    # cannot be tested without a speaker, so turning it on is a deliberate act
-    # at the machine. `--selftest` exercises it headlessly first.
-    "STREAM_REPLY": "0",
+    # (what glass does since v0.6.52). Shipped off while it was unverifiable
+    # without a speaker; Gordon ran it on the laptop on 2026-09-21 and it
+    # behaved, so it is the default now. `--selftest` still checks the path
+    # headlessly, and STREAM_REPLY=0 falls back to one clip per reply.
+    "STREAM_REPLY": "1",
     # After a reply that asks a question ("Shall I remember…? Say yes or
     # cancel") listen this long without needing the wake word again.
     "FOLLOWUP_SEC": "12.0",
