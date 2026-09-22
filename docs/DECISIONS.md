@@ -80,6 +80,30 @@ can be removed.
 | `jarvis_no_closer` filter | 97 lines of regex trimming conversational sign-offs. Cosmetic, and regex-on-English is what VISION names as the mistake. |
 | `jarvis_remember` filter | Wrote `learned.md`, a second memory store. |
 | `DEFAULT_SYSTEM_PROMPT` env | Wired to the persona ConfigMap and doing nothing: it does not inject a system message per request (LESSONS). |
+| `ENABLE_NATIVE_FUNCTION_CALLING`, `ENABLE_MODEL_FILTER`, `MODEL_FILTER_LIST` | **Zero references in the v0.11.3 codebase.** Three env vars believed to be doing work, doing none. |
+
+### Every env var was checked against the image, and three were fiction
+
+Having found one no-op filter, the same question was asked of all 25
+environment variables: does this string appear anywhere in
+`/app/backend/open_webui/`? Three did not.
+
+`ENABLE_NATIVE_FUNCTION_CALLING=false` is the one that matters. It was there
+for the scar VISION records — the 7B fake-calling tools — and it was inert.
+The real guard was elsewhere all along and is untouched: LiteLLM declares
+`supports_function_calling: false` and drops `tools` / `tool_choice` /
+`functions` for `jarvis-local`, no tools are installed in Open WebUI, and
+`USER_PERMISSIONS_WORKSPACE_TOOLS_ACCESS` is false. Deleting the env var
+removes false comfort; it removes no protection. That is written into
+`open-webui.yaml` beside where it used to be.
+
+The picker whitelist is likewise **not** `MODEL_FILTER_LIST` — it is
+`openai.api_configs.model_ids` in sqlite, written by `seed-webui-ui.sh`.
+
+**Latent rebuild bug fixed on the way:** that script's allow-list omitted
+`jarvis-hands` while the live config contained it and INTERACT documented it,
+so the next rebuild would have silently dropped Hands from chat.lan's picker —
+on the surface you use precisely when Hands is what you need.
 
 ### Kept, and why each earns its place
 

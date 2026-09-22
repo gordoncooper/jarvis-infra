@@ -7,7 +7,10 @@ ssh -o BatchMode=yes apps-01 'sudo python3 -' << 'PY'
 import sqlite3, json, time
 c = sqlite3.connect("/cluster/local/open-webui/webui.db")
 now = int(time.time())
-allow = ["jarvis", "jarvis-local", "jarvis-grok", "jarvis-grok-code"]
+# Must match what break-glass needs. jarvis-hands was missing here while
+# being present live and documented in INTERACT, so re-running this
+# during a rebuild would have quietly dropped Hands from the picker.
+allow = ["jarvis", "jarvis-local", "jarvis-grok", "jarvis-grok-code", "jarvis-hands"]
 
 def upsert(key, value):
     raw = json.dumps(value)

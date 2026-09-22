@@ -75,7 +75,7 @@ What is still configured, and why each earns it:
 | Setting | Why |
 | --- | --- |
 | `WEBUI_NAME=JARVIS`, oled theme | upstream env vars, zero maintenance |
-| model picker whitelist (`MODEL_FILTER_LIST`) | keeps the list to models that exist |
+| model picker whitelist | `openai.api_configs.model_ids` in sqlite via `seed-webui-ui.sh` — **not** an env var; `MODEL_FILTER_LIST` does not exist in v0.11.3 |
 | `jarvis_persona` filter | persona for Grok and Hands; the 7B has it baked into its Modelfile |
 | `jarvis_route` filter | `local:` / `hands:` / `code:` / `grok:` prefixes — picking the model by hand is the point of a break-glass console |
 | Piper TTS + local Whisper STT | voice works here even when the cluster STT is down |
