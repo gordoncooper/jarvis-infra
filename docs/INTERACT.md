@@ -166,14 +166,32 @@ scp agent@192.168.8.10:.config/jarvis-wake/env ~/.config/jarvis-wake/env
 
 Optional knobs in `env` (defaults shown in `scripts/jarvis-wake.env.example`):
 `WAKE_THR`, `WAKE_HITS`, `SILENCE_SEC`, `MIN_UTTER`, `MAX_UTTER`, `COOLDOWN_SEC`,
-`VERIFY_TLS`, `MIC_DEVICE`.
+`VERIFY_TLS`, `MIC_DEVICE`, `STREAM_REPLY`, `FOLLOWUP_SEC`, `FOLLOWUP_RMS`.
 
-### Doctor
+**`STREAM_REPLY=1`** speaks each sentence as it arrives instead of waiting for
+the whole reply. Measured on a seven-sentence answer: first audio at ~8s
+instead of ~17s; on short verb replies the difference is under a second. It
+ships **off** because it is the one path that cannot be checked without a
+speaker — turn it on at the laptop, after `--selftest`.
+
+**Follow-up window.** When a reply asks a question — "Shall I remember…? Say
+yes or cancel", or a confirm-class verb — the listener keeps listening for
+`FOLLOWUP_SEC` and takes the next speech as the answer, **no wake word
+needed**. With a confirm pending, "stop" cancels the action instead of quitting
+the listener.
+
+### Doctor and selftest
 
 ```bash
-~/.local/jarvis-wake/bin/python ~/jarvis-wake.py --doctor
+~/.local/jarvis-wake/bin/python ~/jarvis-wake.py --doctor        # mic, models, /health
 ~/.local/jarvis-wake/bin/python ~/jarvis-wake.py --list-devices
+~/.local/jarvis-wake/bin/python ~/jarvis-wake.py --selftest      # reply path, no mic
 ```
+
+`--selftest` drives real turns and prints time-to-first-audio streamed vs
+blocking. It needs no microphone or speaker, so it runs on the bastion too —
+use it to tell "the listener is broken" apart from "the orchestrator is
+broken" before touching the laptop.
 
 ### Run
 
