@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -26,7 +27,20 @@ DEFAULTS = {
     "MIN_UTTER": "0.40",
     "MAX_UTTER": "8.0",
     "COOLDOWN_SEC": "2.0",
-    "VERIFY_TLS": "0",
+    # The lab has a real CA (scripts/install-lan-ca.sh). Verify by default and
+    # let someone who has not installed it opt out, rather than shipping
+    # verification off for everyone.
+    "VERIFY_TLS": "1",
+    # Speak each sentence as it arrives instead of waiting for the whole reply
+    # (what glass does since v0.6.52). OFF by default: it is the one path that
+    # cannot be tested without a speaker, so turning it on is a deliberate act
+    # at the machine. `--selftest` exercises it headlessly first.
+    "STREAM_REPLY": "0",
+    # After a reply that asks a question ("Shall I remember…? Say yes or
+    # cancel") listen this long without needing the wake word again.
+    "FOLLOWUP_SEC": "12.0",
+    # Speech loud enough to count as the answer during a follow-up window.
+    "FOLLOWUP_RMS": "600",
     "MIC_DEVICE": "",  # empty = system default; else index or substring of name
     "SESSION_ID": "",
 }
@@ -203,6 +217,54 @@ def is_junk_transcript(text: str) -> bool:
     return False
 
 
+# Abbreviations whose dot does not end a sentence.
+_ABBREV = re.compile(r"(?:^|\s)(?:e\.g|i\.e|etc|vs|approx|no|fig|dr|mr|mrs|st)\.$", re.I)
+
+
+def split_sentences(buf: str) -> tuple[list[str], str]:
+    """Split a growing reply into speakable sentences.
+
+    Returns (complete_sentences, remainder). The remainder is whatever is not
+    yet known to be a whole sentence and must stay buffered.
+
+    The awkward cases are the ones that matter, because Piper reads the result
+    aloud: `192.168.8.11` and `v0.6.40` must not become four sentences, and
+    "e.g." must not end one. Same problem glass solved in core/speech.ts.
+    """
+    out: list[str] = []
+    start = 0
+    i = 0
+    n = len(buf)
+    while i < n:
+        ch = buf[i]
+        if ch == "\n":
+            piece = buf[start:i].strip()
+            if piece:
+                out.append(piece)
+            start = i + 1
+        elif ch in ".!?":
+            nxt = buf[i + 1] if i + 1 < n else ""
+            prev = buf[i - 1] if i else ""
+            # 192.168.8.11 / v0.6.40 / 3.5 — a dot between digits is not an end.
+            if ch == "." and prev.isdigit() and nxt.isdigit():
+                i += 1
+                continue
+            # Needs whitespace (or end of buffer) after it to be a boundary.
+            if nxt and not nxt.isspace():
+                i += 1
+                continue
+            candidate = buf[start : i + 1]
+            if ch == "." and _ABBREV.search(candidate):
+                i += 1
+                continue
+            piece = candidate.strip()
+            if piece:
+                out.append(piece)
+            start = i + 1
+        i += 1
+    return out, buf[start:]
+
+
 def with_retry(label: str, fn, *, tries: int = 2, delay: float = 0.6):
     last: Exception | None = None
     for i in range(tries):
@@ -270,7 +332,12 @@ class Orch:
         r.raise_for_status()
         return (r.json().get("transcript") or "").strip()
 
-    def turn_text(self, text: str) -> str:
+    def turn_text(self, text: str) -> dict:
+        """Blocking turn. Returns the whole payload, not just the words.
+
+        `confirm` drives the follow-up window and `route` says which capability
+        answered — both are things the listener used to throw away.
+        """
         assert self.session_id
         headers = {
             "X-Session-Id": self.session_id,
@@ -286,7 +353,65 @@ class Orch:
         body = r.json()
         if body.get("session_id"):
             self.session_id = body["session_id"]
-        return (body.get("reply_text") or "").strip()
+        body["reply_text"] = (body.get("reply_text") or "").strip()
+        return body
+
+    def turn_stream(self, text: str):
+        """Streamed turn, yielding ("sentence", str) then ("done", payload).
+
+        Same shape glass uses: sentences are emitted as tokens arrive so the
+        first can be spoken while the rest is still being written. On a long
+        reply that is the difference between two seconds of silence and
+        fifteen.
+
+        Any SSE failure raises, and the caller falls back to turn_text.
+        """
+        assert self.session_id
+        headers = {
+            "X-Session-Id": self.session_id,
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream",
+        }
+        buf = ""
+        payload: dict = {}
+        with self.s.post(
+            self.base + "/v1/turns",
+            headers=headers,
+            json={"text": text, "session_id": self.session_id},
+            stream=True,
+            timeout=180,
+        ) as r:
+            r.raise_for_status()
+            event = ""
+            for raw in r.iter_lines(decode_unicode=True):
+                if raw is None:
+                    continue
+                line = raw.rstrip("\r")
+                if line.startswith("event:"):
+                    event = line[6:].strip()
+                    continue
+                if not line.startswith("data:"):
+                    continue
+                try:
+                    data = json.loads(line[5:].strip())
+                except json.JSONDecodeError:
+                    continue
+                if event == "token":
+                    buf += data.get("text") or ""
+                    ready, buf = split_sentences(buf)
+                    for piece in ready:
+                        yield "sentence", piece
+                elif event == "error":
+                    raise RuntimeError(data.get("message") or "stream error")
+                elif event == "done":
+                    payload = data
+        tail = buf.strip()
+        if tail:
+            yield "sentence", tail
+        if payload.get("session_id"):
+            self.session_id = payload["session_id"]
+        payload["reply_text"] = (payload.get("reply_text") or "").strip()
+        yield "done", payload
 
     def speak(self, text: str) -> bytes:
         r = self.s.post(self.base + "/v1/tts", json={"text": text}, timeout=60)
@@ -488,16 +613,166 @@ def run_doctor(cfg: dict[str, str]) -> int:
     return 0
 
 
+def speak_streamed(api, text, *, synth, play, log=print) -> dict:
+    """Speak a reply sentence by sentence, rendering ahead of playback.
+
+    A worker renders the next clip while the current one is playing. Doing it
+    the obvious way instead — render, play, render, play — leaves a
+    render-length silence between every sentence; glass shipped that bug once
+    and `jarvis-app/docs/ARCHITECTURE.md` records the fix, so this does not
+    repeat it.
+
+    `synth` and `play` are injected so the ordering can be tested without a
+    speaker. Returns the done payload.
+    """
+    import queue
+    import threading
+
+    clips: "queue.Queue" = queue.Queue(maxsize=2)
+    payload: dict = {}
+    spoken: list[str] = []
+    failure: list[BaseException] = []
+
+    def render() -> None:
+        try:
+            for kind, item in api.turn_stream(text):
+                if kind == "sentence":
+                    spoken.append(item)
+                    clips.put((item, synth(item)))
+                else:
+                    payload.update(item)
+        except BaseException as e:  # noqa: BLE001 — handed to the caller
+            failure.append(e)
+        finally:
+            clips.put(None)
+
+    worker = threading.Thread(target=render, name="tts-render", daemon=True)
+    worker.start()
+    while True:
+        item = clips.get()
+        if item is None:
+            break
+        sentence, clip = item
+        log(f"  say: {sentence[:70]}")
+        play(clip)
+    worker.join(timeout=5)
+    if failure:
+        raise failure[0]
+    if not payload.get("reply_text"):
+        payload["reply_text"] = " ".join(spoken)
+    return payload
+
+
+SELFTEST_UTTERANCES = [
+    "what time is it?",
+    "anything broken?",
+    "why is the sky blue?",
+]
+
+
+def run_selftest(cfg: dict[str, str]) -> int:
+    """Exercise the reply path end to end without a microphone or speaker.
+
+    Everything between "the words arrived" and "audio comes out" is testable
+    headlessly, and it is the half most likely to be wrong: SSE framing,
+    sentence splitting, and how soon the first clip could start playing. Run
+    it from anywhere that can reach the orchestrator.
+
+    Prints time-to-first-sentence against total, which is the whole argument
+    for streaming; TTS is timed for the first sentence only so the number
+    means "how long before Gordon hears something".
+    """
+    verify_tls = env_bool(cfg, "VERIFY_TLS")
+    api = Orch(cfg["ORCH_URL"], None, verify_tls=verify_tls)
+    print(f"orch={cfg['ORCH_URL']} verify_tls={verify_tls}")
+    try:
+        h = with_retry("health", api.health)
+    except Exception as e:
+        print(f"FAIL: cannot reach orchestrator: {e}")
+        return 1
+    print(f"health: {h.get('version')} degraded={h.get('degraded')} "
+          f"llm={h.get('llm')} stt={h.get('stt')} tts={h.get('tts')}")
+    with_retry("session", api.ensure_session)
+    print(f"session: {api.session_id}")
+
+    bad = 0
+    for text in SELFTEST_UTTERANCES:
+        print(f"\n> {text}")
+        # --- blocking, the default path
+        t0 = time.time()
+        try:
+            body = api.turn_text(text)
+            blocking = time.time() - t0
+            print(f"  blocking : reply in {blocking:5.1f}s  route={body.get('route')}")
+        except Exception as e:
+            print(f"  blocking : FAIL {type(e).__name__}: {e}")
+            bad += 1
+            continue
+        # --- streamed
+        t0 = time.time()
+        first = None
+        sentences = []
+        payload = {}
+        try:
+            for kind, item in api.turn_stream(text):
+                if kind == "sentence":
+                    if first is None:
+                        first = time.time() - t0
+                    sentences.append(item)
+                else:
+                    payload = item
+            total = time.time() - t0
+        except Exception as e:
+            print(f"  streamed : FAIL {type(e).__name__}: {e}")
+            bad += 1
+            continue
+        print(f"  streamed : first sentence in {first:5.1f}s, "
+              f"{len(sentences)} sentence(s), done in {total:5.1f}s")
+        joined = " ".join(sentences)
+        said = (payload.get("reply_text") or "").strip()
+        if said and joined.replace(" ", "") != said.replace(" ", "").replace("\n", ""):
+            print("  WARN: spoken text differs from reply_text")
+            print(f"        spoken: {joined[:90]!r}")
+            print(f"        reply : {said[:90]!r}")
+        # --- how soon could audio actually start
+        if sentences:
+            t0 = time.time()
+            try:
+                clip = api.speak(sentences[0])
+                tts_first = time.time() - t0
+                print(f"  tts      : first sentence {len(clip)} bytes in {tts_first:4.1f}s")
+                print(f"  => first audio at ~{first + tts_first:4.1f}s streamed "
+                      f"vs ~{blocking + tts_first:4.1f}s blocking")
+            except Exception as e:
+                print(f"  tts      : FAIL {type(e).__name__}: {e}")
+                bad += 1
+        if payload.get("confirm"):
+            print(f"  confirm  : pending -> follow-up window would open")
+    print("\nselftest:", "OK" if not bad else f"{bad} failure(s)")
+    return 1 if bad else 0
+
+
 def main():
     ap = argparse.ArgumentParser(description="hey_jarvis laptop listener → jarvis.lan")
     ap.add_argument("--env", default=str(ENV_PATH))
     ap.add_argument("--list-devices", action="store_true")
     ap.add_argument("--commands", action="store_true")
     ap.add_argument("--doctor", action="store_true", help="check mic, models, /health")
+    ap.add_argument(
+        "--selftest",
+        action="store_true",
+        help="exercise the reply path against the orchestrator; no mic or speaker",
+    )
     args = ap.parse_args()
     if args.commands:
         print(cmd_help())
         return
+
+    cfg = load_env(Path(args.env))
+    # Before the audio imports on purpose: the selftest exists to be runnable
+    # where there is no microphone, such as the bastion.
+    if args.selftest:
+        raise SystemExit(run_selftest(cfg))
 
     import numpy as np
     import sounddevice as sd
@@ -506,7 +781,6 @@ def main():
         print(sd.query_devices())
         return
 
-    cfg = load_env(Path(args.env))
     if args.doctor:
         raise SystemExit(run_doctor(cfg))
 
@@ -516,6 +790,9 @@ def main():
     min_utter = env_float(cfg, "MIN_UTTER")
     max_utter = env_float(cfg, "MAX_UTTER")
     cooldown_sec = env_float(cfg, "COOLDOWN_SEC")
+    followup_sec = env_float(cfg, "FOLLOWUP_SEC")
+    followup_rms = env_float(cfg, "FOLLOWUP_RMS")
+    stream_reply = env_bool(cfg, "STREAM_REPLY")
     verify_tls = env_bool(cfg, "VERIFY_TLS")
     mic_dev = resolve_mic(cfg.get("MIC_DEVICE") or "")
 
@@ -556,6 +833,10 @@ def main():
         f"thr={wake_thr} hits={wake_hits} cooldown={cooldown_sec}s"
     )
     print("headphones recommended (Piper can retrigger the wake word)")
+    print(
+        f"reply mode: {'streamed sentence-by-sentence' if stream_reply else 'whole reply then speak'}"
+        f"  follow-up {followup_sec:.0f}s"
+    )
     print("listening for hey_jarvis  Ctrl-C to stop")
     print(cmd_help())
 
@@ -564,6 +845,10 @@ def main():
     last_reply = ""
     last_audio = b""
     ignore_until = 0.0
+    # Something is waiting on a yes/cancel, so the next thing said is probably
+    # the answer. Listen for it without making Gordon say the wake word again.
+    confirm_pending = False
+    followup_until = 0.0
     oww = load_wake()
     hits = 0
 
@@ -584,20 +869,32 @@ def main():
             if now < ignore_until:
                 hits = 0
                 continue
-            scores = oww.predict(pcm)
-            score = wake_score(scores)
-            if score >= wake_thr:
-                hits += 1
+            seed: list = []
+            if now < followup_until:
+                # Waiting on an answer: any speech counts, no wake word.
+                rms = float(np.sqrt(np.mean(pcm.astype(np.float64) ** 2)))
+                if rms < followup_rms:
+                    continue
+                print("FOLLOW-UP")
+                followup_until = 0.0
+                seed = [pcm]  # keep the frame that already has the first word
             else:
+                if followup_until:
+                    followup_until = 0.0
+                scores = oww.predict(pcm)
+                score = wake_score(scores)
+                if score >= wake_thr:
+                    hits += 1
+                else:
+                    hits = 0
+                if hits < wake_hits:
+                    continue
                 hits = 0
-            if hits < wake_hits:
-                continue
-            hits = 0
-            oww.reset()
-            print("WAKE")
-            beep()
+                oww.reset()
+                print("WAKE")
+                beep()
             ignore_until = time.time() + cooldown_sec
-            uttered = []
+            uttered = list(seed)
             silent = 0.0
             t0 = time.time()
             peak = 1.0
@@ -635,6 +932,12 @@ def main():
                 ignore_until = time.time() + cooldown_sec
                 continue
             cmd = match_cmd(text)
+            # A pending confirm changes what "stop" means. Cancelling the
+            # action and quitting the listener are different intents sharing
+            # one word; with something awaiting an answer, the orchestrator
+            # should get it.
+            if confirm_pending and cmd in ("stop",):
+                cmd = None
 
             def say_local(msg: str, *, force: bool = False):
                 nonlocal last_audio, ignore_until
@@ -692,23 +995,48 @@ def main():
                 oww.reset()
                 continue
 
-            try:
-                reply = with_retry("turn", lambda t=text: api.turn_text(t))
-            except Exception as e:
-                print("turn error", e)
-                ignore_until = time.time() + cooldown_sec
-                continue
-            save_session(api.session_id or "")
-            last_reply = reply or ""
-            print("jarvis:", last_reply[:240])
-            if last_reply and not mute_tts:
+            body: dict = {}
+            spoke_already = False
+            if stream_reply and not mute_tts:
                 try:
-                    last_audio = with_retry("TTS", lambda: api.speak(last_reply))
+                    def _synth(sentence: str) -> bytes:
+                        return with_retry("TTS", lambda: api.speak(sentence))
+
+                    def _play(clip: bytes) -> None:
+                        nonlocal last_audio
+                        last_audio = clip
+                        play_audio(clip)
+
+                    body = speak_streamed(api, text, synth=_synth, play=_play)
+                    spoke_already = True
+                except Exception as e:
+                    # Never lose the turn to a streaming problem.
+                    print("stream failed, falling back to whole reply:", e)
+            if not body:
+                try:
+                    body = with_retry("turn", lambda t=text: api.turn_text(t))
+                except Exception as e:
+                    print("turn error", e)
+                    ignore_until = time.time() + cooldown_sec
+                    continue
+            save_session(api.session_id or "")
+            reply = (body.get("reply_text") or "").strip()
+            last_reply = reply
+            route = body.get("route") or "-"
+            print(f"jarvis[{route}]:", last_reply[:240])
+            if reply and not mute_tts and not spoke_already:
+                try:
+                    last_audio = with_retry("TTS", lambda: api.speak(reply))
                     play_audio(last_audio)
                 except Exception as e:
                     print("TTS error", e)
             elif mute_tts:
                 print("tts muted")
+            confirm_pending = bool(body.get("confirm"))
+            if confirm_pending:
+                summary = (body.get("confirm") or {}).get("summary") or ""
+                print(f"awaiting yes/cancel: {summary}  ({followup_sec:.0f}s, no wake word needed)")
+                followup_until = time.time() + cooldown_sec + followup_sec
             ignore_until = time.time() + cooldown_sec
             oww.reset()
 
