@@ -670,6 +670,92 @@ SELFTEST_UTTERANCES = [
     "why is the sky blue?",
 ]
 
+# Multi-turn exchanges. The single-turn checks above miss everything that only
+# happens on a *second* turn — which is where the bugs actually were: the
+# follow-up window needs `confirm` on the reply, and answering a confirm used
+# to report route=chat because the deterministic route of the word "yes" is
+# chat. Driving one turn at a time could never see either.
+#
+# Nothing here ever answers "yes". Every flow ends in cancel or a refusal, so
+# the selftest cannot leave a fact in Gordon's promoted memory. Each flow gets
+# its own session so a failure cannot leak a pending into the next.
+SELFTEST_FLOWS: list[dict] = [
+    {
+        "name": "memory confirm, then cancel",
+        "steps": [
+            ("I always ride the number 12 bus", {"confirm": True}),
+            ("cancel", {"confirm": False, "route_not": "chat"}),
+        ],
+    },
+    {
+        "name": "confirm-class verb, then cancel",
+        "steps": [
+            ("restart deploy jarvis-glass", {"confirm": True, "route": "apps.restart_deploy"}),
+            ("cancel", {"confirm": False, "route": "apps.restart_deploy"}),
+        ],
+    },
+    {
+        "name": "referent with nothing to point at",
+        "steps": [
+            ("remember that", {"confirm": False, "route": "memory.remember_ref"}),
+        ],
+    },
+]
+
+
+def check_step(body: dict, want: dict) -> list[str]:
+    """Compare one turn against expectations. Returns failure messages."""
+    bad = []
+    route = body.get("route")
+    if "route" in want and route != want["route"]:
+        bad.append(f"route={route!r} want {want['route']!r}")
+    if "route_not" in want and route == want["route_not"]:
+        bad.append(f"route={route!r} must not be {want['route_not']!r}")
+    if "confirm" in want:
+        got = bool(body.get("confirm"))
+        if got != want["confirm"]:
+            bad.append(f"confirm={got} want {want['confirm']}")
+    return bad
+
+
+def run_flows(api, cfg) -> int:
+    """Drive the multi-turn exchanges. Returns the number of failures."""
+    bad = 0
+    for flow in SELFTEST_FLOWS:
+        print(f"\n[flow] {flow['name']}")
+        api.session_id = None
+        try:
+            api.ensure_session()
+        except Exception as e:
+            print(f"  FAIL session: {e}")
+            bad += 1
+            continue
+        pending_left = False
+        for text, want in flow["steps"]:
+            try:
+                body = api.turn_text(text)
+            except Exception as e:
+                print(f"  > {text!r}\n    FAIL {type(e).__name__}: {e}")
+                bad += 1
+                break
+            problems = check_step(body, want)
+            mark = "ok " if not problems else "BAD"
+            print(f"  {mark} > {text!r}")
+            print(f"        route={body.get('route')} confirm={bool(body.get('confirm'))} "
+                  f":: {(body.get('reply_text') or '')[:70]}")
+            for msg in problems:
+                print(f"        ^ {msg}")
+            bad += len(problems)
+            pending_left = bool(body.get("confirm"))
+        if pending_left:
+            # Never walk away leaving something armed, even in a scratch session.
+            try:
+                api.turn_text("cancel")
+                print("        (cleared a leftover pending)")
+            except Exception:
+                pass
+    return bad
+
 
 def run_selftest(cfg: dict[str, str]) -> int:
     """Exercise the reply path end to end without a microphone or speaker.
@@ -749,6 +835,7 @@ def run_selftest(cfg: dict[str, str]) -> int:
                 bad += 1
         if payload.get("confirm"):
             print(f"  confirm  : pending -> follow-up window would open")
+    bad += run_flows(api, cfg)
     print("\nselftest:", "OK" if not bad else f"{bad} failure(s)")
     return 1 if bad else 0
 
