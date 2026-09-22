@@ -17,7 +17,7 @@ only so an operator reading the runbook is not surprised.
 7. GitHub `gordoncooper/jarvis-infra` (origin for this repo) and `jarvis-cluster` (**mirror only**).
 
 Three repos: `jarvis-infra` (here), `cluster` (Flux YAML, Gitea origin), and
-`jarvis-core` (prior art, read-only — D-0003). SOPS lives here
+SOPS lives here
 (`secrets/secrets.sops.yaml`).
 
 ## Hard rules

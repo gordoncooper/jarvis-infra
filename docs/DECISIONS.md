@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0038 | `jarvis-core` retired and removed; noc.lan rescued into git and Flux |
 | D-0037 | `flux.status` + `backup.latest`; first RBAC grant to the orchestrator |
 | D-0036 | Five capabilities the orchestrator serves itself; no RBAC widen |
 | D-0035 | Conversational referents: "remember that" resolves, and stays confirm-gated |
@@ -54,6 +55,68 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-21 — D-0038 — jarvis-core is retired and gone; noc.lan is rescued
+
+**Status:** active. Executes D-0003, which called `jarvis-core` prior art in
+2026-09-19 and left it in place. Gordon asked for the cleanup on 2026-09-21,
+on the understanding that the repo was not in use. **It was, in one place**,
+and that is the substance of this entry.
+
+### The premise was wrong in one load-bearing way
+
+`jarvis-core` the *workload* was genuinely dead — scaled 0/0, no Ingress, no
+endpoints — and is deleted.
+
+But `noc.lan` was live, serving, and its **entire definition lived inside
+`jarvis-core`**: three source files, a Dockerfile, an install script and the
+only copy of its manifest. It was applied by hand and reconciled by nothing.
+VISION makes that surface load-bearing — it must render when the brain,
+LiteLLM or Ollama are down — so deleting the repo would have left a running
+operator surface with no definition anywhere, discoverable only at the moment
+someone needed to rebuild it.
+
+### What moved, before anything was deleted
+
+| Thing | From | To |
+| --- | --- | --- |
+| noc source, Dockerfile, install script | `jarvis-core/noc`, `deploy/scripts` | `jarvis-infra/apps/jarvis-noc/` |
+| noc manifest (SA, ClusterRole, Deployment, Service, Ingress) | `jarvis-core/deploy/k8s` | `cluster/clusters/jarvis/apps/jarvis-noc.yaml`, **Flux-managed** |
+
+`kubectl diff` against the live cluster was empty before the adoption, so Flux
+took ownership without changing a field; noc.lan stayed 1/1 and answering
+throughout. The image is still built out of band — `imagePullPolicy: Never`
+means Flux cannot pull it — so build with `install-noc.sh`, then reconcile.
+
+`apps/jarvis-noc/` sits beside `apps/jarvis-home/`, which was already the home
+for non-product app sources.
+
+### What was deleted
+
+- Live `Deployment` and `Service` `jarvis-core` in `apps`.
+- The `~/jarvis-core` checkout.
+- Every operational reference across the three repos: the "do not extend
+  jarvis-core" rules, the install-script escape hatches, the stale
+  `install-images.sh` cutover line, and `jarvis-core` in
+  `hands.SHORT_NAMES` — where it had been a **write target** for a workload
+  that no longer exists.
+
+Both artefacts are archived on the bastion at
+`~/attic/jarvis-core-repo-20260921-1728.tgz` and
+`~/attic/jarvis-core-live-20260921-1728.yaml`. **That tarball is the last
+local copy** once the GitHub repo is deleted, and the bastion has no off-box
+backup (BACKLOG section C) — if the history matters, it wants a real home
+before then.
+
+### What stays
+
+D-0003 and every other historical mention in this file. It is append-only, and
+a decision that explains why the second attempt was abandoned does not stop
+being true because the code is gone. `VISION`'s capability model no longer
+cites `jarvis-core/policy.yaml` by path — the idea was carried forward, the
+file was not.
 
 ---
 

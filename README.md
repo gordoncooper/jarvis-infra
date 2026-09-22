@@ -32,7 +32,7 @@ Alignment: `scripts/check-contract.sh`.
 | Run as | user **agent** (`HOME=/home/agent`). Never `bastion`. |
 
 Three repos: **jarvis-infra** (here — metal, scripts, docs), **cluster** (Flux
-YAML, Gitea origin), **jarvis-core** (prior art, read-only — D-0003).
+YAML, Gitea origin).
 
 **Any AI, any surface:** read `AGENTS.md`, then `docs/DECISIONS.md`.
 **CLI / Cursor:** Remote-SSH as `agent`, open this repo.

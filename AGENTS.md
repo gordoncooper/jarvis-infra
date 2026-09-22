@@ -65,7 +65,7 @@ rebuild, a wiped disk, or a day of confusion.
 
 - Never point Flux at GitHub. Never push cluster YAML to GitHub as if it were origin.
 - Never `kubectl apply`. Flux owns cluster state. The documented exception is the
-  `jarvis-core` / `noc` `install-*.sh` scripts.
+  `apps/jarvis-noc/install-noc.sh`.
 - Never retag. The next snapshot is a **new** `GIT_TAG`. Never `git tag -f`.
 - Never copy pin numbers out of `VERSION` into prose. Source the file.
 - One coherent change per session. Do not mix unrelated work in one commit.
@@ -91,7 +91,6 @@ rebuild, a wiped disk, or a day of confusion.
 | `~/jarvis-infra` | Metal, Ansible, scripts, docs, SOPS, this contract | GitHub |
 | `~/cluster` | Flux YAML only, `clusters/jarvis/**` | Gitea |
 | `~/jarvis-app` | Product: orchestrator, glass, themes (D-0020). Create if absent. | GitHub |
-| `~/jarvis-core` | Prior art. Read-only reference — see D-0003. | GitHub |
 
 Each repo has exactly one rules file: `AGENTS.md` at its root, tracked in git
 (D-0005). Cursor, Goose, Claude Code, and Grok CLI all read it. Do not add a

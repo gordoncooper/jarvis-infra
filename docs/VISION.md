@@ -46,8 +46,9 @@ the orchestrator.
 
 ## Capability model
 
-Inherited from `jarvis-core/policy.yaml`, which got this part right. Capability
-is a list of **verbs**, declared in one place, each with a class:
+Inherited from the second attempt's `policy.yaml`, which got this part right
+and is the one idea carried forward from it (D-0003, D-0038). Capability is a
+list of **verbs**, declared in one place, each with a class:
 
 | Class | Meaning |
 | --- | --- |
