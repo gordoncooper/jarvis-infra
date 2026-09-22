@@ -54,7 +54,7 @@ Do as **one** image bump (`IMAGE` in VERSION + both `homepage.yaml`). Import on 
 - [ ] **high** One `seed-all` wrapper (ui + model + lab-docs + learned + filters) so REBUILD cannot skip a step
 - [ ] **med** Re-pin digests when we *intentionally* take a new Ollama / LiteLLM / OpenClaw / OWUI / monitoring image
 - [ ] **med** apps-01 Docker legacy builder is deprecated. Next homepage image: buildx or `k3s ctr` only — pick one in BUILD.md
-- [ ] **med** `ENABLE_SIGNUP=true` on chat.lan. Before Tailscale: off or pin users. **high** the day the glass is off-LAN
+- [x] **med** `ENABLE_SIGNUP=true` on chat.lan — **D-0039**, now false. REBUILD documents the first-admin bootstrap
 - [ ] **low** Flux `gotk-components` upgrade path. Discover live CRDs first
 - [ ] **low** k3s client on bastion vs server pin in VERSION. Do not `curl | sh` without `INSTALL_K3S_VERSION`
 - [ ] **low** sops binary vs upstream. Upgrade when we next touch secrets

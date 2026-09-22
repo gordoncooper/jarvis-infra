@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0039 | chat.lan is stock Open WebUI; skin and three filters removed |
 | D-0038 | `jarvis-core` retired and removed; noc.lan rescued into git and Flux |
 | D-0037 | `flux.status` + `backup.latest`; first RBAC grant to the orchestrator |
 | D-0036 | Five capabilities the orchestrator serves itself; no RBAC widen |
@@ -55,6 +56,61 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-21 — D-0039 — chat.lan is stock Open WebUI
+
+**Status:** active. Applies D-0002 (chat.lan is break-glass, not the product)
+to the surface itself. Gordon asked for it on 2026-09-21: back to basics, so
+there is no UI to maintain.
+
+**Not reinstalled.** The data volume holds 57 chats, 166 files, two knowledge
+bases and two accounts. Resetting was offered and would have cost all of it
+for no gain — everything objectionable was configuration, and configuration
+can be removed.
+
+### Removed
+
+| Thing | Why |
+| --- | --- |
+| `jarvis-webui-hud` ConfigMap + the `inject-hud.sh` `command:` override | 263 lines of CSS/JS spliced into `index.html` on every start, plus a retitled page. Re-applying it was a step after every upstream digest bump. |
+| `chat-stream.yaml` | Its `stream-flush` Middleware had **zero** references, and its IngressRoute sat on the HTTP entrypoint where `chat-http-redirect` already sends everything to HTTPS. The 1 ms SSE flush it existed for never applied to a real request. |
+| `jarvis_telemetry` filter | A literal no-op — seven lines returning `body` — while INTERACT claimed it injected a `[clock …]` line every turn. |
+| `jarvis_no_closer` filter | 97 lines of regex trimming conversational sign-offs. Cosmetic, and regex-on-English is what VISION names as the mistake. |
+| `jarvis_remember` filter | Wrote `learned.md`, a second memory store. |
+| `DEFAULT_SYSTEM_PROMPT` env | Wired to the persona ConfigMap and doing nothing: it does not inject a system message per request (LESSONS). |
+
+### Kept, and why each earns its place
+
+`jarvis_persona` (32 lines, reads the same `persona.txt` the orchestrator
+reads — one source, two consumers) and `jarvis_route` (the
+`local:`/`hands:`/`code:`/`grok:` prefixes; choosing the model by hand is the
+*point* of the console you open when the router is what broke). Plus the
+upstream-supported `WEBUI_NAME`, theme, model-picker whitelist, Piper TTS,
+local Whisper, and the `lab-docs` / `jarvis-learned` RAG bases.
+
+### Memory is a jarvis.lan capability
+
+chat.lan no longer stores anything you say. Two memories on two surfaces is a
+trap — you tell one and the other has never heard of it — and since D-0035 the
+product side is confirm-gated, listable and forgettable. `learned.md` remains
+as **operator-written** break-glass knowledge via `scripts/remember.sh` and the
+hourly RAG seed; what stopped is the chat writing to it by itself.
+
+### ENABLE_SIGNUP is false
+
+It was `true` on a LAN console with an admin account, which BACKLOG had flagged.
+**Consequence, documented in REBUILD:** on a fresh data volume there is then no
+way to create the first admin, so the bootstrap is flip on → create admin →
+flip off. Without that note the rebuild stalls at a login screen.
+
+### The producer, not just the rows
+
+Deleting filter rows from sqlite would have been theatre on its own: REBUILD
+told the operator to re-insert every `owui-*-filter.py`, so the next rebuild
+would have restored exactly what was removed. Sources deleted and REBUILD
+narrowed to the two survivors in the same change.
 
 ---
 
