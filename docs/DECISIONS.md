@@ -103,12 +103,16 @@ for non-product app sources.
   `hands.SHORT_NAMES` — where it had been a **write target** for a workload
   that no longer exists.
 
-Both artefacts are archived on the bastion at
-`~/attic/jarvis-core-repo-20260921-1728.tgz` and
-`~/attic/jarvis-core-live-20260921-1728.yaml`. **That tarball is the last
-local copy** once the GitHub repo is deleted, and the bastion has no off-box
-backup (BACKLOG section C) — if the history matters, it wants a real home
-before then.
+Both artefacts were archived on the bastion, and **deleted the same day at
+Gordon's instruction** — asked whether the history was worth keeping, he said
+no. Also removed: `jarvis-core-v0.1.0.zip`, `jarvis-core-v0.2.0-glass.zip`
+and the broken `jarvis-core.code-workspace` in `$HOME`.
+
+So once the GitHub repo goes there is **no copy of `jarvis-core` anywhere**.
+That is the intended outcome, recorded here so nobody later searches for an
+archive that does not exist. Everything still needed from it — the noc
+surface, and the capability model described in VISION — was carried out
+first, above.
 
 ### What stays
 
