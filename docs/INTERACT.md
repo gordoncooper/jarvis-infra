@@ -189,9 +189,14 @@ the listener.
 ```
 
 `--selftest` drives real turns and prints time-to-first-audio streamed vs
-blocking. It needs no microphone or speaker, so it runs on the bastion too —
-use it to tell "the listener is broken" apart from "the orchestrator is
-broken" before touching the laptop.
+blocking, then runs multi-turn flows that check the confirm path: the
+`confirm` flag the follow-up window depends on, and that answering a confirm
+reports the verb it resolved rather than `chat`. It never answers "yes", so it
+cannot write a fact or bounce anything.
+
+It needs no microphone or speaker, so it runs on the bastion too — use it to
+tell "the listener is broken" apart from "the orchestrator is broken" before
+touching the laptop.
 
 ### Run
 
