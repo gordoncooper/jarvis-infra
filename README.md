@@ -279,18 +279,26 @@ Router detail lives in cluster YAML (LiteLLM ConfigMap).
 
 ### Remember
 
+**Memory lives on jarvis.lan.** Say "remember that …" there; it is stored in
+promoted sqlite with a confirm step, and JARVIS can list and forget it
+(D-0013, D-0035). chat.lan no longer writes memory — the `jarvis_remember`
+filter was removed in D-0039 because a second store on a break-glass console
+is a trap: you tell one surface something and the other has never heard of it.
+
+`learned.md` survives as **operator-written** break-glass knowledge, not as a
+memory the chat writes to itself:
+
 ```mermaid
 sequenceDiagram
   actor You
-  participant Chat as chat.lan
-  participant F as jarvis_remember filter
+  participant Sh as scripts/remember.sh
   participant File as apps-01 learned.md
   participant NFS as data-01 NFS mirror
   participant Seed as seed-learned.sh hourly
-  You->>Chat: remember that ...
-  Chat->>F: outlet
-  F->>File: append one line
-  File->>NFS: chmod 666 mirror
+  participant Chat as chat.lan RAG
+  You->>Sh: remember.sh 'fact'
+  Sh->>File: append one line
+  File->>NFS: mirror
   Seed->>Chat: knowledge jarvis-learned
 ```
 

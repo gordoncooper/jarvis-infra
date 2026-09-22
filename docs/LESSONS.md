@@ -66,7 +66,11 @@ dated section without checking it against DECISIONS and the live cluster.
 | git.lan jarvis.lan grafana.lan llm.lan chat.lan **home.lan** | 192.168.8.11 |
 | agent.lan | **192.168.8.16** |
 
-## Open WebUI HUD
+## Open WebUI HUD — retired 2026-09-21 (D-0039)
+
+The HUD is gone and chat.lan runs stock. These stay as footguns for anyone
+tempted to skin a vendor UI again; they are history, not instructions.
+
 
 - Do not `MutationObserver` + rewrite text with `characterData` — infinite loop, “Page Unresponsive”.
 - Tailwind class selectors (`self-center.font-medium`) miss 0.11.3; key off the **JARVIS** text node.

@@ -149,11 +149,17 @@ git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ./scripts/seed-learned.sh
 ```
 
-Open WebUI sqlite is a **cache**. After any WebUI recreate, re-run the seed scripts
-and re-insert sqlite filters from `scripts/owui-*-filter.py`
-(persona, route, remember, no-closer, telemetry). Skip that and chat.lan is stock.
-lab-docs is `seed-lab-docs.sh` (briefing.md). jarvis-learned is `seed-learned.sh`.
+Open WebUI sqlite is a **cache**. After any WebUI recreate, re-run the seed
+scripts and re-insert the two sqlite filters from `scripts/owui-*-filter.py`
+(**persona, route** — nothing else). Skip that and chat.lan is plain stock,
+which is a working break-glass console, just a duller one. lab-docs is
+`seed-lab-docs.sh` (briefing.md). jarvis-learned is `seed-learned.sh`.
 Duplicate-content 400 is success.
+
+`ENABLE_SIGNUP` is **false** (D-0039). On a fresh data volume that means there
+is no way to create the first admin, so the bootstrap is: flip it to `true` in
+`open-webui.yaml`, reconcile, create the admin at chat.lan, flip it back, and
+reconcile again. Do not leave it on.
 
 ## 8. Bastion extras
 

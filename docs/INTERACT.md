@@ -61,31 +61,31 @@ North star: [VISION.md](VISION.md).
 Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
 Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic needs HTTPS.
 
-Chat chrome: ConfigMap `jarvis-webui-hud` (teal HUD CSS + title **JARVIS**). JS strips `(Open WebUI)` on the sidebar wordmark after expand; empty-state **jarvis-local** is HUD type; the **model picker stays stock**. Sidebar defaults collapsed (`localStorage`). Recreate once on ConfigMap change.
-Audio click-ops: [open-webui-audio.md](open-webui-audio.md). RAG: [open-webui-knowledge.md](open-webui-knowledge.md). Briefing: [briefing.md](briefing.md) (`lab-docs`). Promoted facts: `scripts/remember.sh` → `jarvis-learned`.
+Audio click-ops: [open-webui-audio.md](open-webui-audio.md). RAG: [open-webui-knowledge.md](open-webui-knowledge.md). Briefing: [briefing.md](briefing.md) (`lab-docs`). Operator-written break-glass facts: `scripts/remember.sh` → `jarvis-learned`.
 
-## chat.lan HUD
+## chat.lan is stock Open WebUI
 
-Chrome is **not** a custom Open WebUI image. Flux mounts ConfigMap `jarvis-webui-hud`
-(`clusters/jarvis/apps/jarvis-webui-hud.yaml`) and the container `command` runs
-`/hud/inject-hud.sh`, which patches `/app/build/index.html` then `exec`s upstream `start.sh`.
+No theme, no injected CSS or JS, no retitled page (D-0039). It is break-glass:
+what matters is that it works when jarvis.lan does not, and every line of
+chrome was a line to re-apply after each upstream digest bump. Upgrading is
+now just the digest.
 
-- Generic CSS: `html/body/#app`, sidebar rail, 28px grid, vignette, slow heartbeat.
-- JS (no `characterData` observer — that froze the tab): strip `(Open WebUI)`,
-  mark the **JARVIS** text node, mark empty-state **jarvis-local** only (skip
-  `button` / listbox so the model picker stays stock type), hide the version footer.
-  `childList` observer re-applies after the sidebar is expanded.
-- Default **collapsed** sidebar: `localStorage.sidebar=false` (per browser, not a cookie).
-- Suggestions off: sqlite `ui.prompt_suggestions=[]`.
-- Follow-ups off: sqlite `task.follow_up.enable=false` (YAML `ENABLE_FOLLOW_UP_GENERATION=false`
-  loses to PersistentConfig until the db row is false).
+What is still configured, and why each earns it:
 
-After any Open WebUI **digest bump**: Recreate, `curl -sk https://chat.lan/ | grep jarvis-hud`,
-glance chat.lan. Do not fork the image.
+| Setting | Why |
+| --- | --- |
+| `WEBUI_NAME=JARVIS`, oled theme | upstream env vars, zero maintenance |
+| model picker whitelist (`MODEL_FILTER_LIST`) | keeps the list to models that exist |
+| `jarvis_persona` filter | persona for Grok and Hands; the 7B has it baked into its Modelfile |
+| `jarvis_route` filter | `local:` / `hands:` / `code:` / `grok:` prefixes — picking the model by hand is the point of a break-glass console |
+| Piper TTS + local Whisper STT | voice works here even when the cluster STT is down |
+| RAG knowledge: `lab-docs`, `jarvis-learned` | lets it answer lab questions without the product |
 
-Picker whitelist + arena-off persist via `scripts/seed-webui-ui.sh` (sqlite). Rebuilds must run it after Open WebUI is up.
-
-Chat memory: say **remember that ...** in chat.lan (alias `jarvis`). It appends `/cluster/local/openclaw/learned.md`; `seed-learned.sh` hourly copies into knowledge.
+Removed and **not** to be put back: the HUD ConfigMap and its
+`inject-hud.sh` command override; `jarvis_no_closer` (97 lines of regex
+trimming conversational sign-offs); `jarvis_telemetry` (a no-op that existed
+only to be documented as injecting a clock, which it never did); and
+`jarvis_remember`.
 
 ## Hands (product actuator + break-glass)
 
@@ -227,14 +227,17 @@ has no effect on jarvis.lan.
 Picker is Gordon's hatch. chat.lan does **not** show a child-model chip (OWUI rewrites
 the stream to `jarvis`). Do not spend cycles on one.
 
-Telemetry filter: `[clock ...]` only if present. Live numbers = Hands or home.lan.
-learned.md is RAG + `remember that`, not every prompt.
+There is **no telemetry filter** and no injected clock — the one that existed
+was a no-op and is deleted (D-0039). chat.lan has no live cluster data; ask
+jarvis.lan, which has declared capabilities for it. `learned.md` reaches the
+chat as RAG only.
 
 ## Persona (chat.lan)
 
 Source: `docs/persona.txt` (ConfigMap `jarvis-persona` / OpenClaw `SOUL.md`).
 7B: Ollama model `jarvis` SYSTEM. Grok/Hands: filter `jarvis_persona`.
-Do not use `DEFAULT_SYSTEM_PROMPT` for this.
+`DEFAULT_SYSTEM_PROMPT` does **not** work for this and is no longer set in the
+Deployment — it does not inject a system message per request.
 
 ## Copilot
 
