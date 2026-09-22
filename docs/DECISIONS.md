@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0037 | `flux.status` + `backup.latest`; first RBAC grant to the orchestrator |
 | D-0036 | Five capabilities the orchestrator serves itself; no RBAC widen |
 | D-0035 | Conversational referents: "remember that" resolves, and stays confirm-gated |
 | D-0034 | Intent classifier is promotion-only: it may name a verb, nothing else |
@@ -53,6 +54,75 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-21 — D-0037 — Flux status and backup age; the orchestrator's first RBAC
+
+**Status:** active. Adds the two capabilities D-0036 named and deferred.
+Gordon asked for both on 2026-09-21.
+
+| Verb | Class | Backend |
+| --- | --- | --- |
+| `flux.status` | trusted | Kubernetes API, read-only, orchestrator SA |
+| `backup.latest` | trusted | status document on NFS, published by the backup job |
+
+### flux.status — a real RBAC grant, deliberately tiny
+
+Flux exports no metrics Prometheus is scraping, so unlike D-0036 this needs
+the Kubernetes API. The grant is one ClusterRole in
+`cluster/clusters/jarvis/apps/jarvis-orchestrator-rbac.yaml`: **get and list
+on `kustomizations` and `gitrepositories` in `flux-system`.** No write verb,
+no other API group, no pods, no secrets.
+
+The `jarvis-orchestrator` ServiceAccount had **no RBAC at all** before this.
+That is what makes the grant auditable — the file is the complete list of what
+the product brain may see. Verified after applying: the two reads return `yes`
+and `delete secrets`, `delete pods` and the status subresource return `no`.
+
+`app/kube.py` is a read-only client with an allowlist of two paths. A caller
+passes a *name*, not a URL, and an unknown name raises. A test asserts the
+module contains no `post`, `put`, `patch` or `delete`.
+
+**Why not OpenClaw**, which already has broad cluster read: "is the house in
+sync?" is asked when something is wrong, and OpenClaw is the component most
+likely to be wrong — its pod holds a `hostPort` that races on restart and it
+has its own run of entries in LESSONS. A status read that depends on the
+flakiest component is not a status read. Same reasoning as D-0036.
+
+### backup.latest — the producer publishes, the consumer reads
+
+`/cluster/nfs/backups` is `0750 root` and **stays that way**. Rather than
+loosen it so a service can stat it, `backup-jarvis.sh` now writes a small
+status document onto the NFS share the orchestrator already mounts, and the
+verb reads that and nothing else. Answering "when did the last backup run?"
+costs no access to the archives.
+
+The seeded file carries the backup directory's own mtime, not the time it was
+seeded, and is marked `seeded: true`. Claiming a backup finished just now
+would be exactly the invented freshness this repo forbids.
+
+If the file is absent the verb says so, and says that absence is **not** the
+same as knowing there has been no backup.
+
+### The gate had a blind spot, now closed
+
+`test_router.py` can only score the deterministic pass — unit tests have no
+model — so the classifier could violate the same three gates with nothing
+failing. It did: with sixteen capabilities to choose from it began answering
+*"tell me about flux"* with Flux status, a plain-chat regression invisible to
+CI. Two changes:
+
+1. The classifier prompt now says explicitly that *"tell me about X"* and
+   *"what is X"* are chat even when X is flux, a pod or a GPU. Fixed it
+   without another rule.
+2. `app/score_router.py` **exits non-zero on any gate violation**, so the
+   in-pod run is a check rather than a report. Run it after any change to the
+   manifest or the prompt: every capability added gives the model more to
+   over-trigger on.
+
+**Measured:** deterministic floor 52 → **56**; with the classifier 61 → **65
+of 78**; all gates zero.
 
 ---
 
