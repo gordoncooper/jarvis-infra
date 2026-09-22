@@ -121,8 +121,32 @@ CI. Two changes:
    manifest or the prompt: every capability added gives the model more to
    over-trigger on.
 
-**Measured:** deterministic floor 52 → **56**; with the classifier 61 → **65
+**Measured:** deterministic floor 52 → **56**; with the classifier 61 → **66
 of 78**; all gates zero.
+
+### A verbless verdict is no longer thrown away
+
+Driving the live host turned up the original disease returning: *"anything
+broken?"* reached the talker, which replied *"the last health check indicated
+everything was running smoothly"* — about a cluster it cannot see and a check
+that never happened.
+
+Not a timeout. The classifier returned **capability with no verb at 0.80** —
+it knew the question was about the lab and could not say which capability.
+D-0034 made verbless verdicts non-actionable deliberately, because acting on
+them produced false denials, so the signal was discarded.
+
+It stays non-actionable for *routing*: it cannot trigger a verb or a refusal.
+But when the classifier is confident a turn is about the lab and names
+nothing, the talker now receives an explicit instruction for that turn — you
+could not check, say so, do not describe the cluster, do not refer to an
+earlier check. Discarding the signal entirely is what let the invention
+through.
+
+The prompt also now names `cluster.health` for vague "is the lab well"
+phrasings, which fixed *anything broken?*, *everything green?* and *all
+good?*. *"What's going on with the house?"* still reaches the talker — the
+classifier calls it chat — and is recorded as a fixture miss.
 
 ---
 
