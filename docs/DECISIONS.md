@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0040 | LiteLLM auto-router deleted; chat.lan defaults to `jarvis-local` |
 | D-0039 | chat.lan is stock Open WebUI; skin and three filters removed |
 | D-0038 | `jarvis-core` retired and removed; noc.lan rescued into git and Flux |
 | D-0037 | `flux.status` + `backup.latest`; first RBAC grant to the orchestrator |
@@ -56,6 +57,54 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-21 — D-0040 — The LiteLLM auto-router is deleted, not rebuilt
+
+**Status:** active. Closes the **high** BACKLOG ticket that asked for
+`classifier_type: llm` — by removing the thing it was going to improve.
+Supersedes the routing half of D-0019's note that product traffic avoids the
+`jarvis` alias: there is no alias to avoid.
+
+**The ticket's premise expired.** It asked to swap `complexity_router`'s
+famous-phrase `keyword_tier_rules` — a list mapping "are nodes", "grab live",
+"pod status" and friends onto tiers — for an LLM rubric. Once jarvis.lan grew
+a real router of its own (D-0033 → D-0037), nothing needed LiteLLM to guess an
+intent from a phrase list. Building a better guesser would have been work
+spent on a component that no longer had a job.
+
+**LiteLLM now serves five plain models** — `jarvis-local`, `jarvis-grok`,
+`jarvis-grok-code`, `jarvis-hands`, `jarvis-embed` — and routes nothing.
+`model: jarvis` returns 400, which is the correct answer.
+
+**chat.lan defaults to `jarvis-local`** and escalates *on purpose* with the
+existing `jarvis_route` prefixes (`local:` `hands:` `code:` `grok:`).
+Predictability beats cleverness on the console you open when something is
+already broken, and the picker now shows real model ids rather than an alias
+that hid which model answered.
+
+### Sequencing, because deleting an alias breaks whoever still asks for it
+
+Every consumer was repointed **first**, while the alias still resolved:
+`DEFAULT_MODELS`, `ui.default_models` in sqlite, the picker allow-list, the
+seeded model record, and `ensure-voice-chat.sh`. 56 of the 57 existing chats
+were pinned to model `jarvis` and were migrated to `jarvis-local`, with the
+database snapshotted to `webui.db.bak-<stamp>` on apps-01 first. Only then was
+the alias removed and LiteLLM restarted.
+
+Historical messages keep their `modelName: "jarvis"` label. That records what
+actually answered at the time; rewriting it would be a small lie about the
+past.
+
+### What did not change
+
+jarvis.lan never used the alias (D-0019), and `/health` and a live
+`cluster.health` turn were checked before and after. The `jarvis_route` filter
+maps prefixes to concrete model ids and never referenced the alias either.
+
+BACKLOG section G still bans exact-phrase `keyword_tier_rules`. It now bans
+re-creating something that does not exist, which is the strongest form.
 
 ---
 

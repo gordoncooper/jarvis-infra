@@ -30,7 +30,7 @@ token = sys.argv[1]
 ctx = ssl._create_unverified_context()
 api = "https://chat.lan/api/v1"
 TITLE = "Voice"
-MODEL = "jarvis"
+MODEL = "jarvis-local"
 
 def parse(raw):
     if isinstance(raw, bytes):

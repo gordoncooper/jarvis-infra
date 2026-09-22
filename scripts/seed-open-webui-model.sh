@@ -21,18 +21,10 @@ else:
               (d["id"], None, d.get("base_model_id"), d["name"], params, meta, now, now))
     print("inserted", d["id"])
 # also overlay the LiteLLM alias so default `jarvis` gets prompt+RAG
-d2=dict(d); d2["id"]="jarvis"; d2["name"]="JARVIS"
-params2=json.dumps(d2.get("params") or {})
-meta2=json.dumps(d2.get("meta") or {})
-row=c.execute("select id from model where id=?", ("jarvis",)).fetchone()
-if row:
-    c.execute("update model set name=?, params=?, meta=?, updated_at=? where id=?",
-              (d2["name"], params2, meta2, now, "jarvis"))
-    print("updated jarvis")
-else:
-    c.execute("insert into model (id,user_id,base_model_id,name,params,meta,updated_at,created_at,is_active) values (?,?,?,?,?,?,?,?,1)",
-              ("jarvis", None, None, d2["name"], params2, meta2, now, now))
-    print("inserted jarvis")
+# The "jarvis" clone is gone (D-0040). It fronted the LiteLLM auto-router,
+# which chat.lan no longer uses: the picker shows real model ids, and the
+# jarvis_route prefixes escalate on purpose rather than by keyword guess.
+c.execute("delete from model where id=?", ("jarvis",))
 c.commit()
 PY
 kubectl -n apps rollout restart deploy/open-webui

@@ -10,7 +10,7 @@ now = int(time.time())
 # Must match what break-glass needs. jarvis-hands was missing here while
 # being present live and documented in INTERACT, so re-running this
 # during a rebuild would have quietly dropped Hands from the picker.
-allow = ["jarvis", "jarvis-local", "jarvis-grok", "jarvis-grok-code", "jarvis-hands"]
+allow = ["jarvis-local", "jarvis-grok", "jarvis-grok-code", "jarvis-hands"]
 
 def upsert(key, value):
     raw = json.dumps(value)
@@ -21,7 +21,7 @@ def upsert(key, value):
         c.execute("insert into config(key,value,updated_at) values (?,?,?)", (key, raw, now))
         print("inserted", key)
 
-upsert("ui.default_models", "jarvis")
+upsert("ui.default_models", "jarvis-local")
 upsert("ui.hidden_models", ["jarvis-embed"])
 upsert("evaluation.arena.enable", False)
 upsert("ui.enable_evaluation_arena_models", False)

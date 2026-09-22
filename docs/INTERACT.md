@@ -14,7 +14,7 @@ being retired into `noc.lan`; it still serves today.
 | **NOC** | https://noc.lan | Nodes, workloads, alerts. Renders when the brain is down. | — |
 | Legacy board | https://home.lan | Services + rack + events, click-tile dossiers. Retiring into noc.lan. | — |
 | Legacy telemetry | https://home.lan/api/telemetry | JSON: source, GPUs, events, `podsByNode` | — |
-| Chat (break-glass) | https://chat.lan | Q&A, RAG, voice when the glass is down | `jarvis-local` free; `jarvis-grok*` SuperGrok |
+| Chat (break-glass) | https://chat.lan | Q&A, RAG, voice when the glass is down | defaults to `jarvis-local` (free); prefix to escalate |
 | Agent (break-glass) | http://agent.lan:18789 | Cluster ops, files, live metrics | `jarvis-grok-code` (API) |
 | Cursor | Remote-SSH as `agent` | Architecture, decisions, cross-repo work | Whatever model this window is | 
 | Claude Code | `claude` on bastion | Bulk implementation in one repo | Subscription; long runs are cheap |
@@ -52,10 +52,9 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 `mark-hud` and `archive-gold` were deleted in glass v0.6.44. See
 `~/jarvis-app/docs/THEMES.md`.
 
-Default path (target): one alias **`jarvis`** — LiteLLM routes. Picker stays as Gordon's
-override. chat.lan does **not** show a model chip — Open WebUI rewrites the stream to
-`jarvis`, so the child model never reaches the browser. Do not build one.
-North star: [VISION.md](VISION.md).
+chat.lan shows the real model ids in the picker and defaults to `jarvis-local`.
+There is no alias hiding which model answered, and nothing to build a
+routed-model chip for. North star: [VISION.md](VISION.md).
 
 
 Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
@@ -115,7 +114,8 @@ apps / inference / agents / monitoring only (existing recycle Role; no widen).
   Do not widen this Role unless Gordon names new write verbs.
 - OWUI prefixes (start of message; `jarvis_route` only): `local:` 7B, `hands:` OpenClaw,
   `code:` grok-code, `grok:` grok-4-fast. Slash form too. `code:`/`grok:` skip RAG.
-  Do not put prefixes in LiteLLM `keyword_tier_rules`.
+  These are the **only** routing on chat.lan; there is no keyword tier list to
+  add to any more, because there is no auto-router (D-0040).
 
 ## Voice chat (break-glass on chat.lan)
 
@@ -211,21 +211,24 @@ Handled after STT. **Not sent to the orchestrator.** Wake, then say one of:
 
 Ctrl-C also stops the listener.
 
-## Routers — there are two, do not confuse them
+## Routing — there is one router now
 
 **Product (jarvis.lan).** The orchestrator routes every turn itself: declared
 capability manifest, then a local `jarvis-local` classifier that may only name
 a verb, then an honest refusal, then the talker (D-0033 / D-0034 / D-0035).
-It does **not** use the LiteLLM `jarvis` alias or `keyword_tier_rules` at all
-(D-0019). How it works: `jarvis-app/docs/ARCHITECTURE.md`.
+How it works: `jarvis-app/docs/ARCHITECTURE.md`.
 
-**Break-glass (chat.lan).** Alias `jarvis` is LiteLLM `complexity_router`. For
-its current configuration ask LiteLLM — `scripts/discover/apps/litellm.sh`;
-do not trust a doc for router state. **Direction:** native
-`classifier_type: llm` — see [VISION.md](VISION.md) and BACKLOG. Changing this
-has no effect on jarvis.lan.
-Picker is Gordon's hatch. chat.lan does **not** show a child-model chip (OWUI rewrites
-the stream to `jarvis`). Do not spend cycles on one.
+**Break-glass (chat.lan) does not route.** It defaults to `jarvis-local` and
+you escalate on purpose with the `jarvis_route` prefixes. The LiteLLM `jarvis`
+auto-router and its `keyword_tier_rules` were **deleted** in D-0040 — once the
+product grew a real router, nothing needed LiteLLM to guess an intent from a
+phrase list. Asking for model `jarvis` now returns 400, which is correct.
+
+LiteLLM serves five plain models and no router: `jarvis-local`, `jarvis-grok`,
+`jarvis-grok-code`, `jarvis-hands`, `jarvis-embed`. For live state ask LiteLLM
+— `scripts/discover/apps/litellm.sh` — not a doc.
+The picker shows the real models. There is no alias and no child-model chip to
+build — what you pick is what answers.
 
 There is **no telemetry filter** and no injected clock — the one that existed
 was a no-op and is deleted (D-0039). chat.lan has no live cluster data; ask

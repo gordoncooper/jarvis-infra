@@ -87,7 +87,7 @@ tempted to skin a vendor UI again; they are history, not instructions.
 - Do not intent-gate a LIVE telemetry dump into the 7B prompt. Clock is always-on; live numbers are Hands or home.lan.
 
 - chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
-- Do not unify chat.lan prefixes with LiteLLM keyword_tier_rules. Router = automatic; `jarvis_route` = explicit override. `code:` as a LiteLLM substring is a landmine.
+- Do not unify chat.lan prefixes with LiteLLM keyword_tier_rules. Historic: both the auto-router and the keyword rules were deleted in D-0040, so there is nothing left to unify with. `code:` as a LiteLLM substring was the landmine.
 
 ## Persona spine (2026-09-17)
 
