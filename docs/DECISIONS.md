@@ -659,45 +659,20 @@ NOC uses SVG.
 
 ## 2026-09-20 — D-0030 — jarvis.lan globe-as-stage; React+R3F via esbuild
 
-**Status:** look-and-feel SUPERSEDED BY D-0031. esbuild React+R3F allowance and
-theme-pack library still stand.
-
-jarvis.lan is a **stage**: a WebGL globe you look through, with docked
-holographic chrome (ribbon, dossier chip, floating channel, arc meters,
-ticker, CMD). Not a three-column form. Empty channel reveals Earth.
-
-Product pack: `godseye`. `mark-hud` is archived (rebuildable 3-column).
-`archive-gold` stays rebuildable. Pin `JARVIS_THEME` as today.
-
-Glass may use **React + three + R3F + drei + motion**, bundled by **esbuild
-to static nginx**. Vite, Tailwind, Recharts, and a port-8080 preview remain
-out. IBM Plex via fontsource (LAN). Tokens: canvas `#07090b`, hair `#1c252e`,
-steel `#8b9aaa`, ink `#e7eef4`, accent `#5eead4`, `--accent-dim` as OKLCH so
-teal does not blow out. Widgets read real `/health` + turn/confirm/PTT — no
-fake telemetry, no noc.lan scrape (D-0012).
-
-**Next product-logic priority:** LiteLLM `classifier_type: llm` (BACKLOG A).
+**Status:** fully SUPERSEDED BY D-0031 / D-0032. Kept as a one-line record;
+detail (colors, chrome layout, the interim `godseye` pack) is gone with the
+theme and would mislead if read as current. What survived into law: React +
+R3F bundled by esbuild to static nginx is still the packer, and the
+theme-pack library shape (`jarvis-app/glass/themes/<name>/`) still stands.
 
 ---
 
 ## 2026-09-20 — D-0029 — jarvis.lan Mark HUD cockpit + theme library
 
-**Status:** look-and-feel SUPERSEDED BY D-0031 (was D-0030). Theme library still active.
-
-jarvis.lan is a **cockpit** (rail, stages, meters, console over a dark grid),
-not a centered chat column. Glass `src/` is theme-agnostic. Packs live in
-`jarvis-app/glass/themes/<name>/`. Pin `JARVIS_THEME` in `jarvis-app/VERSION`
-(product pack was `mark-hud`; D-0030 moves product to `godseye`). Rebuild/swap
-is pack CSS → `npm run build` → glass image tag → Flux. `archive-gold` keeps
-the previous look rebuildable.
-
-Mark HUD tokens: canvas `#07090b`, panels `#0c1014` / `#10151b`, hair `#1c252e`,
-steel `#8b9aaa`, text `#e7eef4`, accent `#5eead4` only on LIVE/selected/meters.
-IBM Plex Sans + Mono. Radius 2–4px. Motion 160ms ease-out.
-
-**home.lan** stays until a later deprecation cut (noc.lan after that).
-**Next product priority:** SUPERSEDED BY D-0030 (classifier still next after
-the globe HUD ships).
+**Status:** fully SUPERSEDED BY D-0031 / D-0032. Kept as a one-line record;
+the `mark-hud` pack and its tokens are archived, not current. What survived:
+glass `src/` stays theme-agnostic, and packs live under
+`jarvis-app/glass/themes/<name>/`, pinned via `JARVIS_THEME`.
 
 ---
 
