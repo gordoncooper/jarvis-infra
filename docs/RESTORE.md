@@ -4,8 +4,10 @@ Procedure only. Pins live in [`VERSION`](../VERSION).
 Operator contract: [OPERATING.md](OPERATING.md). Rebuild from scratch: [REBUILD.md](REBUILD.md).
 
 Do **not** restore unless the live cluster (or that component) is actually dead.
-The 2026-09-15 dry-run proved stamp `YYYYMMDD-HHMM` tarballs are readable; it did
-**not** unpack onto `$HOME` or `/cluster/local`.
+The 2026-09-22 rehearsal unpacked stamp `20260922-0331` into
+`/cluster/nfs/rehearsal-20260922-0331` on data-01 and removed that directory.
+It did **not** write `$HOME` or `/cluster/local`. Every archived name was still
+on the live tree. Size drift was files written after 03:31.
 
 Backups: `data-01:/cluster/nfs/backups/<STAMP>/`
 etcd: `ctrl-01:/mnt/nfs/snapshots/` (NFS: `data-01:/cluster/nfs/snapshots`).

@@ -13,7 +13,6 @@ would do the wrong thing) · **med** · **low**.
 ## Open
 
 - [ ] **critical** Off-box copy of the NFS backups. Stamps exist only on data-01. The age key without those tarballs does not rebuild the house. Second disk, USB, or another machine in the house.
-- [ ] **high** One restore rehearsal. Unpack a stamp into a throwaway directory, not `/cluster/local` and not `$HOME`, and diff names and sizes against the live files. [`RESTORE.md`](RESTORE.md) has unpacked nothing since the 2026-09-15 read-only check.
 - [ ] **med** `learned.md` is mode `666` on NFS. It is operator-written break-glass knowledge, not product memory, and the mode means anyone can rewrite it. Tighten ownership without breaking `remember.sh` or the hourly `seed-learned.sh`.
 - [ ] **med** Secret rotation is tribal. One short runbook for Gitea, LiteLLM, Grafana, OpenClaw, and xAI: edit SOPS, `materialize-bastion-secrets.sh`, `apply-secrets.sh`.
 - [ ] **low** `check-contract.sh` only pins `jarvis-home`. The two `homepage.yaml` files can drift, and the orchestrator image tag is not checked at all.
@@ -56,6 +55,7 @@ Recorded so the next session does not reopen them.
 
 Shipped calls are the decision log. This list is only so the essays above are not rewritten as new tickets.
 
+- [x] Restore rehearsal. Stamp `20260922-0331` unpacked into a throwaway directory on data-01, diffed, and removed. 2026-09-22.
 - [x] Intent router, D-0033 through D-0035
 - [x] LiteLLM auto-router deleted, D-0040
 - [x] `logs.tail` D-0041, `flux.status` and `backup.latest` D-0037, `files.list` D-0042
