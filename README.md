@@ -3,7 +3,7 @@
 Metal, bootstrap, secrets, scripts, and the **command-center image** for JARVIS —
 a six-node k3s homelab (ThinkCentre M920x) plus a bastion jump host.
 
-Maturity is `MATURITY` in [VERSION](VERSION). License: [MIT](LICENSE). Day 0 workshop: [docs/DEVOPS.md](docs/DEVOPS.md).
+Maturity is `MATURITY` in [VERSION](VERSION). License: [MIT](LICENSE).
 
 The rack **is** JARVIS. Gordon talks at [https://chat.lan](https://chat.lan).
 He should not pick models or open a second console for normal use.
@@ -253,7 +253,7 @@ flowchart TB
 | `scripts/backup-jarvis.sh` | Nightly NFS stamps + secrets tgz + learned. |
 | `scripts/discover/` | Layered live dump. Session 0 = whereami + `90-copilot.sh`. |
 | `secrets/` | `secrets.sops.yaml` in git. Age key is **not**. |
-| `docs/` | COPILOT, PLAN, OPERATING, INTERACT, REBUILD, RESTORE, LESSONS. |
+| `docs/` | OPERATING, INTERACT, REBUILD, RESTORE, LESSONS. Contract is `AGENTS.md`. |
 
 Sibling clone on the bastion: `~/cluster` (Gitea origin).
 
