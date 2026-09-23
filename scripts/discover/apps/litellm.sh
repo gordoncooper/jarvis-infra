@@ -47,49 +47,34 @@ print("--- model_name lines ---")
 for line in red.splitlines():
     if "model_name:" in line or line.strip().startswith("model:") or "rpm:" in line or "tpm:" in line:
         print(line.rstrip())
-print("--- router flags ---")
-for key in ("return_raw_model_name","session_affinity","default_model","classifier_type","auto_router","complexity_router"):
-    if key in red:
-        print("HAS", key)
-print("--- keyword_tier_rules count ---")
-print("keyword_tier_rules", red.count("keyword_tier_rules"))
+print("--- deleted router keys (must be absent, D-0040) ---")
+for key in ("keyword_tier_rules", "auto_router", "complexity_router", "classifier_type"):
+    print(key, "PRESENT" if key in red else "absent")
 '
 
 echo
-echo "--- /v1/models ids ---"
-python3 - << 'PY'
-import json, urllib.request
-url = "http://llm.lan/v1/models"
+echo "--- /v1/models ids (master key, ids only) ---"
+if [ -f "$HOME/.litellm-master.key" ]; then
+  python3 - "$HOME/.litellm-master.key" << 'PY'
+import json, sys, urllib.request
+key = open(sys.argv[1]).read().strip()
+req = urllib.request.Request(
+    "https://llm.lan/v1/models",
+    headers={"Authorization": "Bearer " + key},
+)
 try:
-    with urllib.request.urlopen(url, timeout=8) as r:
+    with urllib.request.urlopen(req, timeout=15) as r:
         d = json.loads(r.read().decode())
-        ids = [x.get("id") for x in d.get("data") or []]
-        print("count", len(ids))
-        for i in ids:
-            print(i)
+    ids = sorted(x.get("id", "") for x in d.get("data") or [])
+    print("count", len(ids))
+    for i in ids:
+        print(i)
 except Exception as e:
-    print("FAIL", url, type(e).__name__)
-    try:
-        with urllib.request.urlopen("http://10.43.0.1/", timeout=2):
-            pass
-    except Exception:
-        pass
+    print("models FAIL", type(e).__name__)
 PY
-# clusterIP fallback
-python3 - << 'PY'
-import json, urllib.request, subprocess
-ip = subprocess.check_output(["kubectl","-n","inference","get","svc","litellm","-o","jsonpath={.spec.clusterIP}"], text=True).strip()
-url = f"http://{ip}:4000/v1/models"
-try:
-    with urllib.request.urlopen(url, timeout=8) as r:
-        d = json.loads(r.read().decode())
-        ids = [x.get("id") for x in d.get("data") or []]
-        print("svc", url, "count", len(ids))
-        for i in ids:
-            print(i)
-except Exception as e:
-    print("svc FAIL", type(e).__name__)
-PY
+else
+  echo "litellm key file MISS"
+fi
 
 echo
 echo "========== DONE APP litellm =========="

@@ -11,7 +11,8 @@ date -Is
 
 echo
 echo "--- local remotes (tokens stripped) ---"
-for spec in "infra:$ROOT" "cluster:$CLUSTER"; do
+APP="${JARVIS_APP:-$HOME/jarvis-app}"
+for spec in "infra:$ROOT" "cluster:$CLUSTER" "app:$APP"; do
   label="${spec%%:*}"
   dir="${spec#*:}"
   echo "$label $dir"

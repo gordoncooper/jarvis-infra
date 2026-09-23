@@ -23,7 +23,8 @@ fi
 echo
 echo "--- clones / remotes (tokens stripped) ---"
 strip() { sed -E 's#://[^/@]+@#://#g'; }
-for spec in "infra:$ROOT" "cluster:$CLUSTER"; do
+APP="${JARVIS_APP:-$HOME/jarvis-app}"
+for spec in "infra:$ROOT" "cluster:$CLUSTER" "app:$APP"; do
   label="${spec%%:*}"
   dir="${spec#*:}"
   echo -n "$label dir=$dir "

@@ -34,7 +34,7 @@ try:
         b = r.read(16000).decode("utf-8", "replace")
         title = (re.search(r"<title>([^<]+)</title>", b, re.I) or type("x",(),{"group":lambda s,i: "?"})()).group(1)
         print(r.status, "bytes", len(b), "title", title.strip())
-        print("hud_css", "jarvis-hud" in b)
+        print("hud_inject", "PRESENT" if "jarvis-hud" in b else "absent")
 except Exception as e:
     print("FAIL", type(e).__name__)
 PY

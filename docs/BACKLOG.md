@@ -44,7 +44,7 @@ Recorded so the next session does not reopen them.
 
 - Exact-phrase keyword rules, or a live telemetry dump in the 7B prompt
 - A HUD inject or a routed-model chip on chat.lan
-- Open WebUI sqlite filters (persona, route, remember, telemetry)
+- The Open WebUI filters D-0039 removed (telemetry, no-closer, remember)
 - Nested Goose inside OpenClaw
 - `docs/history/` phase novels
 - App Builder, or a workshop bound to port 8080 on a node

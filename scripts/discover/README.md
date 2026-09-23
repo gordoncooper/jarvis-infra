@@ -14,16 +14,17 @@ Host lists come from inventory/hosts.yml when present.
 | 40 | 40-gitops.sh | Gitea origin, Flux, remotes | live |
 | 50 | 50-ingress.sh | Traefik, TLS, Ingress hosts | live |
 | 55 | 55-rbac.sh | SAs, Roles, Bindings (names + resource verbs) | live |
-| 60 | 60-workloads.sh | Deploy/DS images + homepage Never pin | live |
+| 60 | 60-workloads.sh | Deploy/DS images, homepage pin, product pins | live |
 | 70 | 70-inference.sh | Ollama, LiteLLM ids, GPU VRAM | live |
-| 80 | 80-memory.sh | learned.md meta, knowledge, filters | live |
-| 90 | 90-copilot.sh | COPILOT docs + check-contract | live |
+| 80 | 80-memory.sh | learned.md meta, product sqlite sizes, knowledge names | live |
+| 90 | 90-copilot.sh | Doc presence + check-contract | live |
+| app | apps/jarvis.sh | orchestrator + glass pins, /health | live |
 | app | apps/homepage.sh | image, SA, /status keys | live |
 | app | apps/openclaw.sh | shim, skills, RBAC names | live |
 | app | apps/gitea.sh | git.lan | live |
 | app | apps/ollama.sh | gpu-01 chat + gpu-02 embed | live |
 | app | apps/litellm.sh | aliases, router (no keys) | live |
-| app | apps/open-webui.sh | env names, sqlite keys, filters meta | live |
+| app | apps/open-webui.sh | env names, sqlite names, HUD must be absent | live |
 | app | apps/piper.sh | voices, voice map | live |
 | app | apps/monitoring.sh | Grafana/Prometheus/exporters | live |
 

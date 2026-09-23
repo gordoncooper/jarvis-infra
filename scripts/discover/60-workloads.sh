@@ -29,8 +29,8 @@ for it in d.get("items",[]):
 '
 
 echo
-echo "--- homepage (must Never + apps-01 + IMAGE pin) ---"
-kubectl -n apps get deploy homepage -o json | python3 -c '
+echo "--- homepage (infra VERSION image, Never) ---"
+kubectl -n apps get deploy homepage -o json | IMAGE="$IMAGE" python3 -c '
 import json,sys,os
 d=json.load(sys.stdin)
 spec=d["spec"]["template"]["spec"]
@@ -45,6 +45,33 @@ print("PIN_MATCH", c.get("image")==want)
 print("POLICY_OK", c.get("imagePullPolicy")=="Never")
 '
 kubectl -n apps get pod -l app=homepage -o wide --no-headers
+
+echo
+echo "--- product images (jarvis-app VERSION) ---"
+APP="${JARVIS_APP:-$HOME/jarvis-app}"
+if [ -f "$APP/VERSION" ]; then
+  # Subshell so this file's GIT_TAG does not replace the infra pin.
+  (
+    # shellcheck disable=SC1091
+    . "$APP/VERSION"
+    echo "orch_pin=${IMAGE_ORCHESTRATOR}:${IMAGE_ORCHESTRATOR_TAG}"
+    echo "glass_pin=${IMAGE_GLASS}:${IMAGE_GLASS_TAG} theme=${JARVIS_THEME}"
+    kubectl -n apps get deploy jarvis-orchestrator jarvis-glass -o json \
+      | ORCH="${IMAGE_ORCHESTRATOR}:${IMAGE_ORCHESTRATOR_TAG}" \
+        GLASS="${IMAGE_GLASS}:${IMAGE_GLASS_TAG}" python3 -c '
+import json,os,sys
+d=json.load(sys.stdin)
+want={"jarvis-orchestrator": os.environ["ORCH"], "jarvis-glass": os.environ["GLASS"]}
+for it in d.get("items",[]):
+    name=it["metadata"]["name"]
+    c=it["spec"]["template"]["spec"]["containers"][0]
+    img=c.get("image")
+    print(name, img, "policy", c.get("imagePullPolicy"), "PIN_MATCH", img==want.get(name))
+'
+  )
+else
+  echo "jarvis-app VERSION MISS $APP"
+fi
 
 echo
 echo "--- non-Running pods (if any) ---"

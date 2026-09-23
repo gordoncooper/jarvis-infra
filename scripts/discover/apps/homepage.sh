@@ -11,16 +11,18 @@ echo "pin IMAGE=$IMAGE"
 
 echo
 echo "--- deploy ---"
-kubectl -n apps get deploy homepage -o json | python3 -c '
+kubectl -n apps get deploy homepage -o json | IMAGE="$IMAGE" python3 -c '
 import json,sys,os
 d=json.load(sys.stdin)
 spec=d["spec"]["template"]["spec"]
 c=spec["containers"][0]
+want=os.environ.get("IMAGE","")
 print("image", c.get("image"))
 print("policy", c.get("imagePullPolicy"))
 print("sa", spec.get("serviceAccountName"))
 print("nodesel", spec.get("nodeSelector"))
-print("PIN_MATCH", c.get("image")==os.environ.get("IMAGE",""))
+print("pin", want)
+print("PIN_MATCH", c.get("image")==want)
 print("POLICY_OK", c.get("imagePullPolicy")=="Never")
 '
 kubectl -n apps get pod -l app=homepage -o wide --no-headers

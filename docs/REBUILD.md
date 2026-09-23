@@ -150,11 +150,10 @@ git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ```
 
 Open WebUI sqlite is a **cache**. After any WebUI recreate, re-run the seed
-scripts above. Do not re-insert sqlite filters. persona, route, telemetry,
-and remember were removed on purpose (D-0039). Stock chat.lan is the
-break-glass console, not a step you forgot. lab-docs is `seed-lab-docs.sh`
-(briefing.md). jarvis-learned is `seed-learned.sh`. Duplicate-content 400
-is success.
+scripts above and re-insert the two filters that D-0039 kept:
+`jarvis_persona` and `jarvis_route`. Do not put back telemetry, no-closer,
+or remember. lab-docs is `seed-lab-docs.sh` (briefing.md). jarvis-learned is
+`seed-learned.sh`. Duplicate-content 400 is success.
 
 `ENABLE_SIGNUP` is **false** (D-0039). On a fresh data volume that means there
 is no way to create the first admin, so the bootstrap is: flip it to `true` in

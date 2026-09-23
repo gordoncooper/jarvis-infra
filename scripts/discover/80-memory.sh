@@ -28,6 +28,27 @@ fi
 '
 
 echo
+echo "--- product sqlite on NFS (mode/size, no rows) ---"
+ssh -n -o BatchMode=yes data-01 '
+for f in promoted.sqlite sessions.sqlite backup-status.json; do
+  p="/cluster/nfs/jarvis/$f"
+  if sudo test -f "$p"; then
+    sudo stat -c "nfs mode=%a size=%s mtime=%y path=%n" "$p"
+  else
+    echo "MISS $p"
+  fi
+done
+if sudo test -d /cluster/nfs/jarvis/files; then
+  echo -n "files_dir "
+  sudo stat -c "mode=%a path=%n" /cluster/nfs/jarvis/files
+  echo -n "files_entries "
+  sudo find /cluster/nfs/jarvis/files -mindepth 1 -maxdepth 1 | wc -l
+else
+  echo "files dir MISS"
+fi
+'
+
+echo
 echo "--- seed-learned crontab ---"
 crontab -l 2>/dev/null | grep seed-learned || echo "crontab MISS"
 

@@ -29,6 +29,17 @@ for f in README.md VERSION AGENTS.md docs/DECISIONS.md docs/VISION.md docs/INTER
 done
 
 echo
+echo "--- product repo ---"
+APP="${JARVIS_APP:-$HOME/jarvis-app}"
+for f in AGENTS.md VERSION docs/ARCHITECTURE.md docs/WORKFLOW.md docs/THEMES.md; do
+  if [ -f "$APP/$f" ]; then
+    wc -c "$APP/$f" | awk '{printf "OK %6s %s\n",$1,$2}'
+  else
+    echo "MISS jarvis-app/$f"
+  fi
+done
+
+echo
 echo "--- cluster docs ---"
 for f in README.md AGENTS.md CHANGELOG.md docs/README.md; do
   if [ -f "$CLUSTER/$f" ]; then
