@@ -10,6 +10,9 @@ The 2026-09-15 dry-run proved stamp `YYYYMMDD-HHMM` tarballs are readable; it di
 Backups: `data-01:/cluster/nfs/backups/<STAMP>/`
 etcd: `ctrl-01:/mnt/nfs/snapshots/` (NFS: `data-01:/cluster/nfs/snapshots`).
 data-01 is the NFS server (`/cluster/nfs/...`). Other nodes mount that at `/mnt/nfs`.
+data-02 is not a copy of this tree. It runs Prometheus and Grafana. A restore
+puts Grafana's hostPath back from the data-01 stamp. It does not make data-02
+a second backup.
 
 Run every command as **agent**. Always `ssh -n`.
 

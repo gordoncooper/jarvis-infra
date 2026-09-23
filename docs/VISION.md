@@ -87,9 +87,9 @@ Planning agenda for the rebuild (D-0003). Settled items point at a decision;
 the rest stay open until Gordon confirms a dated entry. Do not quietly answer
 an open item in passing.
 
-1. **Agent runtime.** Partially settled: OpenClaw is break-glass + optional
-   constrained actuator, not the product brain (D-0010). Still open: the exact
-   hands runner shape when verbs land (shim to OpenClaw vs thin in-house).
+1. **Agent runtime.** Settled. OpenClaw is break-glass and the confirm-class
+   actuator (D-0010, D-0022, D-0023). Reads the orchestrator can serve itself
+   stay there (D-0036, D-0037, D-0041, D-0042). The shim was not replaced.
 2. **Orchestrator.** Settled for shape and impl home: separate Python service;
    themed TS→static glass in **`jarvis-app`**; Flux in `cluster`; `/v1` API with
    SSE; theme-swappable look (D-0012, D-0020). Product glass: four-display
@@ -98,8 +98,10 @@ an open item in passing.
    `jarvis-local`; one cloud specialist `jarvis-grok`; orchestrator selects ids;
    no product auto-router; coder deferred; hands not product (D-0019 / D-0011).
 4. **Memory.** Settled for v1 doctrine (D-0013). Confirm UI ships in glass
-   (D-0032); Hands/memory confirms stay orchestrator-owned. Still open:
-   schema pin, migrate-off `learned.md`, optional embed projection threshold.
+   (D-0032); Hands/memory confirms stay orchestrator-owned. `learned.md` stays
+   operator-written break-glass knowledge, not a store chat writes (D-0039).
+   Still open: a schema pin for promoted sqlite, and whether an embed
+   projection is worth building.
 5. **Voice.** Settled for v1: glass PTT first; laptop `hey jarvis` on the same
    orchestrator API; cluster Whisper SoT; Piper TTS (second voice allowed
    later); client-local UX commands; no room mic / custom wake (D-0014).

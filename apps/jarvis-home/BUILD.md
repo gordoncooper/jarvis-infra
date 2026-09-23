@@ -4,9 +4,9 @@ The cluster image is **not** built from `src/` on apps-01.
 `install-jarvis-home.sh` copies `Dockerfile` + `output/` only.
 
 `src/lib/hud/` is the TanStack HUD (home, status, telemetry scrape, dossiers).
-**Do not** use the Grok App Builder / preview tab. Product HUD for talking to
-JARVIS is **jarvis.lan** glass (`~/jarvis-app/glass`, D-0029). This tree is
-home.lan only and is deferred until that surface is retired.
+**Do not** use the Grok App Builder / preview tab. Product glass is
+**jarvis.lan** (`~/jarvis-app`, D-0031 / D-0032). This tree is home.lan only
+and is not getting another image cut while that surface is still due to retire.
 
 To refresh `output/` later (bastion Node 22 + TanStack Start + Tailwind v4,
 when that workshop exists here — not App Builder):

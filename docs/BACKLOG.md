@@ -1,104 +1,64 @@
 # Backlog
 
-Engineering tickets. Product intent: [`VISION.md`](VISION.md) (do not append lists there).
-Workshop: [`DEVOPS.md`](DEVOPS.md). Footguns: [`LESSONS.md`](LESSONS.md).
-Do not copy pin numbers here. Check a box in git when it ships. One change per session.
+Tickets that are still worth doing. A shipped call lives in
+[`DECISIONS.md`](DECISIONS.md). A footgun lives in [`LESSONS.md`](LESSONS.md).
+Do not copy pin numbers here. Check a box in git when a ticket ships, then
+delete the essay. One change per session.
 
-Rank: **critical** (house dies or lying backups) · **high** (Tony-wrong or rebuild-broken) · **med** · **low**.
-Not in this file: HUD CSS, mermaid pretty, voice timbre, suggestion chips.
-
----
-
-## A. Product (spec in PLAN)
-
-- [x] **high** Product intent router — **D-0033 / D-0034 / D-0035, shipped 2026-09-21**. Declared capability manifest; deterministic match → local classifier → honest refusal → talker; referents; fixture gate in `jarvis-app/orchestrator/tests`, run by `install-images.sh` before it builds. Capability routing 26 → 47 of 64 with zero plain-chat regressions. How it works: `jarvis-app/docs/ARCHITECTURE.md`
-- [x] **high** LiteLLM `classifier_type: llm` — **closed by deletion, D-0040.** The ask was to replace `complexity_router`'s famous-phrase `keyword_tier_rules` with an LLM rubric. Once jarvis.lan grew its own router (D-0033–D-0037) nothing needed LiteLLM to guess intent, so the auto-router and its keyword list are gone rather than rebuilt. chat.lan defaults to `jarvis-local` and escalates with explicit prefixes
-- [ ] **med** Widen OpenClaw RBAC **only** after Gordon names verbs. Same Hands shim. Cat live Role first. No cluster-admin. D-0036 added five capabilities without touching it, by reading Prometheus from the orchestrator — try that first
-- [x] **med** `logs.tail` — **D-0041**. Orchestrator SA reads `pods/log` in apps, inference, agents, monitoring. Lines that look like credentials are dropped, the tail is 80 lines, and at most four are spoken. flux-system is refused, not granted. OpenClaw RBAC was not widened
-- [x] **low** `flux.status` — **D-0037**. Read-only get/list on Flux kustomizations + gitrepositories, granted to the *orchestrator* SA, not OpenClaw. `flux.logs` still not named
-- [x] **low** `backup.latest` — **D-0037**. `backup-jarvis.sh` publishes a status document to NFS; the backups directory stays 0750 root
-- [x] **low** `files.list` — **D-0042**. One root, `/cluster/nfs/jarvis/files`, mounted read-only on its own. Names, sizes, and ages. Contents are not opened
-- [ ] **med** Off-LAN: Tailscale (or equivalent). Not a bastion desktop. Not kubeconfig on a laptop. Becomes **high** the day he works off-LAN
-- [ ] **low** gpu-02 stays embed-only until there is a reason for a second chat model (VRAM is free; context switch is not)
+Rank: **critical** (the house or the backups are lying) · **high** (a rebuild
+would do the wrong thing) · **med** · **low**.
 
 ---
 
-## B. HUD rebuild (home.lan — deferred)
+## Open
 
-home.lan image cut is **deferred** until that surface is retired into noc.lan
-(D-0030). Product HUD is jarvis.lan glass (`JARVIS_THEME` packs).
-
-Do as **one** image bump (`IMAGE` in VERSION + both `homepage.yaml`). Import on apps-01 **before** Flux. Never retag.
-
-- [ ] **high** Bastion-native `output/` rebuild (`BUILD.md`) so the next cut does not require the Grok preview tab — **deferred**
-- [x] **med** Strip `PreviewHostBridge`, `preview-host-bridge.ts`, `preview-embedder-origin.ts` (source; live image still v0.4.9 until rebuild)
-- [ ] **low** Strip empty `AuthProvider` unless a real provider exists
-- [x] **low** Drop `/__grok/*` from `src/routes/__root.tsx` (source). `output/static/__grok/` waits on image rebuild
-- [ ] **med** Prove `/status` + dossiers; then bump `IMAGE` only (same session as the strip)
+- [ ] **critical** Off-box copy of the NFS backups. Stamps exist only on data-01. The age key without those tarballs does not rebuild the house. Second disk, USB, or another machine in the house.
+- [ ] **high** One restore rehearsal. Unpack a stamp into a throwaway directory, not `/cluster/local` and not `$HOME`, and diff names and sizes against the live files. [`RESTORE.md`](RESTORE.md) has unpacked nothing since the 2026-09-15 read-only check.
+- [ ] **med** `learned.md` is mode `666` on NFS. It is operator-written break-glass knowledge, not product memory, and the mode means anyone can rewrite it. Tighten ownership without breaking `remember.sh` or the hourly `seed-learned.sh`.
+- [ ] **med** Secret rotation is tribal. One short runbook for Gitea, LiteLLM, Grafana, OpenClaw, and xAI: edit SOPS, `materialize-bastion-secrets.sh`, `apply-secrets.sh`.
+- [ ] **low** `check-contract.sh` only pins `jarvis-home`. The two `homepage.yaml` files can drift, and the orchestrator image tag is not checked at all.
+- [ ] **low** Memory schema pin, and whether promoted sqlite gets an embed projection. Not before `learned.md` is a deliberate store with a real mode. See VISION item 4.
 
 ---
 
-## C. Durability (house-fire / restore)
+## Not tickets
 
-- [ ] **critical** Off-box copy of NFS backups (second disk, USB, or other house). Age key without the tarballs does not rebuild the house
-- [ ] **high** Prove data-02 is a real replica (or write down that it is not). Backups today land on data-01 NFS
-- [ ] **high** One restore rehearsal that unpacks a stamp into a **throwaway** dir (not `/cluster/local`, not `$HOME`) and diffs names/sizes vs live
-- [ ] **med** Document etcd-snapshot restore as last-resort (ctrl-01: never `cluster-init`). Do not run it "to see"
-- [ ] **med** Secret rotation runbook: Gitea / LiteLLM / Grafana / OpenClaw / xAI — SOPS edit + `materialize` + `apply-secrets`
-- [ ] **med** mkcert / LAN CA expiry: when certs die, Traefik and browsers fail together. Calendar it. Becomes **critical** near expiry
+Recorded so the next session does not reopen them.
 
----
-
-## D. Platform drift
-
-- [ ] **high** One `seed-all` wrapper (ui + model + lab-docs + learned + filters) so REBUILD cannot skip a step
-- [ ] **med** Re-pin digests when we *intentionally* take a new Ollama / LiteLLM / OpenClaw / OWUI / monitoring image
-- [ ] **med** apps-01 Docker legacy builder is deprecated. Next homepage image: buildx or `k3s ctr` only — pick one in BUILD.md
-- [x] **med** `ENABLE_SIGNUP=true` on chat.lan — **D-0039**, now false. REBUILD documents the first-admin bootstrap
-- [ ] **low** Flux `gotk-components` upgrade path. Discover live CRDs first
-- [ ] **low** k3s client on bastion vs server pin in VERSION. Do not `curl | sh` without `INSTALL_K3S_VERSION`
-- [ ] **low** sops binary vs upstream. Upgrade when we next touch secrets
-- [ ] **low** Traefik is Helm-in-k3s, not Flux. Accept "pet" or import a HelmRelease. Do not half-manage it
-- [ ] **low** Grafana JSON in git vs live (`export-clickops.sh`). Click-ops stays, or dashboards become Flux-only — pick once
+- **home.lan HUD.** No new `jarvis-home` image. No App Builder workshop. No bastion rebuild of `output/` until that surface is actually retired. Product glass is `jarvis.lan`.
+- **Off-LAN.** LAN-only until Gordon asks (D-0018). Not a bastion desktop. Not a kubeconfig on a laptop.
+- **gpu-02.** Stays the embed node. Not a second chat model.
+- **OpenClaw RBAC.** Do not widen it until Gordon names the verbs. Reads belong in the orchestrator first.
+- **Traefik** stays the k3s chart. Do not half-import it into Flux.
+- **Grafana** stays click-ops. `export-clickops.sh` is a snapshot, not a source Flux should own.
+- **agent.lan** stays HTTP on the hostPort. TLS there is a project of its own, not a Traefik rule on port 80.
+- **Upgrades with no pain.** k3s client skew of one minor, a newer sops binary, and a Flux components bump are not work until something breaks. Install scripts already pin `INSTALL_K3S_VERSION`.
+- **LAN certs** expire December 2028. Not a ticket yet.
+- **data-02 is not a backup replica.** It runs Prometheus and Grafana. Stamps live on data-01 only.
+- **etcd restore** is [`RESTORE.md`](RESTORE.md) section 5. Last resort. Never `cluster-init` on a live server.
+- **seed-learned** is the one hourly job, and it calls `refresh-goose-context.sh`. Do not add a second cron.
 
 ---
 
-## E. Doc debt (found in the 2026-09-19 audit)
+## Do not put back
 
-- [ ] **med** Two VISION items are still open: the hands-runner shape, and the memory schema pin (migrate off `learned.md`, embed threshold). The other four of the old six are decided. See the "third attempt" section of [`VISION.md`](VISION.md)
-- [x] **low** `docs/openclaw-identity.md` references `USER.md` — reference dropped
-- [x] **low** `docs/persona.txt` and `docs/openclaw-soul.md` — `openclaw-soul.md` is a symlink to `persona.txt`
-- [x] **low** `docs/LESSONS.md` dated handover — **D-0043**. Timeless rows stayed in the table. The HUD, persona-spine, and 2026-09-17 handover sections are gone
-- [ ] **low** `apps/jarvis-home/BUILD.md` still references the Grok App Builder tree, which the contract forbids as a workshop
-
----
-
-## F. Contract / copilot gaps
-
-- [ ] **med** Extend `check-contract.sh` for Hands, digest pins, MODEL_FILTER (fail on real drift, not comments)
-- [ ] **med** `learned.md` mode 666 on a hostPath. Tighten ownership without breaking remember / OpenClaw
-- [ ] **med** Dual `homepage.yaml` RBAC verbs in the contract (dossiers break when they drift)
-- [ ] **low** seed-learned hourly cron vs `refresh-goose-context.sh`: one schedule, one log, fail loud
-- [ ] **low** agent.lan stays HTTP (hostPort). TLS for that listener is a project, not a Traefik Host rule on :80
-
----
-
-## G. Do not put back
-
-- Exact-phrase `keyword_tier_rules` / intent-gated LIVE dumps into the 7B
-- MutationObserver HUD inject on chat.lan
+- Exact-phrase keyword rules, or a live telemetry dump in the 7B prompt
+- A HUD inject or a routed-model chip on chat.lan
+- Open WebUI sqlite filters (persona, route, remember, telemetry)
 - Nested Goose inside OpenClaw
-- chat.lan routed-model chip (OWUI rewrites the stream)
-- `docs/history/` PHASE novels
-- App Builder / Vite / port 8080 preview as the workshop
-- kubeconfig on a laptop
+- `docs/history/` phase novels
+- App Builder, or a workshop bound to port 8080 on a node
+- A kubeconfig on a laptop
 
 ---
 
-## Done (do not re-open)
+## Done
 
-- [x] Delete unused `apps/jarvis-home/INSTALL.txt`
-- [x] `smoke-operator.sh` points at verify + INTERACT (no `SMOKE-OPERATOR.md`)
-- [x] OPERATING documents `cluster-update-reboot.sh` + smoke vs verify
-- [x] Repair `~~bash` fences in OPERATING / REBUILD / RESTORE
-- [x] Day-0 workshop `DEVOPS.md` (shop floor)
+Shipped calls are the decision log. This list is only so the essays above are not rewritten as new tickets.
+
+- [x] Intent router, D-0033 through D-0035
+- [x] LiteLLM auto-router deleted, D-0040
+- [x] `logs.tail` D-0041, `flux.status` and `backup.latest` D-0037, `files.list` D-0042
+- [x] chat.lan signup off, D-0039
+- [x] `AGENTS.md` / `LESSONS.md` split, D-0043
+- [x] `openclaw-soul.md` is a symlink to `persona.txt`. The `USER.md` reference is gone
