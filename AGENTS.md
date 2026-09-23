@@ -65,6 +65,7 @@ Keep it committed.
 - Prefer the vendor knob — LiteLLM config, an OpenClaw skill, a Kubernetes Role — over a new adapter. One adapter per gap.
 - If unsure, stop and ask.
 - Change this file or `DECISIONS.md` only in a session Gordon is watching.
+- If a change moves where agents should start (repo, ship path, skip-list), update `docs/MAP.md` in the same commit. Do not refresh MAP for decisions, lessons, or live status.
 
 ## What to open
 
