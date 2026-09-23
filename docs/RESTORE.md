@@ -33,7 +33,7 @@ ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/bastion-secrets.tgz"
 ssh -n ctrl-01 "sudo k3s etcd-snapshot ls --config /etc/rancher/k3s/snapshot.yaml | tail"
 ```
 
-Expect four tgz: `gitea.tgz`, `grafana.tgz`, `apps-local.tgz`, `bastion-secrets.tgz` (mode 600).
+Expect `gitea.tgz`, `grafana.tgz`, `apps-local.tgz`, `bastion-secrets.tgz` (mode 600), `jarvis-learned.tgz`, and one `on-demand-ctrl-01-*` etcd snapshot copied into this directory. Model weights are not in the stamp.
 
 ## 2. hostPath tarballs (that component down)
 
@@ -87,7 +87,7 @@ chmod 600 ~/.config/sops/age/keys.txt
 ./bootstrap/apply-secrets.sh
 ```
 
-Do not unpack `bastion-secrets.tgz` onto a healthy bastion whose hashes already MATCH (dry-run 11/11). That is a no-op with `tar -k`.
+Do not unpack `bastion-secrets.tgz` onto a healthy bastion whose hashes already MATCH (dry-run 11/11). That is a no-op with `tar -k`. The tarball also carries the node SSH keys `id_ed25519` and `id_rsa`.
 
 ## 4. Homepage image (not in NFS)
 
@@ -112,7 +112,7 @@ ssh -n ctrl-01 'sudo k3s server --cluster-reset --cluster-reset-restore-path=/mn
 # then start k3s; restart k3s-agent on workers if they do not rejoin
 ```
 
-Scheduled files are `etcd-snapshot-ctrl-01-*`. Nightly backup also writes `on-demand-ctrl-01-*`.
+Scheduled files are `etcd-snapshot-ctrl-01-*`. Nightly backup also writes `on-demand-ctrl-01-*` and copies that file into the stamp. `/mnt/nfs/snapshots` is still where k3s writes it. A failed snapshot is not `OK`.
 
 ## 6. After
 

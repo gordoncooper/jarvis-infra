@@ -16,6 +16,8 @@ chmod 600 \
   .kube/config \
   .config/sops/age/keys.txt \
   .ssh/id_ed25519_github \
+  .ssh/id_ed25519 \
+  .ssh/id_rsa \
   .config/goose/secrets.yaml \
   2>/dev/null || true
 echo "unpacked $STAMP"
