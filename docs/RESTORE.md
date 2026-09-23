@@ -9,6 +9,12 @@ The 2026-09-22 rehearsal unpacked stamp `20260922-0331` into
 It did **not** write `$HOME` or `/cluster/local`. Every archived name was still
 on the live tree. Size drift was files written after 03:31.
 
+Stamp `20260922-2252` was extracted the same way and removed. `gitea.db`,
+`webui.db`, `promoted.sqlite`, and `sessions.sqlite` passed integrity check.
+`restore-bastion-secrets.sh` was pointed at an empty directory, not the real
+`$HOME`: the 12 secret files matched and were mode 600, then shredded. The
+etcd file in the stamp matches the k3s snapshot. It was not applied.
+
 Backups: `data-01:/cluster/nfs/backups/<STAMP>/`
 etcd: `ctrl-01:/mnt/nfs/snapshots/` (NFS: `data-01:/cluster/nfs/snapshots`).
 data-01 is the NFS server (`/cluster/nfs/...`). Other nodes mount that at `/mnt/nfs`.
@@ -68,6 +74,18 @@ kubectl -n agents scale deploy/openclaw --replicas=1
 
 `WEBUI_SECRET_KEY` lives in the apps secret / `apps-local.tgz`, not in SOPS.
 
+### Product memory (`jarvis-learned.tgz`)
+
+This is not `/cluster/local`. Stop the orchestrator first so sqlite is not open.
+
+```bash
+kubectl -n apps scale deploy/jarvis-orchestrator --replicas=0
+ssh -n data-01 "sudo tar -C /cluster/nfs -xzf /cluster/nfs/backups/$STAMP/jarvis-learned.tgz"
+kubectl -n apps scale deploy/jarvis-orchestrator --replicas=1
+```
+
+Contains `promoted.sqlite`, `sessions.sqlite`, `learned.md`, and `files/`. No model weights.
+
 ## 3. Bastion secrets
 
 If NFS survived and this is a **new or wiped** `$HOME`:
@@ -112,7 +130,7 @@ ssh -n ctrl-01 'sudo k3s server --cluster-reset --cluster-reset-restore-path=/mn
 # then start k3s; restart k3s-agent on workers if they do not rejoin
 ```
 
-Scheduled files are `etcd-snapshot-ctrl-01-*`. Nightly backup also writes `on-demand-ctrl-01-*` and copies that file into the stamp. `/mnt/nfs/snapshots` is still where k3s writes it. A failed snapshot is not `OK`.
+Scheduled files are `etcd-snapshot-ctrl-01-*`. Nightly backup also writes `on-demand-ctrl-01-*` and copies that file into the stamp. `/mnt/nfs/snapshots` is still where k3s writes it. On ctrl-01 the stamp copy is `/mnt/nfs/backups/$STAMP/on-demand-ctrl-01-*`. A failed snapshot is not `OK`.
 
 ## 6. After
 
