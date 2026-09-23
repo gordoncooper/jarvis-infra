@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0041 | `logs.tail`: redacted pod logs, four namespaces, orchestrator SA |
 | D-0040 | LiteLLM auto-router deleted; chat.lan defaults to `jarvis-local` |
 | D-0039 | chat.lan is stock Open WebUI; skin and three filters removed |
 | D-0038 | `jarvis-core` retired and removed; noc.lan rescued into git and Flux |
@@ -57,6 +58,37 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-22 — D-0041 — logs.tail reads a capped, redacted tail
+
+**Status:** active. Builds the verb D-0036 named and deferred. Does not widen
+OpenClaw. flux-system stays outside the grant.
+
+Gordon asked JARVIS to look at logs. The permission to read them already
+existed on `openclaw-recycle`, which is why D-0036 refused to ship the verb
+as a patch: a wall display that speaks a token is worse than a refusal.
+
+**Where it runs.** The orchestrator ServiceAccount, not OpenClaw. Log
+questions show up when something is wrong, and OpenClaw is the component
+most likely to be wrong. Same reason as D-0036 and D-0037. The grant is four
+namespaced Roles in `jarvis-orchestrator-rbac.yaml`: `get` and `list` on
+pods, `get` on `pods/log`, in `apps`, `inference`, `agents`, and
+`monitoring`. No `pods/exec`, no secrets, no write, and no `flux-system` or
+`kube-system`.
+
+**What is said.** The API tail is 80 lines. Lines that look like credentials
+are dropped whole, not masked. At most four surviving lines are spoken, and
+error-shaped lines win over the rest. The reply says how many lines were
+withheld. The raw tail is not stored on the turn and not written to the
+audit record.
+
+**Flux.** "Look at the flux error logs" is recognized and refused in words.
+Controller logs live in `flux-system`, which this grant does not cover.
+`flux.status` remains the way to ask whether reconcile succeeded.
+
+**Not in this decision.** `files.list` still has no directory to name.
 
 ---
 
