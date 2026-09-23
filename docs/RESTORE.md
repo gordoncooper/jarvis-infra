@@ -29,14 +29,15 @@ Run every command as **agent**. Always `ssh -n`.
 Pick `STAMP` (newest successful `OK` from `journalctl -u jarvis-backup.service`).
 
 ```bash
-STAMP=YYYYMMDD-HHMM   # example: 20260915-0331
+STAMP=YYYYMMDD-HHMM
 ssh -n data-01 "sudo ls -lh /cluster/nfs/backups/$STAMP"
-ssh -n data-01 "sudo sh -c 'for f in /cluster/nfs/backups/'$STAMP'/*.tgz; do gzip -t \"$f\" && echo gzip_ok \"$f\"; done'"
+ssh -n data-01 "sudo sh -c 'for f in /cluster/nfs/backups/${STAMP}/*.tgz; do gzip -t \"\$f\" && echo gzip_ok \"\$f\"; done'"
 ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/gitea.tgz | head"
 ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/apps-local.tgz | grep -E '^(open-webui/webui.db|openclaw/)'"
 ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/grafana.tgz | head"
-ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/bastion-secrets.tgz"
-ssh -n ctrl-01 "sudo k3s etcd-snapshot ls --config /etc/rancher/k3s/snapshot.yaml | tail"
+ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/jarvis-learned.tgz"
+ssh -n data-01 "sudo tar -tzf /cluster/nfs/backups/$STAMP/bastion-secrets.tgz | grep -E 'id_ed25519$|id_rsa$|keys.txt$'"
+ssh -n data-01 "sudo ls /cluster/nfs/backups/$STAMP/on-demand-ctrl-01-*"
 ```
 
 Expect `gitea.tgz`, `grafana.tgz`, `apps-local.tgz`, `bastion-secrets.tgz` (mode 600), `jarvis-learned.tgz`, and one `on-demand-ctrl-01-*` etcd snapshot copied into this directory. Model weights are not in the stamp.
@@ -82,6 +83,7 @@ This is not `/cluster/local`. Stop the orchestrator first so sqlite is not open.
 kubectl -n apps scale deploy/jarvis-orchestrator --replicas=0
 ssh -n data-01 "sudo tar -C /cluster/nfs -xzf /cluster/nfs/backups/$STAMP/jarvis-learned.tgz"
 kubectl -n apps scale deploy/jarvis-orchestrator --replicas=1
+kubectl -n apps rollout status deploy/jarvis-orchestrator
 ```
 
 Contains `promoted.sqlite`, `sessions.sqlite`, `learned.md`, and `files/`. No model weights.
@@ -92,7 +94,7 @@ If NFS survived and this is a **new or wiped** `$HOME`:
 
 ```bash
 ./scripts/restore-bastion-secrets.sh "$STAMP"
-# default is tar -k (skip files that already exist)
+# keeps files that already exist. Exits 2 on a healthy home and writes nothing.
 # FORCE=1 ./scripts/restore-bastion-secrets.sh "$STAMP"   # overwrite, wiped HOME only
 ./bootstrap/apply-secrets.sh
 ```
@@ -105,7 +107,7 @@ chmod 600 ~/.config/sops/age/keys.txt
 ./bootstrap/apply-secrets.sh
 ```
 
-Do not unpack `bastion-secrets.tgz` onto a healthy bastion whose hashes already MATCH (dry-run 11/11). That is a no-op with `tar -k`. The tarball also carries the node SSH keys `id_ed25519` and `id_rsa`.
+Do not run this on a healthy bastion. It exits 2 and leaves the live files alone. The tarball carries the node SSH keys `id_ed25519` and `id_rsa` plus the age key. The script shreds its temp copy.
 
 ## 4. Homepage image (not in NFS)
 

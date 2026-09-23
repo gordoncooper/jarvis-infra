@@ -14,8 +14,10 @@ echo "checkout $GIT_TAG   image $IMAGE   k3s $K3S"
 `GIT_TAG` and `IMAGE_TAG` are allowed to differ (docs cut vs image cut).
 
 Authoritative cluster YAML is **Gitea** (`http://git.lan/jarvis/cluster.git`).
-This repo is metal + bootstrap + the command-center **image**.
-GitHub `gordoncooper/jarvis-cluster` is a **mirror**. Never point Flux at GitHub.
+This repo is metal, bootstrap, the homepage image, and the noc image.
+Orchestrator and glass are `~/jarvis-app`. Flux does not build any of them.
+`imagePullPolicy: Never` on all four. GitHub `gordoncooper/jarvis-cluster` is a
+**mirror**. Never point Flux at GitHub.
 
 Hardware: 6x ThinkCentre M920x i7-8700T, Ubuntu 26.04, user **`agent`** (never `bastion`).
 gpu-01 / gpu-02: RTX A1000. Other four: Patriot P300 512G as `/cluster`.
@@ -47,7 +49,7 @@ Image: `IMAGE` from `VERSION` · `imagePullPolicy: Never` · `nodeSelector: jarv
 ## 0. Router (click-ops)
 
 Follow [bootstrap/router.md](../bootstrap/router.md). DHCP reservations + DNS
-for nodes **and** `git.lan chat.lan jarvis.lan llm.lan grafana.lan home.lan`
+for nodes **and** `git.lan chat.lan jarvis.lan noc.lan llm.lan grafana.lan home.lan`
 -> `192.168.8.11`, **`agent.lan` -> `192.168.8.16`**.
 
 ## 1. OS
@@ -85,7 +87,16 @@ Do not run unpinned `curl | sh`.
 ./k3s/join-agents.sh
 ansible-playbook playbooks/nvidia-runtime.yml --limit gpu-01,gpu-02
 ./scripts/install-jarvis-home.sh
+git clone git@github.com:gordoncooper/jarvis-app.git ~/jarvis-app
+( cd ~/jarvis-app && ./scripts/install-images.sh )
+./apps/jarvis-noc/install-noc.sh
 ```
+
+`install-images.sh` sources `~/jarvis-app/VERSION`. Do not pass a tag in the
+environment. The noc pin lives in `apps/jarvis-noc/install-noc.sh` and
+`clusters/jarvis/apps/jarvis-noc.yaml`. Import these **before** Flux creates
+the Deployments. `ErrImageNeverPull` means the import was skipped; import,
+then delete the pod.
 
 ## 3. Gitea (chicken-egg)
 
@@ -100,6 +111,10 @@ kubectl -n gitea rollout status deploy/gitea
 Repair: restore `gitea.tgz` first ([RESTORE.md](RESTORE.md)), skip empty repo.
 
 ## 4. Load cluster YAML into Gitea
+
+If `~/cluster` survived, push **that** to Gitea. It is Flux's origin.
+If the bastion clone is gone, seed Gitea from the GitHub mirror. The mirror
+can lag. Do not push it over a Gitea that is ahead of it.
 
 ```bash
 git clone --mirror git@github.com:gordoncooper/jarvis-cluster.git /tmp/jarvis-cluster.git
@@ -140,6 +155,7 @@ git.lan stays **HTTP**. agent.lan:**18789** stays HTTP.
 `pull-embed-model.sh` pulls the embed model on gpu-02.
 
 ```bash
+# skip when ~/cluster is already the Flux checkout
 git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ./scripts/create-jarvis-ollama.sh
 ./scripts/pull-embed-model.sh
@@ -150,10 +166,16 @@ git clone http://jarvis:${TOKEN}@git.lan/jarvis/cluster.git ~/cluster
 ```
 
 Open WebUI sqlite is a **cache**. After any WebUI recreate, re-run the seed
-scripts above and re-insert the two filters that D-0039 kept:
-`jarvis_persona` and `jarvis_route`. Do not put back telemetry, no-closer,
-or remember. lab-docs is `seed-lab-docs.sh` (briefing.md). jarvis-learned is
-`seed-learned.sh`. Duplicate-content 400 is success.
+scripts above and re-insert only `scripts/owui-persona-filter.py` and
+`scripts/owui-route-filter.py`. Do not put back telemetry, no-closer, or
+remember. lab-docs is `seed-lab-docs.sh` (`docs/briefing.md`). jarvis.lan
+reads the short ConfigMap in the orchestrator manifest, not that file.
+jarvis-learned is `seed-learned.sh`. Duplicate-content 400 is success.
+
+Whisper weights are not in the stamp. The whisper pod's postStart pulls them.
+Piper voice files on apps-01 `/cluster/local/piper` are not in the stamp
+either. The voice map is Flux. A wiped apps-01 has no voices until those
+files are back. Model weights under `/cluster/nfs/models` are not backed up.
 
 `ENABLE_SIGNUP` is **false** (D-0039). On a fresh data volume that means there
 is no way to create the first admin, so the bootstrap is: flip it to `true` in
@@ -181,7 +203,7 @@ See [RESTORE.md](RESTORE.md). Re-pair OpenClaw at http://agent.lan:18789.
 ## Do not
 
 - Point Flux at GitHub
-- `cluster-init` on an existing sqlite datastore
+- `cluster-init` on a live server
 - Put `agent.lan` on 192.168.8.11
 - Commit mkcert keys or plaintext `secrets.yaml`
 - `nvidia.com/gpu` on the exporter

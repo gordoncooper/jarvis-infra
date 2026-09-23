@@ -46,7 +46,7 @@ packages_common:
 cluster_hosts:
   - { ip: 192.168.8.1,  names: "router.lan flint3.lan" }
   - { ip: 192.168.8.10, names: "bastion.lan bastion" }
-  - { ip: 192.168.8.11, names: "ctrl-01.lan ctrl-01 git.lan jarvis.lan grafana.lan llm.lan chat.lan home.lan" }
+  - { ip: 192.168.8.11, names: "ctrl-01.lan ctrl-01 git.lan jarvis.lan noc.lan grafana.lan llm.lan chat.lan home.lan" }
   - { ip: 192.168.8.12, names: "gpu-01.lan gpu-01" }
   - { ip: 192.168.8.13, names: "gpu-02.lan gpu-02" }
   - { ip: 192.168.8.14, names: "data-01.lan data-01" }

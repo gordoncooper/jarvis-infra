@@ -17,7 +17,7 @@ DNS A records (and `/etc/hosts` from Ansible `cluster_hosts`):
 
 | Name | IP |
 |---|---|
-| git.lan jarvis.lan grafana.lan llm.lan chat.lan home.lan | **192.168.8.11** (Traefik) |
+| git.lan jarvis.lan noc.lan grafana.lan llm.lan chat.lan home.lan | **192.168.8.11** (Traefik) |
 | agent.lan | **192.168.8.16** (OpenClaw hostPort 18789) |
 
 Uplink: SG108S-M2 → SG108E → BE9300. Do not put `agent.lan` on .11.
