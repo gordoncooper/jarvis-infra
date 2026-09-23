@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0042 | `files.list`: one folder, names and ages, contents never opened |
 | D-0041 | `logs.tail`: redacted pod logs, four namespaces, orchestrator SA |
 | D-0040 | LiteLLM auto-router deleted; chat.lan defaults to `jarvis-local` |
 | D-0039 | chat.lan is stock Open WebUI; skin and three filters removed |
@@ -58,6 +59,29 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-22 — D-0042 — files.list has one folder
+
+**Status:** active. Names the root D-0036 refused to invent.
+
+The directory is `/cluster/nfs/jarvis/files` on data-01. Apps nodes see it
+at `/mnt/nfs/jarvis/files`. The orchestrator mounts that path alone,
+read-only, at `/var/jarvis/files`. It is not the parent directory. That
+parent holds `promoted.sqlite`, `sessions.sqlite`, and `learned.md`, and a
+listing must not be able to step up into them.
+
+**What is said.** Names, sizes, and ages, one level, at most eight spoken.
+Symlinks are called links and are not followed. File contents are never
+opened. An empty folder is reported empty.
+
+**Who writes.** Gordon, on data-01. The directory is mode `0755`, root-owned.
+The pod can list it. The pod cannot write it. The existing backup of
+`/cluster/nfs/jarvis` already includes the new folder.
+
+**Not granted.** `/cluster/nfs/backups`, `snapshots`, `models`, and `share`
+(the lab CA lives in `share`). No second root.
 
 ---
 

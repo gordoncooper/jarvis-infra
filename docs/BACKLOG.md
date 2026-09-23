@@ -17,7 +17,7 @@ Not in this file: HUD CSS, mermaid pretty, voice timbre, suggestion chips.
 - [x] **med** `logs.tail` — **D-0041**. Orchestrator SA reads `pods/log` in apps, inference, agents, monitoring. Lines that look like credentials are dropped, the tail is 80 lines, and at most four are spoken. flux-system is refused, not granted. OpenClaw RBAC was not widened
 - [x] **low** `flux.status` — **D-0037**. Read-only get/list on Flux kustomizations + gitrepositories, granted to the *orchestrator* SA, not OpenClaw. `flux.logs` still not named
 - [x] **low** `backup.latest` — **D-0037**. `backup-jarvis.sh` publishes a status document to NFS; the backups directory stays 0750 root
-- [ ] **low** `files.list` — needs a named, allowlisted root. "The directory" is not a subject
+- [x] **low** `files.list` — **D-0042**. One root, `/cluster/nfs/jarvis/files`, mounted read-only on its own. Names, sizes, and ages. Contents are not opened
 - [ ] **med** Off-LAN: Tailscale (or equivalent). Not a bastion desktop. Not kubeconfig on a laptop. Becomes **high** the day he works off-LAN
 - [ ] **low** gpu-02 stays embed-only until there is a reason for a second chat model (VRAM is free; context switch is not)
 
