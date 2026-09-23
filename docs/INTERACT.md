@@ -18,9 +18,9 @@ being retired into `noc.lan`; it still serves today.
 | Agent (break-glass) | http://agent.lan:18789 | Cluster ops, files, live metrics | `jarvis-grok-code` (API) |
 | Cursor | Remote-SSH as `agent` | Architecture, decisions, cross-repo work | Whatever model this window is | 
 | Claude Code | `claude` on bastion | Bulk implementation in one repo | Subscription; long runs are cheap |
-| Grok CLI | `grok` on bastion | Short edits, headless checks | `grok-4.6` in `~/.grok/config.toml`; metered `XAI_API_KEY` |
+| Grok CLI | `grok` on bastion | Short edits, headless checks | model in `~/.grok/config.toml`; metered `XAI_API_KEY` |
 | Goose | `goose session` on bastion | On-node SSH, cheap loops | Profile-switched: `llm-lan` (free) or `xai` (`grok-build-0.1`, metered). **Never jarvis-local** — the 7B invents shell output. |
-| Grafana | https://grafana.lan | Graphs (NVIDIA 14574) | — |
+| Grafana | https://grafana.lan | Graphs (Nvidia GPU Metrics) | — |
 | API | https://llm.lan/v1 | Anything OpenAI-shaped | LiteLLM |
 | GitOps | http://git.lan | YAML in `~/cluster` as **agent** | — |
 | SSH | `ssh bastion` -> nodes | Normal operator access; last glass if k3s is gone | — |
@@ -36,8 +36,8 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 - **list memories** / **what do you remember** — orchestrator lists promoted
   facts (not the talker).
 - Non-explicit preference/identity (“I prefer…”, “my name is…”) → Confirm/Cancel
-  (or wake `yes`/`cancel`) before write (D-0024). Soft facts heuristics miss may
-  still propose via local LLM extract (D-0025); still confirm-gated.
+  (or wake `yes`/`cancel`) before write (D-0024). Soft facts the heuristics miss
+  may still be proposed by the local LLM extract (D-0025); still confirm-gated.
 - Preference lines win over Hands verbs (D-0026); GPU °C/°F follows newest
   promoted unit preference. Forget replies name the removed fact(s).
 - **remember that** / **scratch that** / **delete that last one** resolve
@@ -48,19 +48,19 @@ Re-pair OpenClaw after its pod recycles. DNS for agent.lan is **192.168.8.16**.
 - Sessions survive orchestrator restart (`sessions.sqlite` on NFS).
 
 **Theme swap:** `JARVIS_THEME` in `~/jarvis-app/VERSION`, bump the glass image,
-`./scripts/install-images.sh`. The only theme is **`cockpit`** — `godseye`,
-`mark-hud` and `archive-gold` were deleted in glass v0.6.44. See
+`~/jarvis-app/scripts/install-images.sh`. The only theme is **`cockpit`**.
+`godseye`, `mark-hud` and `archive-gold` are gone. See
 `~/jarvis-app/docs/THEMES.md`.
 
-chat.lan shows the real model ids in the picker and defaults to `jarvis-local`.
-There is no alias hiding which model answered, and nothing to build a
-routed-model chip for. North star: [VISION.md](VISION.md).
+NVIDIA graphs are Grafana folder JARVIS, dashboard **Nvidia GPU Metrics**.
+The file it loads is
+`~/cluster/clusters/jarvis/monitoring/dashboards/Nvidia_GPU_Metrics.json`.
+UI edits are allowed and drift. `scripts/export-clickops.sh` writes a stamp
+under `~` to compare. That stamp is not a backup.
 
-
-Grafana NVIDIA dashboard 14574: Host variable query `nvidia_smi_gpu_info` (or export `index`); Refresh = On dashboard load; Save dashboard. Drift vs git: `~/jarvis-infra/scripts/export-clickops.sh` (stamped dir under `~`; not a backup).
 Piper TTS: **https://chat.lan/admin/settings** (not User Settings). Waveform/mic needs HTTPS.
 
-Audio click-ops: [open-webui-audio.md](open-webui-audio.md). RAG: [open-webui-knowledge.md](open-webui-knowledge.md). Briefing: [briefing.md](briefing.md) (`lab-docs`). Operator-written break-glass facts: `scripts/remember.sh` → `jarvis-learned`.
+Audio click-ops: [open-webui-audio.md](open-webui-audio.md). RAG: [open-webui-knowledge.md](open-webui-knowledge.md). Briefing: [briefing.md](briefing.md) (`lab-docs`).
 
 ## chat.lan is stock Open WebUI
 
@@ -68,6 +68,9 @@ No theme, no injected CSS or JS, no retitled page (D-0039). It is break-glass:
 what matters is that it works when jarvis.lan does not, and every line of
 chrome was a line to re-apply after each upstream digest bump. Upgrading is
 now just the digest.
+
+chat.lan does not store what you say. Product memory is jarvis.lan.
+`learned.md` is written with `scripts/remember.sh` and reaches this chat as RAG.
 
 What is still configured, and why each earns it:
 
@@ -91,6 +94,8 @@ only to be documented as injecting a clock, which it never did); and
 **Daily path:** https://jarvis.lan — the orchestrator resolves the utterance
 to a declared capability (`orchestrator/app/capabilities.py`) and calls
 OpenClaw’s openai-shim `POST /v1/verbs` for the hands-backed ones only.
+The others are served by the orchestrator and still answer when OpenClaw is
+down. **what can you do** speaks the list. This file does not copy it.
 Free-form `/v1/chat/completions` is **not** the product path. A name the
 manifest does not contain is refused before it reaches the shim, and the shim
 re-validates.
@@ -119,11 +124,11 @@ apps / inference / agents / monitoring only (existing recycle Role; no widen).
 
 ## Voice chat (break-glass on chat.lan)
 
-Pinned sidebar chat **Voice**, model **jarvis**. Dedicated OWUI Call session when
+Pinned sidebar chat **Voice**, model **jarvis-local**. Dedicated OWUI Call session when
 the product glass is down — **not** the `hey_jarvis` laptop path.
 
 1. Open https://chat.lan → **Voice**.
-2. Confirm model is `jarvis` (router). Use headphones if Piper is on.
+2. Confirm model is `jarvis-local`. Use headphones if Piper is on.
 3. Start **Call** / voice mode (phone icon). Talk; silence ends the turn; TTS replies.
 
 Idempotent create/pin: `./scripts/ensure-voice-chat.sh`
@@ -211,8 +216,8 @@ if you would rather click.
 The listener forces CPU for onnxruntime. Short junk transcripts (`you`, `uh`)
 are dropped; leading “hey jarvis” is stripped from STT.
 
-Local UX commands stay on the client after STT. Live numbers are Hands or
-home.lan — do not add per-question injects on the laptop.
+Local UX commands stay on the client after STT. Live numbers come from
+jarvis.lan's declared capabilities. Do not add per-question injects on the laptop.
 
 ### Laptop listener commands
 
@@ -269,3 +274,4 @@ Deployment — it does not inject a system message per request.
 
 Layered live dump: `./scripts/discover/00-rack.sh` through `90-copilot.sh`; index in
 [`../scripts/discover/README.md`](../scripts/discover/README.md). Contract: [`../AGENTS.md`](../AGENTS.md).
+Which files to open for a code change: [`MAP.md`](MAP.md).

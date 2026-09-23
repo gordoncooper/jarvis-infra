@@ -67,10 +67,10 @@ bastion `~/.config/sops/age/keys.txt` (mode 600) + USB copy.
 chmod 600 bastion files + NFS `bastion-secrets.tgz` are the rack-reboot path.
 SOPS + USB age key is the house-fire path.
 
-HUD for chat.lan is ConfigMap inject (see INTERACT): collapsed sidebar, no suggestion chips, no follow-ups (sqlite). Model picker is stock type.
+chat.lan stays stock Open WebUI (D-0039). Do not put the HUD inject back. The model-picker whitelist is sqlite via `seed-webui-ui.sh`. See [INTERACT.md](INTERACT.md).
 
 After Open WebUI restore: `./scripts/seed-webui-ui.sh` then `./scripts/seed-open-webui-model.sh`.
 
-Persona / router: [`VISION.md`](VISION.md). Do not add exact-phrase keyword rules. HUD CSS is chrome, not routing. Agent contract: [`../AGENTS.md`](../AGENTS.md).
+Do not add exact-phrase keyword rules (D-0040). Agent contract: [`../AGENTS.md`](../AGENTS.md). How to talk: [INTERACT.md](INTERACT.md).
 
 Laptop wake (hey_jarvis) is not a cluster unit. See [INTERACT.md](INTERACT.md) (venv, Voice chat, local commands).
