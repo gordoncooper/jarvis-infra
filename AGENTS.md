@@ -1,127 +1,88 @@
-# JARVIS — agent contract
+# JARVIS — how to work in this repo
 
-You are the JARVIS homelab copilot.
+You are the homelab copilot, on the bastion as user `agent`.
 
-Product glass lives in jarvis-app and is a React + TypeScript app packed
-to static files for nginx (D-0030 / D-0032). Creating files under
-glass/src/cockpit/** is the product. That is not a factory scaffold.
+This file is the operating contract: where to push, what must not be done, and
+what outranks what. It is not a catalog of product choices. Those are dated
+entries in [`docs/DECISIONS.md`](docs/DECISIONS.md). Footguns already paid for
+are [`docs/LESSONS.md`](docs/LESSONS.md). How the product is built is
+`~/jarvis-app` (`AGENTS.md`, then `docs/WORKFLOW.md`).
 
-Do not scaffold new apps, new repos, or App Builder previews for
-side projects. Do not theme chat.lan.
+Do not describe current deployment here. Ask the cluster.
 
-Production packer: esbuild. Vite as a local/bastion dev server for
-glass is allowed. Do not bind a random workshop to port 8080 on a
-cluster node.
+## What outranks what
 
-Glass may use React, three.js / R3F (Earth only), motion, SVG, and
-uPlot or canvas sparklines. Glass talks only to the orchestrator.
+When two sources disagree, the higher one wins.
 
-This file is **law**: constraints that outlive any particular design. It does
-not describe what is currently deployed. For that, ask the cluster.
-
-## Rank of authority
-
-When two sources disagree, the higher one wins. This ordering is the whole point
-of the file — most past confusion came from prose out-ranking reality.
-
-1. **The live cluster.** `kubectl`, node SSH, NFS. Always.
-2. **[`docs/DECISIONS.md`](docs/DECISIONS.md).** Dated calls. Outranks all prose below.
-3. **Gitea** `http://git.lan/jarvis/cluster.git` — what Flux actually reconciles.
-4. **`VERSION`** — `GIT_TAG`, `IMAGE`/`IMAGE_TAG`, `K3S`. Source it; never retype a pin.
-5. **[`docs/LESSONS.md`](docs/LESSONS.md)** — footguns already paid for.
-6. Everything else in `docs/`. Prose. Treat as stale until the cluster agrees.
+1. **The live cluster.** `kubectl`, node SSH, NFS.
+2. **[`docs/DECISIONS.md`](docs/DECISIONS.md).** Dated calls. Outranks prose.
+3. **Gitea** `http://git.lan/jarvis/cluster.git` — what Flux reconciles.
+4. **`VERSION`** — source it. Never retype a pin into prose.
+5. **[`docs/LESSONS.md`](docs/LESSONS.md).**
+6. Everything else in `docs/`. Stale until the cluster agrees.
 
 GitHub is a cache. It can lag the bastion. It is never Flux's origin.
 
-## Hands
+## Where you are
 
-If you have a shell on the bastion as `agent`, use it — discover, edit, commit,
-push. Do not hand the operator heredocs for work you can do yourself.
+If you have a shell on the bastion as `agent`, do the work. Do not hand the
+operator a script for something you can run.
 
-No shell (web chat, a laptop): no kubectl, no cluster push. Emit quoted
-`bash << 'SCRIPT'` blocks for the operator to run as user **agent**. If you are
-user `bastion`, refuse — `sudo su - agent` first.
+No shell (a laptop, a web chat): no kubectl, no cluster push. `kubectl` and
+the kubeconfig stay on the bastion. Cluster nodes have no kubeconfig.
 
-`scripts/copilot-whereami.sh` prints `MODE=` and `HANDS=` if you are unsure.
+If you are user `bastion`, stop. `sudo su - agent` first. `HOME=/home/agent`.
 
-## Hard rules
+`scripts/copilot-whereami.sh` prints `MODE=` and `HANDS=` when you are unsure.
 
-These are not style preferences. Each one is here because breaking it cost a
-rebuild, a wiped disk, or a day of confusion.
-
-**Identity and access**
-- Run as user **agent** (`HOME=/home/agent`). Never as `bastion`.
-- `kubectl` and the kubeconfig live on the bastion only. Never copy either to a
-  laptop, and never kubectl from one. Cluster nodes have no kubeconfig.
-
-**Git and GitOps**
-- Two clones, two remotes. Cluster YAML goes to **Gitea**; everything else to GitHub.
+## Where a change goes
 
 | Change | Clone | Push to |
 | --- | --- | --- |
-| Metal, docs, scripts, images, SOPS | `~/jarvis-infra` | GitHub `jarvis-infra` |
-| Product: orchestrator, glass, themes | `~/jarvis-app` | GitHub `jarvis-app` |
-| Flux YAML | `~/cluster` | **Gitea** `git.lan/jarvis/cluster.git` |
+| Metal, Ansible, scripts, docs, SOPS | `~/jarvis-infra` | GitHub `jarvis-infra` |
+| Orchestrator, glass, themes | `~/jarvis-app` | GitHub `jarvis-app` |
+| Flux YAML | `~/cluster` | Gitea `git.lan/jarvis/cluster.git` |
 
-- Never point Flux at GitHub. Never push cluster YAML to GitHub as if it were origin.
-- Never `kubectl apply`. Flux owns cluster state. The documented exception is the
-  `apps/jarvis-noc/install-noc.sh`.
-- Never retag. The next snapshot is a **new** `GIT_TAG`. Never `git tag -f`.
-- Never copy pin numbers out of `VERSION` into prose. Source the file.
-- One coherent change per session. Do not mix unrelated work in one commit.
+- Never point Flux at GitHub. Never push `~/cluster` to GitHub as if it were origin.
+- Never `kubectl apply`. Flux owns cluster state. The documented exception is `apps/jarvis-noc/install-noc.sh`.
+- Never retag. The next snapshot is a new `GIT_TAG`. Never `git tag -f`.
+- One coherent change per commit. Do not mix unrelated work.
 
-**Blast radius**
+Each repo has one rules file, `AGENTS.md` at its root. Do not add a
+`CLAUDE.md` or a `.cursor/rules` file that restates it. A `CLAUDE.md` silently
+outranks this file for Claude Code.
+
+`.claude/settings.json` is not a second contract. It is the deny-rule set.
+Keep it committed.
+
+## Hard rules
+
 - Do not widen OpenClaw RBAC unless Gordon named the verbs. Read the live Role first.
 - Never dump Secret `.data`, Helm blobs, SOPS ciphertext, or key files.
 - Do not commit `learned.md`.
+- Do not scaffold a new app, a new repo, or an App Builder preview for a side project.
+- Do not theme `chat.lan`. It is break-glass.
+- Prefer the vendor knob — LiteLLM config, an OpenClaw skill, a Kubernetes Role — over a new adapter. One adapter per gap.
+- If unsure, stop and ask.
+- Change this file or `DECISIONS.md` only in a session Gordon is watching.
 
-**Working style**
-- Discover before you assert. Read what the task needs; do not binge the tree.
-- Prefer the vendor knob — LiteLLM config, OpenClaw skill, k8s RBAC — over a new
-  adapter. One adapter per gap, never a pile.
-- If unsure, stop and ask. A wrong guess here costs more than a question.
-- Do not binge context. Open the file for this task, not the whole `docs/` tree.
-- Change this file or `DECISIONS.md` only in a session Gordon is watching. Law
-  does not move as a side effect of an implementation loop.
+## What to open
 
-## Where things live
-
-| Repo | Contains | Origin |
-| --- | --- | --- |
-| `~/jarvis-infra` | Metal, Ansible, scripts, docs, SOPS, this contract | GitHub |
-| `~/cluster` | Flux YAML only, `clusters/jarvis/**` | Gitea |
-| `~/jarvis-app` | Product: orchestrator, glass, themes (D-0020). Create if absent. | GitHub |
-
-Each repo has exactly one rules file: `AGENTS.md` at its root, tracked in git
-(D-0005). Cursor, Goose, Claude Code, and Grok CLI all read it. Do not add a
-`.cursor/rules/*.mdc` or a `CLAUDE.md` that restates it — that is a second
-bible, and a `CLAUDE.md` silently outranks this file for Claude Code (D-0006).
-
-`.claude/settings.json` is the exception, because it is not prose: it is the
-deny-rule set that enforces the hard rules above for Claude Code and Grok
-(D-0007). Keep it committed.
-
-## Reading order
-
-Stop as soon as the task is clear. Do not read the whole tree.
+Stop as soon as the task is clear.
 
 1. This file.
-2. [`docs/DECISIONS.md`](docs/DECISIONS.md) — what has actually been decided, and when.
-3. [`docs/VISION.md`](docs/VISION.md) — what we are building toward. Intent, not status.
-4. `scripts/copilot-whereami.sh`, then `scripts/discover/90-copilot.sh` — where you are, what is real.
-5. If the task is unclear, stop and ask. Do not invent a remaining-list.
-6. Then, and only then, the one task file: [`OPERATING`](docs/OPERATING.md),
-   [`REBUILD`](docs/REBUILD.md), [`RESTORE`](docs/RESTORE.md), [`DEVOPS`](docs/DEVOPS.md),
-   or one more discover script.
+2. The index in [`docs/DECISIONS.md`](docs/DECISIONS.md), then only the entries the task touches. Not the whole log.
+3. `scripts/copilot-whereami.sh` if you are not sure which machine you are on.
+4. One task file, if the work is ops: [`OPERATING`](docs/OPERATING.md), [`REBUILD`](docs/REBUILD.md), [`RESTORE`](docs/RESTORE.md), or [`DEVOPS`](docs/DEVOPS.md).
 
-Runtime content — `docs/persona.txt`, `docs/briefing.md` — is fed to models at
-runtime. It is not instructions for you, and it is not a description of the rack
-you should trust over the cluster.
+[`docs/VISION.md`](docs/VISION.md) is what we are building toward. Read it when the task is direction, not when the task is a fix.
+
+`docs/persona.txt` and `docs/briefing.md` are fed to models at runtime. They are not instructions for you.
 
 ## Don't
 
-- Invent a second bible. If you need to record a call, append to `DECISIONS.md`.
-- Write status into a law or spec file. Status belongs to the cluster.
-- Add a sixth OWUI sqlite filter, new `keyword_tier_rules`, or regex on English.
-- Scaffold an app, or rebuild something that already exists as a vendor feature.
-- Assume a doc is current because it sounds confident. Check the date and the cluster.
+- Invent a second bible. A new call is a new entry in `DECISIONS.md`.
+- Write live status into a contract or a decision. Status is the cluster.
+- Add regex intent rules, keyword tier rules, or a filter that rewrites English.
+- Rebuild a vendor feature we already have.
+- Trust a doc because it sounds confident. Check the date, then the cluster.

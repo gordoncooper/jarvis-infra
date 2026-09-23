@@ -65,10 +65,10 @@ Do as **one** image bump (`IMAGE` in VERSION + both `homepage.yaml`). Import on 
 
 ## E. Doc debt (found in the 2026-09-19 audit)
 
-- [ ] **med** Decide the six open questions in [`VISION.md`](VISION.md) — agent runtime, orchestrator, model roles, memory, voice, off-LAN. One decision entry each, not a passing mention in a session
-- [ ] **low** `docs/openclaw-identity.md` references `USER.md`, which does not exist. Write it or drop the reference
-- [ ] **low** `docs/persona.txt` and `docs/openclaw-soul.md` are byte-identical. Two copies will drift — make one the source and generate or symlink the other
-- [ ] **low** `docs/LESSONS.md` dated sections mix history with instruction. Consider splitting timeless footguns from the handover narrative
+- [ ] **med** Two VISION items are still open: the hands-runner shape, and the memory schema pin (migrate off `learned.md`, embed threshold). The other four of the old six are decided. See the "third attempt" section of [`VISION.md`](VISION.md)
+- [x] **low** `docs/openclaw-identity.md` references `USER.md` — reference dropped
+- [x] **low** `docs/persona.txt` and `docs/openclaw-soul.md` — `openclaw-soul.md` is a symlink to `persona.txt`
+- [x] **low** `docs/LESSONS.md` dated handover — **D-0043**. Timeless rows stayed in the table. The HUD, persona-spine, and 2026-09-17 handover sections are gone
 - [ ] **low** `apps/jarvis-home/BUILD.md` still references the Grok App Builder tree, which the contract forbids as a workshop
 
 ---

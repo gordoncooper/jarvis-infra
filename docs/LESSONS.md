@@ -1,15 +1,16 @@
 # JARVIS — mistakes we will not repeat
 
-Append-only. Each row is a thing that actually broke, and the fix.
+Each row is a thing that actually broke, and the fix. Add a row when
+something breaks. Delete a row when it is no longer true.
 
 Authority: live cluster, then [DECISIONS.md](DECISIONS.md), then `VERSION`, then
 [OPERATING.md](OPERATING.md), then [REBUILD.md](REBUILD.md). **This file is
 footguns**, not a veto over VERSION.
 
-Read the tables as timeless. The dated sections at the bottom are **history, not
-current state** — they record how a past argument was settled, and several refer
-to surfaces or freezes that no longer exist. Do not take an instruction from a
-dated section without checking it against DECISIONS and the live cluster.
+The table is the file. A new footgun is a new row, not a new essay. Dated
+handover notes used to sit under the table and were easy to follow after the
+surface they described was gone. They are gone. If a row no longer matches the
+cluster, fix the row or delete it. Do not add a paragraph beside it.
 
 ## Never do these
 
@@ -58,6 +59,15 @@ dated section without checking it against DECISIONS and the live cluster.
 | Reference a constant you never defined in a rarely-hit branch | `ALLOW_NS` in `hands.py` was undefined for weeks. Only utterances with an explicit `ns/name` reached it, so every `restart deploy apps/jarvis-glass` was a silent **HTTP 500** | A branch with no test is a branch that does not work. Slice 0 of D-0033 added both |
 | `IMAGE_ORCHESTRATOR_TAG=x ./scripts/install-images.sh` to build one-off | The script sources `VERSION` **after** the environment, so the override is silently discarded and you rebuild the tag already in `VERSION` — a retag, with `imagePullPolicy: Never` meaning the node now holds different bits under a tag that already shipped | There is no override. Bump `VERSION`, which is the source of truth by design. `SKIP_ORCH=1` / `SKIP_GLASS=1` / `SKIP_TESTS=1` are the only knobs |
 | Let a regex capture group swallow a bare pronoun | `remember that` stored the literal fact **"that"** in promoted sqlite, and `forget that` then substring-matched every fact containing the word | A trailing demonstrative is a *referent*, not a fact. Say "which part, sir?" rather than storing it (D-0033) |
+| Skin `chat.lan` or inject a HUD | `MutationObserver` on the vendor DOM loops the page. The HUD was removed | Leave Open WebUI stock (D-0039). Do not put the inject back. |
+| A routed-model chip on `chat.lan` | Open WebUI rewrites every stream chunk, so the chip never showed the real model | Do not build it. |
+| Exact-phrase `keyword_tier_rules`, or a live telemetry dump in the 7B prompt | The model answered cluster questions from imagination. The auto-router that held those rules is deleted | Do not add them back (D-0040). |
+| `code:` as a LiteLLM model-name substring | It matched inside unrelated names and routed the turn wrong | Do not use that prefix. |
+| Omit `SYSTEM` when creating the `jarvis` Ollama model | `FROM qwen2.5` inherits "You are Qwen" | `scripts/create-jarvis-ollama.sh` bakes `docs/persona.txt`. Do not skip that. |
+| Put rack facts in `docs/persona.txt` | The talker recites infrastructure instead of answering | Character only. |
+| Edit persona and keep talking in the old chat | The thread stays on the old identity | Start a new chat. |
+| A new `open-webui.yaml` volumeMount in block style | The file is flow-style (`- { name: data, ... }`). A different indent makes Flux kustomize reject the repo, and nothing applies | Match the items already there. |
+| `ssh … \| ssh … tee` for a tarball | The pipe writes an empty archive and `pipefail` aborts | `-n` on the producer. The consumer's stdin is the program only when you mean it (`sudo tee`, `python3 -`). |
 
 ## DNS / hosts
 
@@ -65,40 +75,3 @@ dated section without checking it against DECISIONS and the live cluster.
 | --- | --- |
 | git.lan jarvis.lan grafana.lan llm.lan chat.lan **home.lan** | 192.168.8.11 |
 | agent.lan | **192.168.8.16** |
-
-## Open WebUI HUD — retired 2026-09-21 (D-0039)
-
-The HUD is gone and chat.lan runs stock. These stay as footguns for anyone
-tempted to skin a vendor UI again; they are history, not instructions.
-
-
-- Do not `MutationObserver` + rewrite text with `characterData` — infinite loop, “Page Unresponsive”.
-- Tailwind class selectors (`self-center.font-medium`) miss 0.11.3; key off the **JARVIS** text node.
-- Sidebar expand remounts the brand; one-shot `setTimeout` is not enough — `childList` only.
-- `ENABLE_*` env is not enough when PersistentConfig already wrote sqlite (`task.follow_up.enable`).
-- Piped `ssh -n … | ssh -n tee` writes empty tarballs and `pipefail` aborts at hostPaths. `-n` only on the producer.
-- OpenClaw agent timeout 180s (90s timed out cold Hands). Secret phrase is briefing blue-banana-42, not learned.md silver-orbit-3. Do not add exact-phrase keyword_tier_rules.
-
-- Laptop `jarvis-wake.py` is transport only (mic → jarvis.lan orchestrator → speaker). Local UX commands stay on the client; never special-case questions as verbs.
-- Wall clock is one `[clock …]` line from the OWUI filter (America/Los_Angeles) on every chat.lan turn. Do not inject per-question facts in the listener.
-- Listener commands (stop/pause/resume/repeat/mute/status) run after STT and must not be POSTed to chat.lan.
-- openWakeWord CUDA warning on the laptop is fine (CPUExecutionProvider).
-- Adaptive silence (`0.22 * peak`) can still hit MAX_UTTER (~8s) in a noisy room; not a command bug.
-- Do not intent-gate a LIVE telemetry dump into the 7B prompt. Clock is always-on; live numbers are Hands or home.lan.
-
-- chat.lan does not show a routed-model chip. Open WebUI rewrites every stream chunk to model=jarvis, so the child (ollama/jarvis vs jarvis-hands) never reaches the browser. Do not spend cycles on a HUD chip for this.
-- Do not unify chat.lan prefixes with LiteLLM keyword_tier_rules. Historic: both the auto-router and the keyword rules were deleted in D-0040, so there is nothing left to unify with. `code:` as a LiteLLM substring was the landmine.
-
-## Persona spine (2026-09-17)
-
-- `docs/persona.txt` is the character file. Do not put rack novels in it.
-- Open WebUI `DEFAULT_SYSTEM_PROMPT` env does **not** inject a system message per request. Character on chat.lan is: Ollama baked `SYSTEM` (7B) + sqlite filter `jarvis_persona` (Grok/Hands). Mount is `/etc/jarvis/system.txt` from ConfigMap `jarvis-persona`.
-- Never omit `SYSTEM` in the `jarvis` Modelfile. `FROM qwen2.5` inherits “You are Qwen…”.
-- Identity changes: **new chat**. Old threads stay poisoned.
-- `open-webui.yaml` volumeMounts are flow-style (`- { name: data, ... }`). New mounts must use the same indent as those items or Flux kustomize dies and the whole cluster YAML stops applying.
-
-## Handover 2026-09-17
-
-- Do not append a third Hands story. Dual-door vs in-glass vs frozen-glass fought; COPILOT/PLAN now have one.
-- Frozen glass v0.4.30 is **lifted**. Structural router/persona/RBAC changes are allowed with discover + proof. Still: no exact-phrase keyword PRs.
-- `DEFAULT_SYSTEM_PROMPT` env is not character. Persona = Ollama SYSTEM + `jarvis_persona` filter.

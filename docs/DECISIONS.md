@@ -17,6 +17,7 @@ short — this file is authority #2, so every agent pays to read it.
 
 | # | Decision |
 | --- | --- |
+| D-0043 | `AGENTS.md` is the operating contract, not a product catalog |
 | D-0042 | `files.list`: one folder, names and ages, contents never opened |
 | D-0041 | `logs.tail`: redacted pod logs, four namespaces, orchestrator SA |
 | D-0040 | LiteLLM auto-router deleted; chat.lan defaults to `jarvis-local` |
@@ -59,6 +60,30 @@ short — this file is authority #2, so every agent pays to read it.
 | D-0003 | `jarvis-core` is prior art, not the go-forward build |
 | D-0002 | `jarvis.lan` is the product surface; `chat.lan` is break-glass |
 | D-0001 | Goose runs on switchable backend profiles |
+
+---
+
+## 2026-09-22 — D-0043 — AGENTS.md is how to work, not what was decided
+
+**Status:** active. Refines the AGENTS row of D-0004. Does not move the
+authority stack.
+
+`AGENTS.md` had started carrying product design: the glass packer, which
+libraries a theme may use, and a path (`glass/src/cockpit/**`) that is not
+where the UI lives. An agent following it would edit the wrong tree, and the
+file had become a second, shorter decision log that could not stay current.
+
+**What the file is.** The operating contract for the repo it sits in. Where
+to push, what must not be done, what outranks what. One file per repo, still
+(D-0005).
+
+**What it is not.** A list of product calls. Those stay in this file. A
+footgun already paid for stays in `docs/LESSONS.md`, as a row in the table,
+not a dated essay. How the product is built stays in `jarvis-app`
+`docs/ARCHITECTURE.md`, `docs/WORKFLOW.md`, and `docs/THEMES.md`.
+
+An agent with a task reads the index here and opens the entries that task
+touches. It does not read this log to find out which git remote to push.
 
 ---
 
@@ -1331,7 +1356,7 @@ gets no guidance. If it governs behaviour, it is versioned.
 
 ## 2026-09-19 — D-0004 — Governance docs restructured around law / spec / state / history
 
-**Status:** active
+**Status:** active. What `AGENTS.md` is for is refined by D-0043.
 
 The doc set had grown to roughly 2,500 lines that mixed permanent constraints
 ("never retag", "Gitea is Flux origin") with expiring status ("frozen glass is

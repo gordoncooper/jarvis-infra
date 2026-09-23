@@ -9,12 +9,13 @@ Canonical version of this list is [`../AGENTS.md`](../AGENTS.md); it is repeated
 only so an operator reading the runbook is not surprised.
 
 1. **Live cluster** (`kubectl`, node SSH, NFS). If git and live disagree, live wins.
-2. **[`DECISIONS.md`](DECISIONS.md)** — dated calls, outranks all prose below.
+2. **[`DECISIONS.md`](DECISIONS.md)** — dated calls, outranks prose.
 3. **Gitea** `http://git.lan/jarvis/cluster.git` — Flux origin. Never point Flux at GitHub.
-4. **`VERSION`** in this repo — living `GIT_TAG`, `IMAGE` / `IMAGE_TAG`, `K3S`. Independent numbers.
-5. This file + REBUILD (procedure, no pins).
-6. LESSONS (rack landmines still true).
-7. GitHub `gordoncooper/jarvis-infra` (origin for this repo) and `jarvis-cluster` (**mirror only**).
+4. **`VERSION`** — source it. Do not copy pins into this file.
+5. **[`LESSONS.md`](LESSONS.md)** — footguns.
+6. This runbook and the rest of `docs/`. Procedure, not law. Stale until the cluster agrees.
+
+GitHub is a cache. `jarvis-cluster` there is a mirror. Flux does not read it.
 
 Three repos: `jarvis-infra` (here), `cluster` (Flux YAML, Gitea origin), and
 SOPS lives here
