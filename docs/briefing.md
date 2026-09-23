@@ -33,11 +33,13 @@ on the 2.5G switch. Bastion is 1 GbE (Celeron N5105, ~7 GiB) and is **not** a k3
 
 | URL | What |
 | --- | --- |
-| https://home.lan | Command center (Home + /status + telemetry). LIVE = Prometheus. |
-| https://chat.lan | Open WebUI. Default model jarvis-local (free). |
-| https://llm.lan/v1 | LiteLLM (HTTPS). |
-| http://agent.lan:18789 | OpenClaw. DNS **must** be 192.168.8.16. HTTP on purpose. |
-| https://grafana.lan | Grafana. NVIDIA dashboard 14574. |
+| https://jarvis.lan | The product. Talk, voice, memory, live questions. |
+| https://noc.lan | Nodes, workloads, alerts. Stays up when the brain is down. |
+| https://home.lan | Old board. Retiring into noc.lan. |
+| https://chat.lan | Break-glass Open WebUI. Default model jarvis-local. |
+| https://llm.lan/v1 | LiteLLM (HTTPS). Five plain models, no router. |
+| http://agent.lan:18789 | OpenClaw break-glass. DNS **must** be 192.168.8.16. HTTP on purpose. |
+| https://grafana.lan | Grafana. Nvidia GPU Metrics. |
 | http://git.lan | Gitea. HTTP on purpose (Flux origin). |
 
 Never put agent.lan on 192.168.8.11.
@@ -50,9 +52,11 @@ Never put agent.lan on 192.168.8.11.
 | jarvis-embed | gpu-02 nomic-embed-text | Electricity |
 | jarvis-grok | xAI grok-4-fast | API |
 | jarvis-grok-code | xAI grok-code-fast-1 | API |
+| jarvis-hands | OpenClaw shim | Break-glass |
 
-Goose on the bastion talks to https://llm.lan (no `/v1` suffix). Chat default is local.
-OpenClaw's gateway default is grok-code (cluster hands). Auto-router is **later**.
+Goose on the bastion talks to https://llm.lan (no `/v1` suffix). chat.lan defaults to jarvis-local.
+There is no auto-router. Escalate on purpose: `local:` `hands:` `code:` `grok:`.
+Asking for model `jarvis` returns 400.
 
 ## Git
 
@@ -62,28 +66,26 @@ OpenClaw's gateway default is grok-code (cluster hands). Auto-router is **later*
 
 ## Voice
 
-Piper TTS is configured in **https://chat.lan/admin/settings** (Audio), not the user-gear page.
-STT is Whisper local. Mic/waveform needs HTTPS. Wake-word is later.
+Piper for chat.lan is **https://chat.lan/admin/settings** (Audio), not the user-gear page.
+Product voice is jarvis.lan: push-to-talk, and **hey jarvis** on the laptop.
+Mic needs HTTPS.
 
 ## Landmines
 
-- You have no shell in chat. Live inspect is Hands (chat.lan). Status tiles: home.lan. Goose is the operator on the bastion only.
-- Do not invent hostnames (not j3rvis) or load averages.
+- You have no shell in chat. Live questions go to https://jarvis.lan. chat.lan does not see the cluster. home.lan is the old board. Goose is the operator on the bastion only.
+- Do not invent hostnames (not j3rvis) or load averages. Do not invent live numbers.
 - git.lan stays HTTP. agent.lan:18789 stays HTTP.
 - Homepage image is local on apps-01 (`imagePullPolicy: Never`).
 
 ## Learned facts
 
-Git briefing (this file) is **stable**. Things JARVIS is **told to remember** go to
-`learned.md` (OpenClaw workspace + NFS mirror), collection **jarvis-learned**.
-
-Promote from bastion: `~/jarvis-infra/scripts/remember.sh the fact here`
-OpenClaw: append a bullet to `learned.md` in the workspace, then seed runs hourly
-(or Goose runs `seed-learned.sh`). Chat.lan 7B **cannot** write — it only reads RAG.
+This file is **stable**. Product memory is jarvis.lan: **remember that** saves, **forget** asks first, **list memories** reads it back.
+chat.lan does not write memory. Operator break-glass facts go to `learned.md` via `scripts/remember.sh`, collection **jarvis-learned**. The 7B only reads that as RAG.
 Never put secrets in learned.md. Dreams / MEMORY.md stay private to OpenClaw.
 
-## Hands (chat.lan)
+## Hands
 
-Live inspect and slice-1 recycle (delete pod / rollout restart) in namespaces apps, inference, agents, monitoring are done by **jarvis-hands** (OpenClaw) when the default model `jarvis` routes COMPLEX. The 7B has no shell. Do not send the operator to Goose or http://agent.lan:18789 for node Ready or a piper restart — that is Hands. Goose on the bastion is break-glass only. No kube-system, no secrets, no git writes.
-- Hands may kubectl logs/exec in apps, inference, agents, monitoring and read /cluster/local on apps-01 (not host /, not SSH).
-Hands can list /cluster/local on apps-01 (read-only). Do not tell the operator to SSH for that path.
+On jarvis.lan, declared capabilities answer live questions. Say **what can you do** for the list. Some call OpenClaw. The orchestrator serves the rest itself, including when OpenClaw is down.
+Confirm before a pod recycle or a deployment restart. Namespaces: apps, inference, agents, monitoring. No kube-system, no secrets, no Flux writes.
+Do not send Gordon to Goose for "are nodes Ready?" — that is jarvis.lan.
+Break-glass OpenClaw is http://agent.lan:18789. It may list `/cluster/local` on apps-01, read-only. Do not tell him to SSH for that path.
