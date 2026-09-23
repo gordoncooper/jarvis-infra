@@ -71,9 +71,10 @@ Keep it committed.
 Stop as soon as the task is clear.
 
 1. This file.
-2. The index in [`docs/DECISIONS.md`](docs/DECISIONS.md), then only the entries the task touches. Not the whole log.
-3. `scripts/copilot-whereami.sh` if you are not sure which machine you are on.
-4. One task file, if the work is ops: [`OPERATING`](docs/OPERATING.md), [`REBUILD`](docs/REBUILD.md), [`RESTORE`](docs/RESTORE.md), or [`DEVOPS`](docs/DEVOPS.md).
+2. The routing index: [`docs/MAP.md`](docs/MAP.md). Pick the one row for this task. Do not read the map back in the answer.
+3. The index in [`docs/DECISIONS.md`](docs/DECISIONS.md), then only the entries the task touches. Not the whole log.
+4. `scripts/copilot-whereami.sh` if you are not sure which machine you are on.
+5. One task file, if the work is ops: [`OPERATING`](docs/OPERATING.md), [`REBUILD`](docs/REBUILD.md), [`RESTORE`](docs/RESTORE.md), or [`DEVOPS`](docs/DEVOPS.md).
 
 [`docs/VISION.md`](docs/VISION.md) is what we are building toward. Read it when the task is direction, not when the task is a fix.
 
