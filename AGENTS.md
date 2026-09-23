@@ -66,6 +66,7 @@ Keep it committed.
 - If unsure, stop and ask.
 - Change this file or `DECISIONS.md` only in a session Gordon is watching.
 - If a change moves where agents should start (repo, ship path, skip-list), update `docs/MAP.md` in the same commit. Do not refresh MAP for decisions, lessons, or live status.
+- A sentence that says what the product is, where a backup is restored, or how an image ships has one home. If the change makes that sentence wrong, fix it in the same commit. Do not restate it in a second file.
 
 ## What to open
 

@@ -5,10 +5,7 @@ a six-node k3s homelab (ThinkCentre M920x) plus a bastion jump host.
 
 Maturity is `MATURITY` in [VERSION](VERSION). License: [MIT](LICENSE).
 
-The rack **is** JARVIS. Gordon talks at [https://chat.lan](https://chat.lan).
-He should not pick models or open a second console for normal use.
-Local-first (electricity), Grok when the job needs a bigger brain,
-Hands in-glass for live inspect.
+How Gordon talks to JARVIS, and which URL is which: [docs/INTERACT.md](docs/INTERACT.md).
 
 This repo is **not** the Flux origin. Cluster YAML lives on Gitea
 (`http://git.lan/jarvis/cluster.git`). GitHub
@@ -31,8 +28,8 @@ Alignment: `scripts/check-contract.sh`.
 | Backlog | [docs/BACKLOG.md](docs/BACKLOG.md) |
 | Run as | user **agent** (`HOME=/home/agent`). Never `bastion`. |
 
-Three repos: **jarvis-infra** (here — metal, scripts, docs), **cluster** (Flux
-YAML, Gitea origin).
+Three clones: **jarvis-infra** (this repo), **jarvis-app** (orchestrator and glass),
+**cluster** (Flux YAML, Gitea origin). Where a change goes: [AGENTS.md](AGENTS.md).
 
 **Any AI, any surface:** read `AGENTS.md`, then `docs/DECISIONS.md`.
 **CLI / Cursor:** Remote-SSH as `agent`, open this repo.
@@ -40,21 +37,8 @@ Run `scripts/copilot-whereami.sh`. If `MODE=bastion-agent`, use the shell.
 
 ## Intent
 
-JARVIS is a lab HUD for one operator: talk, remember, see the rack, and
-(when asked) act on the cluster. It is LAN-only until Tailscale. It is not
-a public assistant and not an App Builder scaffold.
-
-The product surface is **jarvis.lan** and the operator surface is **noc.lan**
-(D-0002). The table below is how the house works *today*; chat.lan is being
-demoted to break-glass and home.lan is retiring into noc.lan.
-
-| Kind | Where it happens |
-| --- | --- |
-| Talk / RAG / remember | chat.lan → LiteLLM → 7B on gpu-01 + knowledge |
-| Live inspect / recycle | chat.lan → alias `jarvis-hands` → OpenClaw |
-| YAML / design | `jarvis-grok-code` (Gordon can still pick the hatch) |
-| See the rack | [https://noc.lan](https://noc.lan) · home.lan is legacy · Grafana |
-| Change the house | this repo (metal/image) + `~/cluster` (YAML → Gitea → Flux) |
+JARVIS is a lab for one operator. It is LAN-only. It is not a public
+assistant and not an App Builder scaffold. Surfaces: [docs/INTERACT.md](docs/INTERACT.md).
 
 ## Who does what
 
@@ -65,10 +49,7 @@ flowchart LR
   classDef brain fill:#d1fae5,stroke:#047857,color:#111827
   classDef ops fill:#f3f4f6,stroke:#6b7280,color:#111827
 
-  G["Gordon"] --> Chat["chat.lan"]
-  Chat --> Local["7B talk / RAG"]
-  Chat --> Hands["OpenClaw Hands"]
-  Chat --> Grok["Grok / grok-code"]
+  G["Gordon"] --> I["how to talk: INTERACT.md"]
   C["Copilot"] -->|"MODE=web: heredoc"| A["user agent"]
   C -->|"MODE=bastion-agent: shell"| A
   A --> Infra["~/jarvis-infra GitHub"]
@@ -77,15 +58,14 @@ flowchart LR
   Flux --> Nodes["six k3s nodes"]
 
   class G,C human
-  class Chat glass
-  class Local,Hands,Grok brain
+  class I glass
   class A,Infra,Y,Flux,Nodes ops
 ```
 
 
 | Role | May |
 | --- | --- |
-| Gordon | Talk at chat.lan. Override hatch (`local:` `hands:` `code:` `grok:`). Break-glass agent.lan. |
+| Gordon | Talks to JARVIS. Surfaces and hatches: [docs/INTERACT.md](docs/INTERACT.md). |
 | user `agent` on bastion | kubectl, git, Ansible, Goose. The only kubeconfig. |
 | user `bastion` | Nothing JARVIS. `sudo su - agent`. |
 | Flux | Apply `clusters/jarvis` from Gitea. Not GitHub. |
@@ -141,7 +121,7 @@ flowchart TB
   classDef apps fill:#fce7f3,stroke:#9d174d,color:#111827
 
   you["You on LAN"] --> dns["router DNS  *.lan"]
-  dns -->|"home chat git grafana llm"| ctrl
+  dns -->|"jarvis noc home chat git grafana llm"| ctrl
   dns -->|"agent.lan MUST"| apps
 
   subgraph fabric["LAN 192.168.8.0/24"]
@@ -184,18 +164,9 @@ Bastion is jump only — not scheduled, no node-exporter, no GPU.
 Labels: `jarvis.role=control|gpu|storage|apps`.
 `agent.lan` DNS is **192.168.8.16** (hostPort 18789), never `.11`.
 
-## Surfaces
+## Homepage
 
-| URL | What |
-| --- | --- |
-| https://home.lan | Command center — tiles, dossiers, `/status`, LIVE from Prometheus. |
-| https://chat.lan | Mouth — Open WebUI, Whisper STT, Piper TTS. Default alias `jarvis`. |
-| http://agent.lan:18789 | OpenClaw Control UI. **Break-glass.** HTTP on purpose. |
-| https://llm.lan/v1 | LiteLLM OpenAI-shaped API. |
-| http://git.lan | Gitea. HTTP on purpose (Flux origin). |
-| https://grafana.lan | Grafana (NVIDIA dashboard). |
-
-LAN only. mkcert TLS. `git.lan` and `agent.lan:18789` stay HTTP.
+Surfaces: [docs/INTERACT.md](docs/INTERACT.md). `git.lan` and `agent.lan:18789` stay HTTP.
 
 A browser request for home.lan:
 
@@ -259,23 +230,9 @@ Sibling clone on the bastion: `~/cluster` (Gitea origin).
 
 ## Flows
 
-### A prompt at chat.lan
+### A prompt
 
-```mermaid
-flowchart TD
-  You["Gordon at chat.lan"] --> W["Open WebUI"]
-  W --> L["LiteLLM alias jarvis"]
-  L -->|talk / RAG| Q["Ollama 7B gpu-01"]
-  L -->|inspect / recycle| H["OpenClaw shim :4001"]
-  L -->|YAML / hard| X["xAI grok / grok-code"]
-  W -.->|knowledge| E["nomic-embed gpu-02"]
-  Q --> Brief["lab-docs briefing"]
-  Q --> Learn["jarvis-learned"]
-```
-
-
-Override prefixes stay as a hatch. Do not add more keyword lists.
-Router detail lives in cluster YAML (LiteLLM ConfigMap).
+How a turn is routed: [docs/INTERACT.md](docs/INTERACT.md).
 
 ### Remember
 
